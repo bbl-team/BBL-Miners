@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "SPS",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "tag": "forge:rods/wooden"
+    },
+    "P": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "item": "miners:gold_support_frame",
+    "count": 3
+  }
+}

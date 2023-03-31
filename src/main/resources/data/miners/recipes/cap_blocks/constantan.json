@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:storage_blocks/constantan"
+        }
+     }
+  ],
+  "type": "miners:cap_blocks",
+  "block": "forge:storage_blocks/constantan",
+  "tickRate": 90
+}

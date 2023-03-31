@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PAP",
+    "ALA",
+    "PAP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:logs"
+    },
+    "L": {
+      "item": "minecraft:wooden_pickaxe"
+    },
+    "A": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "miners:miner_base_block"
+  }
+}

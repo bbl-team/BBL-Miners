@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:ores/ostrum"
+        }
+     }
+  ],
+  "type": "miners:miner_blocks",
+  "blockTag": "forge:ores/ostrum",
+  "minerTier": 10
+}

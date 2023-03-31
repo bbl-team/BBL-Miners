@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "miners:block/gold_support_frame"
+    }
+  }
+}

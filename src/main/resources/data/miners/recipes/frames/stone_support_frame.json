@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "SPS",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "tag": "forge:rods/wooden"
+    },
+    "P": {
+      "tag": "forge:stone"
+    }
+  },
+  "result": {
+    "item": "miners:stone_support_frame",
+    "count": 3
+  }
+}

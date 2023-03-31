@@ -1,0 +1,5 @@
+{
+  "type": "miners:cap_blocks",
+  "block": "forge:storage_blocks/netherite",
+  "tickRate": 10
+}

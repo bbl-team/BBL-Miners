@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PAP",
+    "ALA",
+    "PAP"
+  ],
+  "key": {
+    "P": {
+      "tag": "forge:stone"
+    },
+    "L": {
+      "item": "minecraft:bucket"
+    },
+    "A": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "item": "miners:fluid_absorber"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:storage_blocks/calorite"
+        }
+     }
+  ],
+  "type": "miners:cap_blocks",
+  "block": "forge:storage_blocks/calorite",
+  "tickRate": 60
+}

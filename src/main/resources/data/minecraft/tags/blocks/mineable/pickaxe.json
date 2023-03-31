@@ -1,0 +1,17 @@
+{
+  "values": [
+    "miners:stone_support_frame",
+    "miners:lapis_support_frame",
+    "miners:gold_support_frame",
+    "miners:iron_support_frame",
+    "miners:copper_support_frame",
+    "miners:netherite_support_frame",
+    "miners:ultimate_support_frame",
+    "miners:diamond_support_frame",
+    "miners:emerald_support_frame",
+    "miners:miner_base_block",
+    "miners:fluid_absorber",
+    "miners:tree_absorber",
+    "miners:miner_base_block"
+  ]
+}

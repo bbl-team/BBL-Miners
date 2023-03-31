@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:ores/tin"
+        }
+     }
+  ],
+  "type": "miners:miner_blocks",
+  "blockTag": "forge:ores/tin",
+  "minerTier": 3
+}

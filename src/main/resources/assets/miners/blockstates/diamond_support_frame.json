@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "miners:block/diamond_support_frame"
+    }
+  }
+}

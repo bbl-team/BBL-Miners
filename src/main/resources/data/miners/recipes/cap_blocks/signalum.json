@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:storage_blocks/signalum"
+        }
+     }
+  ],
+  "type": "miners:cap_blocks",
+  "block": "forge:storage_blocks/signalum",
+  "tickRate": 40
+}

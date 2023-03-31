@@ -1,0 +1,13 @@
+{  "conditions": [
+      {
+         "type": "forge:not",
+         "value": {
+            "type": "forge:tag_empty",
+            "tag": "forge:stone"
+         }
+      }
+   ],
+  "type": "miners:miner_blocks",
+  "blockTag": "forge:stone",
+  "minerTier": 2
+}

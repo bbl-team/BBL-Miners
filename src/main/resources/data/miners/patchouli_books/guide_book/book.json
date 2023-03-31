@@ -1,0 +1,10 @@
+{
+	"name": "Miners",
+	"landing_text": "All the information about the structures in Miners.",
+	"model": "miners:miners_book",
+	"version": 1,
+	"subtitle": "All you need to know about miners",
+	"show_progress": false,
+	"advancement_namespaces": ["miners"],
+	"creative_tab": "miners"
+}

@@ -1,0 +1,6 @@
+{
+	"name": "Miners",
+	"description": "Miners are big multiblock structures that can be used to mine ores.$(br2)Various different caps can be applied to miners to make them faster.$(br2)The chest on top of the miner block can be any inventory such a barrel or chest.$(br2)Higher tiers of support frame will allow for different ores and resources to be mined.",
+	"icon": "miners:miner_base_block",
+	"sortnum": 1
+}

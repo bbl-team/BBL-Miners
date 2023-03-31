@@ -1,0 +1,42 @@
+{
+	"name": "Tree Absorber",
+	"icon": "miners:tree_absorber",
+	"category": "miners:tree_absorber",
+	"sortnum": 2,
+	"pages": [
+		{
+			"type": "text",
+			"text": "Tree Absorber.$(br2)Oak trees will produce apples as a additional drop.$(br2)Jungle tree will produce cocoa beans as a addition drop.$(br2)Items are inserted into a inventory below."
+		},
+		{
+             "type": "multiblock",
+             "name": "No Support Caps",
+             "multiblock": {
+                 "pattern": [
+                	["C     C","       ","       ","       ","       ", "       ","C     C"],
+                	["W     W","       ","       ","       ","       ", "       ","W     W"],
+                	["WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW"],
+                	["W     W","       ","       ","       ","       ", "       ","W     W"],
+                    ["W     W","       ","   V   ","  VVV  ","   V   ", "       ","W     W"],
+                    ["W     W","       ","   V   ","  VVV  ","   V   ", "       ","W     W"],
+                    ["W     W","  VVV  "," VVVVV "," VVLVV "," VVVVV ", "  VVV  ","W     W"],
+                    ["W     W","  VVV  "," VVVVV "," VVLVV "," VVVVV ", "  VVV  ","W     W"],
+                    ["W     W","       ","       ","   L   ","       ", "       ","W     W"],
+                	["W     W","       ","       ","   L   ","       ", "       ","W     W"],
+                	["W     W","       ","       ","   D   ","       ", "       ","W     W"],
+                	["WWWWWWW","W     W","W     W","W  M  W","W     W", "W     W","WWWWWW0"]
+                 ],
+             "mapping": {
+                 "C": "minecraft:air",
+                 "W": "#miners:wooden_support_frame",
+                 "M": "miners:tree_absorber",
+                 "D": "minecraft:dirt",
+                 "L": "#minecraft:logs",
+                 "V": "#minecraft:leaves",
+                 "0": "#miners:wooden_support_frame"
+                 }
+             },
+             "text": "220 ticks per operation."
+        }
+	]
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "miners:block/miner_base_block_idle"
+    },
+    "lit=true": {
+       "model": "miners:block/miner_base_block_working"
+    }
+  }
+}

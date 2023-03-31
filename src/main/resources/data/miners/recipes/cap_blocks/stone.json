@@ -1,0 +1,5 @@
+{
+  "type": "miners:cap_blocks",
+  "block": "forge:stone",
+  "tickRate": 180
+}

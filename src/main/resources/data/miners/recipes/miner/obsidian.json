@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:obsidian"
+        }
+     }
+  ],
+  "type": "miners:miner_blocks",
+  "blockTag": "forge:obsidian",
+  "minerTier": 7
+}

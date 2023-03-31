@@ -1,0 +1,35 @@
+{
+	"name": "Miner",
+	"icon": "miners:miner_base_block",
+	"category": "miners:miners",
+	"sortnum": 1,
+	"pages": [
+		{
+			"type": "text",
+			"text": "The image on the right shows a basic miner using the lowest tier support frame.$(br2)Pressing U on the miner block will show you all the ores and resources that it can mine.$(br2)Various difference caps can be applied on the top corners of the structure to increase speed, these are also shown in JEI."
+		},
+		{
+             "type": "multiblock",
+             "name": "No Support Caps",
+             "multiblock": {
+                 "pattern": [
+                	["C   C","     ","  I  ","     ","C   C"],
+                	["W   W","     ","  M  ","     ","W   W"],
+                	["WWWWW","WOOOW","WOOOW","WOOOW","WWWWW"],
+                	["W   W"," OOO "," OOO "," OOO ","W   W"],
+                	["W   W"," OOO "," OOO "," OOO ","W   W"],
+                	["W   W"," OOO "," OOO "," OOO ","W   0"]
+                 ],
+             "mapping": {
+                 "C": "minecraft:air",
+                 "I": "minecraft:chest",
+                 "W": "#miners:wooden_support_frame",
+                 "M": "miners:miner_base_block",
+                 "O": "minecraft:coal_ore",
+                 "0": "#miners:wooden_support_frame"
+                 }
+             },
+             "text": "With no caps it will take 220 ticks per block."
+        }
+	]
+}

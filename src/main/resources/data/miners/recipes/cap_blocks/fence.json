@@ -1,0 +1,5 @@
+{
+  "type": "miners:cap_blocks",
+  "block": "minecraft:fences",
+  "tickRate": 200
+}

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "miners:block/stone_support_frame"
+    }
+  }
+}

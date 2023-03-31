@@ -1,0 +1,37 @@
+{
+	"name": "Fluid Absorber",
+	"icon": "miners:fluid_absorber",
+	"category": "miners:fluid_absorber",
+	"sortnum": 3,
+	"pages": [
+		{
+			"type": "text",
+			"text": "Fluid Absorber.$(br2)Fluids will be inserted into a tank block above the fluid absorber.$(br2)Blue wool represents the fluid, fluids must be source blocks"
+		},
+		{
+             "type": "multiblock",
+             "name": "No Support Caps",
+             "multiblock": {
+                 "pattern": [
+                	["C     C","       ","       ","       ","       ", "       ","C     C"],
+                	["W     W","       ","       ","       ","       ", "       ","W     W"],
+                	["WWWWWWW","W     W","W     W","W  M  W","W     W", "W     W","WWWWWWW"],
+                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
+                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
+                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
+                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
+                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
+                	["WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWW0"]
+                 ],
+             "mapping": {
+                 "C": "minecraft:air",
+                 "W": "#miners:iron_support_frame",
+                 "M": "miners:fluid_absorber",
+                 "F": "minecraft:blue_wool",
+                 "0": "#miners:iron_support_frame"
+                 }
+             },
+             "text": "220 ticks per operation."
+        }
+	]
+}

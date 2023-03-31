@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "miners:block/tree_absorber_idle"
+    },
+    "lit=true": {
+       "model": "miners:block/tree_absorber_working"
+    }
+  }
+}

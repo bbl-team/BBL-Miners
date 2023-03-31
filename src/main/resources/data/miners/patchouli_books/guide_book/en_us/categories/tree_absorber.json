@@ -1,0 +1,6 @@
+{
+	"name": "Tree Absorber",
+	"description": "Tree Absorbers are massive multiblock structures that can be used to collect tree resources.$(br2)Various different caps can be applied to tree absorber to make it faster.$(br2)Some tree will drop additional items.",
+	"icon": "miners:tree_absorber",
+	"sortnum": 3
+}

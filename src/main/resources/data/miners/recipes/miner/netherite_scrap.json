@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "forge:ores/netherite_scrap"
+        }
+     }
+  ],
+  "type": "miners:miner_blocks",
+  "blockTag": "forge:ores/netherite_scrap",
+  "minerTier": 8
+}

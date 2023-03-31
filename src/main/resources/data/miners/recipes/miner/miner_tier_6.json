@@ -1,0 +1,14 @@
+{
+  "conditions": [
+     {
+        "type": "forge:not",
+        "value": {
+           "type": "forge:tag_empty",
+           "tag": "miners:miner_tier_6"
+        }
+     }
+  ],
+  "type": "miners:miner_blocks",
+  "blockTag": "miners:miner_tier_6",
+  "minerTier": 6
+}

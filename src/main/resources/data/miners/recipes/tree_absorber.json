@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PAP",
+    "ALA",
+    "PAP"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:smooth_stone"
+    },
+    "L": {
+      "item": "minecraft:stone_axe"
+    },
+    "A": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "item": "miners:tree_absorber"
+  }
+}

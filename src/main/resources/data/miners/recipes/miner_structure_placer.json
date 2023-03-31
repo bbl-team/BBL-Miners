@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " W ",
+    "WMW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "miners:wooden_support_frame"
+    },
+    "M": {
+      "item": "miners:miner_base_block"
+    }
+  },
+  "result": {
+    "item": "miners:miner_structure_placer"
+  }
+}

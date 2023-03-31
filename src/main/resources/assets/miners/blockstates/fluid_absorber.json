@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "miners:block/fluid_absorber_idle"
+    },
+    "lit=true": {
+       "model": "miners:block/fluid_absorber_working"
+    }
+  }
+}
