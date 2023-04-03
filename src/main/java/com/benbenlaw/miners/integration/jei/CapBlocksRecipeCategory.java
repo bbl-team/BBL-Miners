@@ -22,12 +22,14 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.util.Arrays;
 
 public class CapBlocksRecipeCategory implements IRecipeCategory<CapBlocksRecipe> {
     public final static ResourceLocation UID = new ResourceLocation(Miners.MOD_ID, "cap_blocks");
@@ -79,8 +81,7 @@ public class CapBlocksRecipeCategory implements IRecipeCategory<CapBlocksRecipe>
         if (rgBlock == Blocks.AIR) {
             builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 140, 5).addIngredients(Ingredient.of(itemTag));
         } else {
-            builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 140, 5).addItemStack(new ItemStack(rgBlock.asItem()));
-
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 140, 5).addItemStack(new ItemStack(rgBlock.asItem(), 4));
         }
 
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(rgBlock.asItem()));
@@ -93,10 +94,10 @@ public class CapBlocksRecipeCategory implements IRecipeCategory<CapBlocksRecipe>
 
         @Nonnull final Minecraft minecraft = Minecraft.getInstance();
 
-        minecraft.font.draw(stack, Component.translatable("jei.recipes.resource_generator_2_speed_blocks_line_1"), 5, 7, Color.black.getRGB());
-        minecraft.font.draw(stack, Component.translatable("jei.recipes.resource_generator_2_speed_blocks_line_2"), 5, 15, Color.black.getRGB());
-        minecraft.font.draw(stack, Component.translatable("jei.recipes.resource_generator_2_speed_blocks_line_3"), 5, 23, Color.black.getRGB());
-        minecraft.font.draw(stack, Component.translatable("jei.recipes.resource_generator_2_speed_blocks_line_4"), 5, 31, Color.black.getRGB());
+        minecraft.font.draw(stack, Component.translatable("jei.recipes.cap_block_line_1"), 5, 7, Color.black.getRGB());
+        minecraft.font.draw(stack, Component.translatable("jei.recipes.cap_block_line_2"), 5, 15, Color.black.getRGB());
+        minecraft.font.draw(stack, Component.translatable("jei.recipes.cap_block_line_3"), 5, 23, Color.black.getRGB());
+        minecraft.font.draw(stack, Component.translatable("jei.recipes.cap_block_line_4"), 5, 31, Color.black.getRGB());
 
 
         minecraft.font.draw(stack, Component.translatable("jei.recipes.miner_tickrate"), 5, 60, Color.black.getRGB());

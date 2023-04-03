@@ -10,5 +10,5 @@
   ],
   "type": "miners:cap_blocks",
   "block": "forge:storage_blocks/steel",
-  "tickRate": 75
+  "tickRate": 110
 }

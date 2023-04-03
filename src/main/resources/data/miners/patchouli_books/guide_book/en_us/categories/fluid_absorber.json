@@ -1,6 +1,6 @@
 {
 	"name": "Fluid Absorbers",
 	"description": "The Fluid Absorber is a huge multiblock structure that can be used to collect fluids.$(br2)Various different caps can be applied to fluid absorber to make it faster.",
-	"icon": "miners:tree_absorber",
+	"icon": "miners:fluid_absorber",
 	"sortnum": 2
 }

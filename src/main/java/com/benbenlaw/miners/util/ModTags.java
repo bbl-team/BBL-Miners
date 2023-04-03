@@ -29,6 +29,8 @@ public class ModTags {
         public static final TagKey<Block> MINER_TIER_9 = tag("miner_tier_9");
         public static final TagKey<Block> MINER_TIER_10 = tag("miner_tier_10");
 
+        public static final TagKey<Block> TREE_ABSORBER_LEAVES = tag("tree_absorber_leaves");
+
         public static final TagKey<Block> WOODEN_SUPPORT_FRAME = tag("wooden_support_frame");
         public static final TagKey<Block> STONE_SUPPORT_FRAME = tag("stone_support_frame");
         public static final TagKey<Block> LAPIS_SUPPORT_FRAME = tag("lapis_support_frame");
@@ -78,6 +80,8 @@ public class ModTags {
         public static final TagKey<Item> EMERALD_SUPPORT_FRAME = tag("emerald_support_frame");
         public static final TagKey<Item> NETHERITE_SUPPORT_FRAME = tag("netherite_support_frame");
         public static final TagKey<Item> ULTIMATE_SUPPORT_FRAME = tag("ultimate_support_frame");
+
+        public static final TagKey<Item> TREE_ABSORBER_LEAVES = tag("tree_absorber_leaves");
 
         private static TagKey<Item> tag(String name) {
             return ItemTags.create(new ResourceLocation(Miners.MOD_ID, name));

@@ -16,6 +16,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.util.Arrays;
 
 public class MinerBlocksRecipeCategory implements IRecipeCategory<MinerBlocksRecipe> {
     public final static ResourceLocation UID = new ResourceLocation(Miners.MOD_ID, "miner_blocks");
@@ -78,7 +80,7 @@ public class MinerBlocksRecipeCategory implements IRecipeCategory<MinerBlocksRec
         String blockName = recipe.getBlock();
         TagKey<Item> minerBlockTag = ItemTags.create(new ResourceLocation(blockName));
 
-        builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 135, 43).addIngredients(Ingredient.of(minerBlockTag));
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 135, 43).addIngredients(Ingredient.of(minerBlockTag));;
 
         int minerTier = recipe.getMinerTier();
         TagKey<Item> minerTierSupportFrame = ModTags.Items.EMPTY;
@@ -120,6 +122,8 @@ public class MinerBlocksRecipeCategory implements IRecipeCategory<MinerBlocksRec
 
         builder.addSlot(RecipeIngredientRole.INPUT, 135, 24).addItemStack(new ItemStack(ModBlocks.MINER_BASE_BLOCK.get()));
         builder.addSlot(RecipeIngredientRole.INPUT, 135, 62).addIngredients(Ingredient.of(minerTierSupportFrame));
+
+    //    builder.addSlot(RecipeIngredientRole.INPUT, 154, 62).addItemStack(new ItemStack((Holder<Item>) Ingredient.of(minerTierSupportFrame), 50 ));
 
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(Ingredient.of(minerBlockTag));
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addIngredients(Ingredient.of(minerBlockTag));

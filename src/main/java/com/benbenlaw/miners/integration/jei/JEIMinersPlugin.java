@@ -57,8 +57,8 @@ public class JEIMinersPlugin implements IModPlugin {
 
         RecipeManager rm = Objects.requireNonNull(Minecraft.getInstance().level).getRecipeManager();
 
-        List<TreeAbsorberRecipe> treeAbsorber = rm.getAllRecipesFor(TreeAbsorberRecipe.Type.INSTANCE);
-        registration.addRecipes(new RecipeType<>(TreeAbsorberRecipeCategory.UID, TreeAbsorberRecipe.class), treeAbsorber);
+        List<TreeAbsorberBlocksRecipe> treeAbsorber = rm.getAllRecipesFor(TreeAbsorberBlocksRecipe.Type.INSTANCE);
+        registration.addRecipes(new RecipeType<>(TreeAbsorberRecipeCategory.UID, TreeAbsorberBlocksRecipe.class), treeAbsorber);
 
         List<FluidAbsorberRecipe> fluidAbsorber = rm.getAllRecipesFor(FluidAbsorberRecipe.Type.INSTANCE);
         registration.addRecipes(new RecipeType<>(FluidAbsorberRecipeCategory.UID, FluidAbsorberRecipe.class), fluidAbsorber);

@@ -27,12 +27,12 @@
   "block.miners.fluid_absorber": "Fluid Absorber",
 
   "item.miners.miner_pickaxe": "Miner Pickaxe",
-  "item.miners.miner_structure_placer": "Miner Structure Placer",
+  "item.miners.miner_structure_placer": "Structure Placer",
 
-  "jei.recipes.resource_generator_2_speed_blocks_line_1": "Placing 4 cap blocks on",
-  "jei.recipes.resource_generator_2_speed_blocks_line_2": "the top corners of the",
-  "jei.recipes.resource_generator_2_speed_blocks_line_3": "miner will increase",
-  "jei.recipes.resource_generator_2_speed_blocks_line_4": "the speed it mines blocks!",
+  "jei.recipes.cap_block_line_1": "Placing 4 cap blocks on",
+  "jei.recipes.cap_block_line_2": "the top corners of the",
+  "jei.recipes.cap_block_line_3": "miner will increase",
+  "jei.recipes.cap_block_line_4": "the speed it mines blocks!",
 
   "jei.recipes.miner_tickrate": "Ticks per block",
 

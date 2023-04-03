@@ -1,6 +1,7 @@
 package com.benbenlaw.miners.block.entities.custom;
 
 import com.benbenlaw.miners.block.ModBlocks;
+import com.benbenlaw.miners.block.custom.FluidAbsorberBlock;
 import com.benbenlaw.miners.block.custom.MinerBaseBlock;
 import com.benbenlaw.miners.block.entities.ModBlockEntities;
 import com.benbenlaw.miners.recipe.CapBlocksRecipe;
@@ -40,7 +41,6 @@ public class MinerBaseBlockEntity extends BlockEntity {
         // Increment the counter
         entity.counter++;
         int tickRate = 220;
-
 
         //Check for Cap and apply correct tickrate
         if(!level.getBlockState(blockPos.above(1).south(2).west(2)).is(Blocks.AIR) && !level.getBlockState(blockPos.above(1).south(2).east(2)).is(Blocks.AIR) &&
@@ -124,32 +124,41 @@ public class MinerBaseBlockEntity extends BlockEntity {
                 minerTierSupportFrame = ModTags.Blocks.ULTIMATE_SUPPORT_FRAME;
             }
 
+            if (entity.counter % tickRate == 0) {
 
-            if (entity.counter % tickRate == 0 && level.getBlockState(blockPos).is(ModBlocks.MINER_BASE_BLOCK.get())) {
-
-                if (level.getBlockEntity(blockPos.above()) != null) {
+                if (level.getBlockState(blockPos).is(ModBlocks.MINER_BASE_BLOCK.get())) {
 
                     if (level.getBlockState(blockPos.below(1)).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2)).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3)).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4)).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).north()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).north()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).north()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).north()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).south()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).south()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).south()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).south()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).south().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).south().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).south().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).south().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).north().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).north().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).north().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).north().east()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).south().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).south().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).south().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).south().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(1).north().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(2).north().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(3).north().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.below(4).north().west()).getBlockHolder().containsTag(blockTag2) && level.getBlockState(blockPos.north(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).north(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(2).north(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(3).north(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(4).north(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.north(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).north(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(2).north(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(3).north(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(4).north(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.south(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).south(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(2).south(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(3).south(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(4).south(2).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.south(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).south(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(2).south(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(3).south(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(4).south(2).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).north(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).north(2).east()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).north(2).west()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).south(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).south(2).east()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).south(2).west()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).east(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).east(2).north()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).east(2).south()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).west(2)).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).west(2).north()).getBlockHolder().containsTag(minerTierSupportFrame) && level.getBlockState(blockPos.below(1).west(2).south()).getBlockHolder().containsTag(minerTierSupportFrame)) {
 
-                        level.playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 1, 1, false);
-                        BlockEntity ent = level.getBlockEntity(blockPos.above());
-                        Block blockAbove = level.getBlockState(blockPos.below()).getBlock();
-                        assert ent != null;
-                        ent.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP).ifPresent(itemHandler -> {
-                            level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).setValue(MinerBaseBlock.LIT, true));
-                            ItemStack stack = new ItemStack(blockAbove.asItem());
+                        BlockState notWorkingState = level.getBlockState(blockPos).setValue(MinerBaseBlock.LIT, false);
+                        level.setBlockAndUpdate(blockPos, notWorkingState);
 
+                        if (level.getBlockEntity(blockPos.above()) != null) {
 
-                                    for (int i = 0; i < itemHandler.getSlots(); i++) {
-                                        if (itemHandler.isItemValid(i, stack) && itemHandler.insertItem(i, stack, true).isEmpty()) {
-                                            itemHandler.insertItem(i, stack, false);
-                                            break;
+                            BlockState workingState = level.getBlockState(blockPos).setValue(MinerBaseBlock.LIT, true);
+                            level.setBlockAndUpdate(blockPos, workingState);
+                            level.playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 1, 1, false);
 
+                            BlockEntity ent = level.getBlockEntity(blockPos.above());
+                            Block blockAbove = level.getBlockState(blockPos.below()).getBlock();
+                            assert ent != null;
+
+                            ent.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP).ifPresent(itemHandler -> {
+                                        ItemStack stack = new ItemStack(blockAbove.asItem());
+
+                                        for (int i = 0; i < itemHandler.getSlots(); i++) {
+                                            if (itemHandler.isItemValid(i, stack) && itemHandler.insertItem(i, stack, true).isEmpty()) {
+                                                itemHandler.insertItem(i, stack, false);
+                                                break;
+                                            }
                                         }
                                     }
-                                }
-                        );
+                            );
+                        }
                     }
+                 //   else {
+                 //       level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).setValue(MinerBaseBlock.LIT, false));
+                 //   }
                 }
             }
         }

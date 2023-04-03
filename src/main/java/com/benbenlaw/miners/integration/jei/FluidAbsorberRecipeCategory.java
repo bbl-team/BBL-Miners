@@ -19,10 +19,12 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
@@ -75,13 +77,17 @@ public class FluidAbsorberRecipeCategory implements IRecipeCategory<FluidAbsorbe
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, FluidAbsorberRecipe recipe, @NotNull IFocusGroup focusGroup) {
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 135, 24).addIngredients(recipe.getIngredients().get(0));
-        builder.addSlot(RecipeIngredientRole.INPUT, 135, 43).addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.getFluid()))
-                .setFluidRenderer(125000, false, 16, 16);
-        builder.addSlot(RecipeIngredientRole.INPUT, 135, 62).addIngredients(recipe.getIngredients().get(2));
+        String fluidString = recipe.getFluid();
+        Fluid fluidStack = Registry.FLUID.get(new ResourceLocation(fluidString));
 
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.getFluid()));
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(recipe.getIngredients().get(2));
+        builder.addSlot(RecipeIngredientRole.INPUT, 135, 24).addItemStack(new ItemStack(ModBlocks.FLUID_ABSORBER.get()));
+        builder.addSlot(RecipeIngredientRole.INPUT, 135, 43).addFluidStack(fluidStack, 36000).setFluidRenderer(36000, true, 16,16);
+        builder.addSlot(RecipeIngredientRole.INPUT, 135, 62).addItemStack(new ItemStack(ModBlocks.IRON_SUPPORT_FRAME.get(), 32));
+
+    //    builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.getFluid()));
+    //    builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(recipe.getIngredients().get(2));
+
+
 
 
     }
@@ -97,8 +103,6 @@ public class FluidAbsorberRecipeCategory implements IRecipeCategory<FluidAbsorbe
         minecraft.font.draw(stack, Component.translatable("jei.recipes.fa_line_1"), 5, 31, Color.black.getRGB());
         minecraft.font.draw(stack, Component.translatable("jei.recipes.fa_line_2"), 5, 39, Color.black.getRGB());
 
-    //    minecraft.font.draw(stack, Component.literal("x25"), 154, 47, Color.black.getRGB());
-        minecraft.font.draw(stack, Component.literal("x72"), 154, 66, Color.black.getRGB());
 
     }
 }

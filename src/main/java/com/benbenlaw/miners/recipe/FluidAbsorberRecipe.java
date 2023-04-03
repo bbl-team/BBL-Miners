@@ -1,52 +1,40 @@
 package com.benbenlaw.miners.recipe;
 
 import com.benbenlaw.miners.Miners;
-import com.benbenlaw.miners.util.FluidJSONUtil;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 
-public class FluidAbsorberRecipe implements Recipe<SimpleContainer> {
+public class FluidAbsorberRecipe implements Recipe<NoInventoryRecipe> {
 
     private final ResourceLocation id;
-    private final ItemStack output;
-    private final NonNullList<Ingredient> recipeItems;
-    private final FluidStack fluid;
+    private final String fluid;
 
 
-    public FluidAbsorberRecipe(ResourceLocation id, ItemStack output, NonNullList<Ingredient> recipeItems, FluidStack fluid) {
+    public FluidAbsorberRecipe(ResourceLocation id, String fluid) {
         this.id = id;
-        this.output = output;
-        this.recipeItems = recipeItems;
         this.fluid = fluid;
     }
 
-    public FluidStack getFluid() {
+    public String getFluid() {
         return fluid;
     }
 
     @Override
-    public boolean matches(SimpleContainer pContainer, Level pLevel) {
-        return recipeItems.get(0).test(pContainer.getItem(0));
-    }
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return recipeItems;
+    public boolean matches(@NotNull NoInventoryRecipe inv, @NotNull Level pLevel) {
+        return true;
     }
 
     @Override
-    public ItemStack assemble(SimpleContainer p_44001_) {
-        return output;
+    public @NotNull ItemStack assemble(@NotNull NoInventoryRecipe inv) {
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -56,7 +44,7 @@ public class FluidAbsorberRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public ItemStack getResultItem() {
-        return output.copy();
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -66,7 +54,7 @@ public class FluidAbsorberRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return Serializer.INSTANCE;
+        return FluidAbsorberRecipe.Serializer.INSTANCE;
     }
 
     @Override
@@ -87,40 +75,25 @@ public class FluidAbsorberRecipe implements Recipe<SimpleContainer> {
 
         @Override
         public FluidAbsorberRecipe fromJson(ResourceLocation id, JsonObject json) {
-            ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
 
-            JsonArray ingredients = GsonHelper.getAsJsonArray(json, "ingredients");
-            NonNullList<Ingredient> inputs = NonNullList.withSize(3, Ingredient.EMPTY);
-            FluidStack fluid = FluidJSONUtil.readFluid(json.get("fluid").getAsJsonObject());
+            String fluid = GsonHelper.getAsString(json, "fluid");
 
-            for (int i = 0; i < inputs.size(); i++) {
-                inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
-            }
-
-            return new FluidAbsorberRecipe(id, output, inputs, fluid);
+            return new FluidAbsorberRecipe(id, fluid);
         }
 
         @Override
         public FluidAbsorberRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
-            NonNullList<Ingredient> inputs = NonNullList.withSize(buf.readInt(), Ingredient.EMPTY);
-            FluidStack fluid = buf.readFluidStack();
 
-            for (int i = 0; i < inputs.size(); i++) {
-                inputs.set(i, Ingredient.fromNetwork(buf));
-            }
+            String fluid = buf.readUtf();
 
-            ItemStack output = buf.readItem();
-            return new FluidAbsorberRecipe(id, output, inputs, fluid);
+            return new FluidAbsorberRecipe(id, fluid);
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buf, FluidAbsorberRecipe recipe) {
-            buf.writeInt(recipe.getIngredients().size());
-            buf.writeFluidStack(recipe.fluid);
-            for (Ingredient ing : recipe.getIngredients()) {
-                ing.toNetwork(buf);
-            }
-            buf.writeItemStack(recipe.getResultItem(), false);
+
+            buf.writeUtf(recipe.getFluid());
+
         }
 
 

@@ -9,6 +9,6 @@
      }
   ],
   "type": "miners:cap_blocks",
-  "block": "forge:storage_blocks/steel",
-  "tickRate": 60
+  "block": "forge:storage_blocks/invar",
+  "tickRate": 100
 }

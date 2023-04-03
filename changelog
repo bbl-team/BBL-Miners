@@ -1,6 +1,39 @@
 Changelog Opolis Miners
 
-//TODO: Make structure placer work automatically depending on your offhand item
+1.2.1
+
+Added vines to jungle tree absorber output
+Added mangrove trees
+
+1.2.0
+
+Fixed the caps JEI entry referencing opolis utilities instead of miners
+Fixed another random steel recipe
+Fixed Right click information for tick rate for miners, added some color to it as well.
+Added this feature to the tree absorber as well
+Miner Structure placer renamed to Structure placer, no longer requires items in off hand, will check inventory first
+Removed the resources placing part but that bit is easy
+Tree Absorber no longer need the middle frames a on the bottom layer
+Tree Absorber frames and trees can be placed with the structure placer
+tree absorber trees can now be placed with structure placer
+Tree Absorber now uses datapack recipes instead of just looking for tags
+Tree absorber JEI recipes improved now shows extra drops and chances
+Various book improvements with more information
+Fluid absorber structure changed, now the same as the miner
+Reduces total fluid needed to get started
+Fluid absorber supports caps and right click information about caps and currently pumped fluid
+Moved to datapacks for these recipes as well
+Fluid absorber now has correct jei information;
+
+
+
+1.1.4
+
+Miners now only check for cap blocks if the cap block are containing blocks
+Miners on right click no show block its mining and current tick rate
+Tree Absorbers now use the new cap system
+Tree Absorbers on right click no show block its mining and current tick rate
+Nerfed steel blocks speed
 
 1.1.3
 

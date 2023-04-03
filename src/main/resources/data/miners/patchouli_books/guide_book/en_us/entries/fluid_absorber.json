@@ -6,32 +6,53 @@
 	"pages": [
 		{
 			"type": "text",
-			"text": "Fluid Absorber.$(br2)Fluids will be inserted into a tank block above the fluid absorber.$(br2)Blue wool represents the fluid, fluids must be source blocks"
+			"text": "Fluids will be inserted into a tank block above the fluid absorber.$(br2)Pressing U on the fluid absorber will show you all the fluids that can be pumped."
 		},
 		{
              "type": "multiblock",
              "name": "No Support Caps",
              "multiblock": {
                  "pattern": [
-                	["C     C","       ","       ","       ","       ", "       ","C     C"],
-                	["W     W","       ","       ","       ","       ", "       ","W     W"],
-                	["WWWWWWW","W     W","W     W","W  M  W","W     W", "W     W","WWWWWWW"],
-                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
-                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
-                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
-                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
-                    ["W     W"," FFFFF "," FFFFF "," FFFFF "," FFFFF ", " FFFFF ","W     W"],
-                	["WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWW0"]
+                	["C   C","     ","  I  ","     ","C   C"],
+                	["W   W","     ","  M  ","     ","W   W"],
+                	["WWWWW","WOOOW","WOOOW","WOOOW","WWWWW"],
+                	["W   W"," OOO "," OOO "," OOO ","W   W"],
+                	["W   W"," OOO "," OOO "," OOO ","W   W"],
+                	["W   W"," OOO "," OOO "," OOO ","W   0"]
                  ],
              "mapping": {
                  "C": "minecraft:air",
+                 "I": "minecraft:cauldron",
                  "W": "#miners:iron_support_frame",
                  "M": "miners:fluid_absorber",
-                 "F": "minecraft:blue_wool",
+                 "O": "minecraft:water",
                  "0": "#miners:iron_support_frame"
                  }
              },
-             "text": "220 ticks per operation."
+             "text": "With no caps it will take 220 ticks per block."
+        },
+		{
+             "type": "multiblock",
+             "name": "No Support Caps",
+             "multiblock": {
+                 "pattern": [
+                	["C   C","     ","  I  ","     ","C   C"],
+                	["W   W","     ","  M  ","     ","W   W"],
+                	["WWWWW","WOOOW","WOOOW","WOOOW","WWWWW"],
+                	["W   W"," OOO "," OOO "," OOO ","W   W"],
+                	["W   W"," OOO "," OOO "," OOO ","W   W"],
+                	["W   W"," OOO "," OOO "," OOO ","W   0"]
+                 ],
+             "mapping": {
+                 "C": "minecraft:diamond_block",
+                 "I": "minecraft:cauldron",
+                 "W": "#miners:iron_support_frame",
+                 "M": "miners:fluid_absorber",
+                 "O": "minecraft:water",
+                 "0": "#miners:iron_support_frame"
+                 }
+             },
+             "text": "Various different caps can be placed on top of the fluid absorber to make them pump faster, Caps can be found in JEI."
         }
 	]
 }
