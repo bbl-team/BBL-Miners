@@ -1,9 +1,14 @@
 Changelog Opolis Miners
 
+1.2.2
+
 1.2.1
 
 Added vines to jungle tree absorber output
-Added mangrove trees
+Added mangrove, crimson and warped trees
+Fixed miner interactions in world
+Miner should now update blockstate to working if the structure is correct
+
 
 1.2.0
 

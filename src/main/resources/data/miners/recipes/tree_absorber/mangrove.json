@@ -1,0 +1,14 @@
+{
+  "type": "miners:tree_absorber_block",
+  "logBlock": "minecraft:mangrove_log",
+  "leafBlock": "minecraft:mangrove_leaves",
+
+  "extraItem1": "minecraft:stick",
+  "extraItem1Chance": 0.50,
+
+  "extraItem2": "minecraft:mangrove_roots",
+  "extraItem2Chance": 0.25,
+
+  "extraItem3": "minecraft:air",
+  "extraItem3Chance": 0.0
+}

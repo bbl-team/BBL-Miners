@@ -1,0 +1,14 @@
+{
+  "type": "miners:tree_absorber_block",
+  "logBlock": "minecraft:warped_stem",
+  "leafBlock": "minecraft:warped_wart_block",
+
+  "extraItem1": "minecraft:twisting_vines",
+  "extraItem1Chance": 0.30,
+
+  "extraItem2": "minecraft:shroomlight",
+  "extraItem2Chance": 0.10,
+
+  "extraItem3": "minecraft:air",
+  "extraItem3Chance": 0.0
+}

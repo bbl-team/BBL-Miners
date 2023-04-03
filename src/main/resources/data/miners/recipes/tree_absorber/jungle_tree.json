@@ -1,0 +1,14 @@
+{
+  "type": "miners:tree_absorber_block",
+  "logBlock": "minecraft:jungle_log",
+  "leafBlock": "minecraft:jungle_leaves",
+
+  "extraItem1": "minecraft:stick",
+  "extraItem1Chance": 0.50,
+
+  "extraItem2": "minecraft:cocoa_beans",
+  "extraItem2Chance": 0.25,
+
+  "extraItem3": "minecraft:vines",
+  "extraItem3Chance": 0.10
+}

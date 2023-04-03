@@ -1,0 +1,4 @@
+{
+  "type": "miners:fluid_absorber",
+  "fluid": "minecraft:lava"
+}

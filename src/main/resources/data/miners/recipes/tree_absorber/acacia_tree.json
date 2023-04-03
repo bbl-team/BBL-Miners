@@ -1,0 +1,14 @@
+{
+  "type": "miners:tree_absorber_block",
+  "logBlock": "minecraft:acacia_log",
+  "leafBlock": "minecraft:acacia_leaves",
+
+  "extraItem1": "minecraft:stick",
+  "extraItem1Chance": 0.50,
+
+  "extraItem2": "minecraft:air",
+  "extraItem2Chance": 0.0,
+
+  "extraItem3": "minecraft:air",
+  "extraItem3Chance": 0.0
+}

@@ -122,6 +122,6 @@ public class MinerBaseBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         return createTickerHelper(pBlockEntityType, ModBlockEntities.MINER_BASE_BLOCK_ENTITY.get(),
-                MinerBaseBlockEntity::tick);
+                (world, blockPos, blockState, blockEntity) -> ((MinerBaseBlockEntity) blockEntity).tick());
     }
 }
