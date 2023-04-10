@@ -6,7 +6,7 @@
 	"pages": [
 		{
 			"type": "text",
-			"text": "Fluids will be inserted into a tank block above the fluid absorber.$(br2)Pressing U on the fluid absorber will show you all the fluids that can be pumped."
+			"text": "Fluids will be inserted into a tank block above the fluid absorber, the multiblock shows a glass block this will not work it must be a tank!$(br2)Pressing U on the fluid absorber will show you all the fluids that can be pumped."
 		},
 		{
              "type": "multiblock",
@@ -22,7 +22,7 @@
                  ],
              "mapping": {
                  "C": "minecraft:air",
-                 "I": "minecraft:cauldron",
+                 "I": "minecraft:glass",
                  "W": "#miners:iron_support_frame",
                  "M": "miners:fluid_absorber",
                  "O": "minecraft:water",
@@ -45,7 +45,7 @@
                  ],
              "mapping": {
                  "C": "minecraft:diamond_block",
-                 "I": "minecraft:cauldron",
+                 "I": "minecraft:glass",
                  "W": "#miners:iron_support_frame",
                  "M": "miners:fluid_absorber",
                  "O": "minecraft:water",

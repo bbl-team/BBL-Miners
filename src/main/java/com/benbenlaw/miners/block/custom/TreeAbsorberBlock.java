@@ -91,7 +91,10 @@ public class TreeAbsorberBlock extends BaseEntityBlock {
                         pPlayer.sendSystemMessage(Component.literal("No speed caps detected or missing some caps!").withStyle(ChatFormatting.RED));
                     }
                     pPlayer.sendSystemMessage(Component.literal("Current tick rate is " + tickRate).withStyle(ChatFormatting.GREEN));
-                    pPlayer.sendSystemMessage(Component.literal("Mining " + translatedName + " and more!").withStyle(ChatFormatting.GREEN));
+                    pPlayer.sendSystemMessage(Component.literal("Collecting " + translatedName + " and more!").withStyle(ChatFormatting.GREEN));
+                }
+                if(!pState.getValue(MinerBaseBlock.LIT)) {
+                    pPlayer.sendSystemMessage(Component.literal("Not Collecting! Check the tree structure and make sure your using wooden support frames.").withStyle(ChatFormatting.RED));
                 }
             }
         }
@@ -124,6 +127,6 @@ public class TreeAbsorberBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         return createTickerHelper(pBlockEntityType, ModBlockEntities.TREE_ABSORBER_BLOCK_ENTITY.get(),
-                TreeAbsorberBlockEntity::tick);
+                (world, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 }

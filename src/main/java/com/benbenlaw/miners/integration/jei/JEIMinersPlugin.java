@@ -33,8 +33,11 @@ public class JEIMinersPlugin implements IModPlugin {
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.TREE_ABSORBER.get()), TreeAbsorberRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_ABSORBER.get()), FluidAbsorberRecipeCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.MINER_BASE_BLOCK.get()), CapBlocksRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MINER_BASE_BLOCK.get()), MinerBlocksRecipeCategory.RECIPE_TYPE);
+
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.MINER_BASE_BLOCK.get()), CapBlocksRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_ABSORBER.get()), CapBlocksRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TREE_ABSORBER.get()), CapBlocksRecipeCategory.RECIPE_TYPE);
     }
 
     @Override

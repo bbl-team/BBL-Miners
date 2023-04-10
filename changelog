@@ -1,6 +1,25 @@
 Changelog Opolis Miners
 
+//TODO make particles a config
+
+1.2.3
+
+Fixed a tree absorber crash with null items stacks
+Caps speed now should work correctly (tickrates can be any multiple of 5 (5ticks = 4 operations a second, 20ticks = 1 operation per second)
+Added structure placer information to guide book
+Changed fluid absorber guide book information
+Fluid absorbers and tree absorbers now show cap blocks when viewing th uses in JEI
+Fluid absorbers show recipe when the a compatible fluid recipe is searched in JEI
+Changed cap JEI description so it doesn't sound like it only works for miners
+
 1.2.2
+
+Fixed Jungle recipe
+Structure placer now makes it clearer when mode is changed
+Multiple miners now should have the status reset when other miners stop working
+Added error message when machines are not working
+Block status (red mark) now updates every second instead of waiting to the tickrate or cap speed this make it easier to see is the structure has been built correctly
+Disabled machine sounds for the moment
 
 1.2.1
 

@@ -30,12 +30,15 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static net.minecraft.world.level.block.LeavesBlock.PERSISTENT;
 
 public class MinerStructurePlacerItem extends Item {
     public MinerStructurePlacerItem(Properties pProperties) {
@@ -52,16 +55,21 @@ public class MinerStructurePlacerItem extends Item {
         if (pPlayer.isCrouching()) {
             if (nbt.contains("mode") && nbt.getString("mode").equals("Mode: Placing Tree Absorber Tree") || !nbt.contains("mode")) {
                 nbt.put("mode", StringTag.valueOf("Mode: Placing Miner Frames"));
+                pPlayer.displayClientMessage(Component.literal("Mode: Placing Miner Frame"), true);
             }
             else if (nbt.contains("mode") && nbt.getString("mode").equals("Mode: Placing Miner Frames")) {
                 nbt.put("mode", StringTag.valueOf("Mode: Placing Tree Absorber Frames"));
+                pPlayer.displayClientMessage(Component.literal("Mode: Placing Tree Absorber Frames"), true);
+
             }
             else if (nbt.contains("mode") && nbt.getString("mode").equals("Mode: Placing Tree Absorber Frames")) {
                 nbt.put("mode", StringTag.valueOf("Mode: Placing Tree Absorber Tree"));
+                pPlayer.displayClientMessage(Component.literal("Mode: Placing Tree Absorber Tree"), true);
+
             }
         }
         itemstack.setTag(nbt);
-        return super.use(pLevel, pPlayer, pUsedHand);
+        return InteractionResultHolder.success(itemstack);
     }
 
     @Override

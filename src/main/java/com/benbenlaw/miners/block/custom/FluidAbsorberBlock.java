@@ -82,8 +82,7 @@ public class FluidAbsorberBlock extends BaseEntityBlock {
 
         if(!level.isClientSide()) {
             if (pHand.equals(InteractionHand.MAIN_HAND)){
-                if (pState.getValue(MinerBaseBlock.LIT)) {
-
+                if (pState.getValue(FluidAbsorberBlock.LIT)) {
 
                     BlockState block = level.getBlockState(blockPos.below(1));
                     Block translatedBlock = block.getBlock();
@@ -94,6 +93,10 @@ public class FluidAbsorberBlock extends BaseEntityBlock {
                     }
                     pPlayer.sendSystemMessage(Component.literal("Current tick rate is " + tickRate).withStyle(ChatFormatting.GREEN));
                     pPlayer.sendSystemMessage(Component.literal("Pumping " + translatedName).withStyle(ChatFormatting.GREEN));
+                }
+
+                if(!pState.getValue(FluidAbsorberBlock.LIT)) {
+                    pPlayer.sendSystemMessage(Component.literal("Not pumping! Check the structure and make sure your using iron support frames").withStyle(ChatFormatting.RED));
                 }
             }
         }
@@ -127,6 +130,6 @@ public class FluidAbsorberBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         return createTickerHelper(pBlockEntityType, ModBlockEntities.FLUID_ABSORBER_BLOCK_ENTITY.get(),
-                FluidAbsorberBlockEntity::tick);
+                (world, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 }

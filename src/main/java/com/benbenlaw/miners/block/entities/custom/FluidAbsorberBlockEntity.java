@@ -29,6 +29,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.WaterFluid;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -41,16 +43,22 @@ public class FluidAbsorberBlockEntity extends BlockEntity {
 
     // Add a counter variable
     private int counter = 0;
-    private static boolean isValidStructure = false;
+    private boolean hasCaps = false;
+    private boolean isValidStructure = false;
 
     public FluidAbsorberBlockEntity(BlockPos pWorldPosition, BlockState pBlockState) {
         super(ModBlockEntities.FLUID_ABSORBER_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
     }
 
-    public static void tick(@NotNull Level level, @NotNull BlockPos blockPos, BlockState blockState, @NotNull FluidAbsorberBlockEntity entity) {
-        // Increment the counter
+    public void tick() {
+
+        Level pLevel = this.level;
+        BlockPos blockPos = this.worldPosition;
+        assert pLevel != null;
+        FluidAbsorberBlockEntity entity = this;
         entity.counter++;
         int tickRate = 220;
+        Fluid fluidStack = Fluids.EMPTY;
 
         //Check for Cap and apply correct tickrate
         if (!level.getBlockState(blockPos.above(1).south(2).west(2)).is(Blocks.AIR) && !level.getBlockState(blockPos.above(1).south(2).east(2)).is(Blocks.AIR) &&
@@ -74,6 +82,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity {
                             if (level.getBlockState(blockPos.above(1).north(2).west(2)).is(speedBlock) ||
                                     level.getBlockState(blockPos.above(1).north(2).west(2)).is(blockTag)) {
                                 tickRate = match.getTickRate();
+                                hasCaps = true;
                             }
                         }
                     }
@@ -83,61 +92,60 @@ public class FluidAbsorberBlockEntity extends BlockEntity {
 
         //CHECK STRUCTURE
 
-        if (entity.counter % 20 == 0) {
+        if (entity.counter % 5 == 0) {
 
-            Optional<FluidAbsorberRecipe> fluidAbsorberRecipe = level.getRecipeManager()
-                    .getRecipeFor(FluidAbsorberRecipe.Type.INSTANCE,  NoInventoryRecipe.INSTANCE, level);
+            for (FluidAbsorberRecipe fluidAbsorberRecipe : level.getRecipeManager().getRecipesFor(FluidAbsorberRecipe.Type.INSTANCE, NoInventoryRecipe.INSTANCE, level)) {
 
-            String fluidString = fluidAbsorberRecipe.get().getFluid();
-            Fluid fluidStack = Registry.FLUID.get(new ResourceLocation(fluidString));
-            Fluid fluidInWorld = level.getFluidState(blockPos.below()).getType();
+                String fluidString = fluidAbsorberRecipe.getFluid();
+                fluidStack = Registry.FLUID.get(new ResourceLocation(fluidString));
+                Fluid fluidInWorld = level.getFluidState(blockPos.below()).getType();
 
-            if (fluidStack == fluidInWorld) {
-                isValidStructure = level.getBlockState(blockPos.north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).east()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).west()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).east()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).west()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2).north()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2).south()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2).north()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2).south()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getFluidState(blockPos.below(1)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south().west()).isSourceOfType(fluidStack);
+                if (fluidStack == fluidInWorld) {
+                    isValidStructure = level.getBlockState(blockPos.north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).east()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).west()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).east()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).west()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2).north()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2).south()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2).north()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2).south()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getFluidState(blockPos.below(1)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south().west()).isSourceOfType(fluidStack);
+                    level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).setValue(FluidAbsorberBlock.LIT, true));
+                    break;
+                }
             }
         }
+            //Particles
 
-        //Particles
+            if (level.getBlockState(blockPos).is(ModBlocks.FLUID_ABSORBER.get())) {
 
-        if (level.getBlockState(blockPos).is(ModBlocks.FLUID_ABSORBER.get())) {
+                if (hasCaps) {
+                    level.addParticle(ParticleTypes.CRIMSON_SPORE, (double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D, 0.5D, 0.5D, 0.5D);
+                }
+                if (level.getBlockState(blockPos).getValue(FluidAbsorberBlock.LIT)) {
+                    level.addParticle(ParticleTypes.WARPED_SPORE, (double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D, 0.5D, 0.5D, 0.5D);
+                }
+                if (!isValidStructure) {
+                    level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).setValue(FluidAbsorberBlock.LIT, false));
+                }
 
-            if (tickRate < 201 && blockState.getValue(MinerBaseBlock.LIT)) {
-                level.addParticle(ParticleTypes.CRIMSON_SPORE, (double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D, 0.5D, 0.5D, 0.5D);
-            }
-            if (blockState.getValue(MinerBaseBlock.LIT)) {
-                level.addParticle(ParticleTypes.WARPED_SPORE, (double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D, 0.5D, 0.5D, 0.5D);
-            }
-            if (!isValidStructure) {
-                level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).setValue(FluidAbsorberBlock.LIT, false));
-            }
+                //Generate Drops
 
-            //Produce Items
+                if (entity.counter % tickRate == 0) {
 
-            if (entity.counter % tickRate == 0) {
+                    if (level.getBlockState(blockPos).is(ModBlocks.FLUID_ABSORBER.get())) {
 
-                if (level.getBlockState(blockPos).is(ModBlocks.FLUID_ABSORBER.get())) {
+                        if (level.getBlockState(blockPos.north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).north(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).north(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).south(2).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(2).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(3).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(4).south(2).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).east()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).north(2).west()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).east()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).south(2).west()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2).north()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).east(2).south()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2)).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2).north()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getBlockState(blockPos.below(1).west(2).south()).is(ModBlocks.IRON_SUPPORT_FRAME.get()) && level.getFluidState(blockPos.below(1)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(1).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(2).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(3).south().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4)).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).north().west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).west()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south().east()).isSourceOfType(fluidStack) && level.getFluidState(blockPos.below(4).south().west()).isSourceOfType(fluidStack)) {
 
-                    if (isValidStructure) {
+                            if (level.getBlockEntity(blockPos.above()) != null) {
 
-                        if (level.getBlockEntity(blockPos.above()) != null) {
+                                //   level.playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1, 1, false);
+                                BlockEntity ent = level.getBlockEntity(blockPos.above());
+                                FluidState fluidState = level.getFluidState(blockPos.below());
+                                assert ent != null;
 
-                            level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).setValue(FluidAbsorberBlock.LIT, true));
-
-                            level.playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1, 1, false);
-
-                            BlockEntity ent = level.getBlockEntity(blockPos.above());
-                            FluidState fluidState = level.getFluidState(blockPos.below());
-                            assert ent != null;
-
-                            ent.getCapability(ForgeCapabilities.FLUID_HANDLER, Direction.DOWN).ifPresent(iFluidHandler -> {
-                                FluidStack fluid = new FluidStack(fluidState.getType(), 100);
-                                iFluidHandler.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
-                            });
+                                ent.getCapability(ForgeCapabilities.FLUID_HANDLER, Direction.DOWN).ifPresent(iFluidHandler -> {
+                                    FluidStack fluid = new FluidStack(fluidState.getType(), 100);
+                                    iFluidHandler.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+                                });
+                            }
                         }
                     }
                 }
             }
         }
-    }
+
 }
 

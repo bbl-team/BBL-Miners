@@ -84,7 +84,10 @@ public class FluidAbsorberRecipeCategory implements IRecipeCategory<FluidAbsorbe
         builder.addSlot(RecipeIngredientRole.INPUT, 135, 43).addFluidStack(fluidStack, 36000).setFluidRenderer(36000, true, 16,16);
         builder.addSlot(RecipeIngredientRole.INPUT, 135, 62).addItemStack(new ItemStack(ModBlocks.IRON_SUPPORT_FRAME.get(), 32));
 
-    //    builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.getFluid()));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 43).addFluidStack(fluidStack, 36000);
+
+
+        //    builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.getFluid()));
     //    builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(recipe.getIngredients().get(2));
 
 

@@ -1,0 +1,28 @@
+{
+	"name": "Strucutre Placer",
+	"icon": "miners:miner_structure_placer",
+	"category": "miners:structure_placer",
+	"sortnum": 3,
+	"pages": [
+		{
+			"type": "text",
+			"text": "Allows for quick building of miners and structures.$(br2)Shift right click to change mode.$(br2)Uses items from the inventory, for best results only have one type of frame in your inventory."
+		},
+		{
+			"title": "Miner Frame",
+			"type": "text",
+			"text": "$(br2)Places the frame for the miners and fluid absorbers.$(br2)Fluid absorbers use tier 5 frames.$(br2)Requires 36 frames"
+		},
+		{
+			"title": "Tree Absorber Frame",
+			"type": "text",
+			"text": "$(br2)Places the frame for the tree absorber.$(br2)Tree absorbers use tier 1 frames.$(br2)Requires 64 frames"
+		},
+		{
+			"title": "Tree Absorber Tree",
+			"type": "text",
+			"text": "$(br2)Places the tree needed for the tree absorber.$(br2)Can only be used on a dirt like block with a tree absorber placed underneath.$(br2)Requires 4 logs and 30 leaves of the same type."
+		}
+
+	]
+}

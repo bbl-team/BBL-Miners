@@ -1,6 +1,6 @@
 {
 	"name": "Structure Placer",
-	"description": "The structure placer can be used to help you build the multiblocks needed in this mod.$(br2)Various different caps can be applied to fluid absorber to make it faster.",
+	"description": "The structure placer can be used to help you build the multiblocks needed in this mod.",
 	"icon": "miners:miner_structure_placer",
 	"sortnum": 2
 }

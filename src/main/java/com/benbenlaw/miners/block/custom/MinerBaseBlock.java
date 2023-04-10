@@ -95,6 +95,10 @@ public class MinerBaseBlock extends BaseEntityBlock {
                     pPlayer.sendSystemMessage(Component.literal("Current tick rate is " + tickRate).withStyle(ChatFormatting.GREEN));
                     pPlayer.sendSystemMessage(Component.literal("Mining " + translatedName).withStyle(ChatFormatting.GREEN));
                 }
+
+                if(!pState.getValue(MinerBaseBlock.LIT)) {
+                    pPlayer.sendSystemMessage(Component.literal("Not mining! Check the structure and make sure your using the correct frame for the resource being mined").withStyle(ChatFormatting.RED));
+                }
             }
         }
         return InteractionResult.SUCCESS;
@@ -122,6 +126,6 @@ public class MinerBaseBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         return createTickerHelper(pBlockEntityType, ModBlockEntities.MINER_BASE_BLOCK_ENTITY.get(),
-                (world, blockPos, blockState, blockEntity) -> ((MinerBaseBlockEntity) blockEntity).tick());
+                (world, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 }

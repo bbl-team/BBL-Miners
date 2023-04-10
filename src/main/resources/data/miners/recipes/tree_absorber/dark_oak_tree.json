@@ -9,6 +9,6 @@
   "extraItem2": "minecraft:apple",
   "extraItem2Chance": 0.25,
 
-  "extraItem3": "minecraft:air",
-  "extraItem3Chance": 0.0
+  "extraItem3": "minecraft:apple",
+  "extraItem3Chance": 0.10
 }
