@@ -116,8 +116,7 @@ public class TreeAbsorberBlockEntity extends BlockEntity {
 
         //Particle
 
-        if (level.getBlockState(blockPos).is(ModBlocks.TREE_ABSORBER.get())) {
-
+        if (level.getBlockState(blockPos).is(ModBlocks.TREE_ABSORBER.get()) && MinersConfigFile.showParticlesOnMachines.get()){
             if (hasCaps) {
                 level.addParticle(ParticleTypes.CRIMSON_SPORE, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0.5, 0.5, 0.5);
             }

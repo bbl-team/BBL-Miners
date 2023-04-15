@@ -1,5 +1,14 @@
 {
   "values": [
-    "miners:wooden_support_frame"
+    "miners:wooden_support_frame",
+    "miners:stone_support_frame",
+    "miners:lapis_support_frame",
+    "miners:copper_support_frame",
+    "miners:iron_support_frame",
+    "miners:gold_support_frame",
+    "miners:diamond_support_frame",
+    "miners:emerald_support_frame",
+    "miners:netherite_support_frame",
+    "miners:ultimate_support_frame"
   ]
 }

@@ -1,6 +1,6 @@
 {
 	"name": "Miners",
-	"landing_text": "All the information about the structures in Miners.",
+	"landing_text": "All the information about the structures in Miners.$(br2)Higher tier frames can be used on lower tier recipes.",
 	"model": "miners:miners_book",
 	"version": 1,
 	"subtitle": "All you need to know about miners",

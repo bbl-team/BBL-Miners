@@ -1,6 +1,14 @@
 Changelog Opolis Miners
 
-//TODO make particles a config
+1.2.6
+
+Fixed fluid absorber checking for particles when search for valid structures
+
+1.2.5
+
+Miners now only output into block entities that accept items from the bottom side not the top, should fix various side related issues with other mods like mekanism
+Miners tier frames now work for lower tier resource for the miners, any tier frame an be used on the tree absorber now, any tier higher 5 can be used on the fluid absorber
+Particles can now be turned off in config
 
 1.2.4
 
