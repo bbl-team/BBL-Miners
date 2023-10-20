@@ -33,7 +33,7 @@
         },
 		{
              "type": "multiblock",
-             "name": "No Support Caps",
+             "name": "Support Caps",
              "multiblock": {
                  "pattern": [
                 	["C   C","     ","  I  ","     ","C   C"],
