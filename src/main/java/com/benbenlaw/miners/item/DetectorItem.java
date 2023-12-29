@@ -1,4 +1,4 @@
-package com.benbenlaw.miners.items;
+package com.benbenlaw.miners.item;
 
 import com.benbenlaw.miners.core.MultiblockManager;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ public class DetectorItem extends Item {
             if (player != null) {
                 var result = MultiblockManager.findUnformedStructure(level, pos);
                 if (result != null) {
-                    player.sendSystemMessage(Component.literal("Found Structure : %s".formatted(result)));
+                    player.sendSystemMessage(Component.literal("Found Structure : %s".formatted(result.ID())));
                 } else {
                     player.sendSystemMessage(Component.literal("Found no structure!"));
                 }

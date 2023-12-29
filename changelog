@@ -1,0 +1,132 @@
+Changelog BBL Miners
+
+2.0.0
+
+Now called BBL Miners
+Full Rewrite and updated to 1.20.1
+Added JEI and Opolis Utilities into
+
+
+1.2.8
+
+Structure placer now places leaves correctly (with the PERSISTENT blockstate being true) this prevents the leaves from despawning
+
+1.2.7
+
+Structure placer now places higher tier of frames instead of just the tier 1 ones
+
+1.2.7
+
+Fixed typo in structure placer information in book
+
+1.2.6
+
+Fixed fluid absorber checking for particles when search for valid structures
+
+1.2.5
+
+Miners now only output into block entities that accept items from the bottom side not the top, should fix various side related issues with other mods like mekanism
+Miners tier frames now work for lower tier resource for the miners, any tier frame an be used on the tree absorber now, any tier higher 5 can be used on the fluid absorber
+Particles can now be turned off in config
+
+1.2.4
+
+Fixed tree absorber recipe not working correctly when the recipe uses extra items
+Removed extra apples from dark oak trees
+
+1.2.3
+
+Fixed a tree absorber crash with null items stacks
+Caps speed now should work correctly (tickrates can be any multiple of 5 (5ticks = 4 operations a second, 20ticks = 1 operation per second)
+Added structure placer information to guide book
+Changed fluid absorber guide book information
+Fluid absorbers and tree absorbers now show cap blocks when viewing th uses in JEI
+Fluid absorbers show recipe when the a compatible fluid recipe is searched in JEI
+Changed cap JEI description so it doesn't sound like it only works for miners
+
+1.2.2
+
+Fixed Jungle recipe
+Structure placer now makes it clearer when mode is changed
+Multiple miners now should have the status reset when other miners stop working
+Added error message when machines are not working
+Block status (red mark) now updates every second instead of waiting to the tickrate or cap speed this make it easier to see is the structure has been built correctly
+Disabled machine sounds for the moment
+
+1.2.1
+
+Added vines to jungle tree absorber output
+Added mangrove, crimson and warped trees
+Fixed miner interactions in world
+Miner should now update blockstate to working if the structure is correct
+
+
+1.2.0
+
+Fixed the caps JEI entry referencing opolis utilities instead of miners
+Fixed another random steel recipe
+Fixed Right click information for tick rate for miners, added some color to it as well.
+Added this feature to the tree absorber as well
+Miner Structure placer renamed to Structure placer, no longer requires items in off hand, will check inventory first
+Removed the resources placing part but that bit is easy
+Tree Absorber no longer need the middle frames a on the bottom layer
+Tree Absorber frames and trees can be placed with the structure placer
+tree absorber trees can now be placed with structure placer
+Tree Absorber now uses datapack recipes instead of just looking for tags
+Tree absorber JEI recipes improved now shows extra drops and chances
+Various book improvements with more information
+Fluid absorber structure changed, now the same as the miner
+Reduces total fluid needed to get started
+Fluid absorber supports caps and right click information about caps and currently pumped fluid
+Moved to datapacks for these recipes as well
+Fluid absorber now has correct jei information;
+
+
+
+1.1.4
+
+Miners now only check for cap blocks if the cap block are containing blocks
+Miners on right click no show block its mining and current tick rate
+Tree Absorbers now use the new cap system
+Tree Absorbers on right click no show block its mining and current tick rate
+Nerfed steel blocks speed
+
+1.1.3
+
+Fixed miners frames not being looked at
+
+1.1.2
+
+Fixed miner block tags and block drop
+Fixed desh recipe
+Recipe now have conditions preventing them from being loaded if the tag doesn't exist, or the block doesn't exist
+Fixed various cap recipe having incorrect tags
+Fixed JEI interaction with servers
+
+
+1.1.1
+
+Fixed mineable tag including blocks that don't exist
+
+1.1.0
+
+Fixed a couple of fluid absorber and tree absorber codes
+Removed all miner tiers
+Removed all hard coded JEI recipes
+Miner working a cap particles a lot more accurate
+Frames now climbable
+Added miner structure placer, shift right click to change modes from frame to resource mode
+
+1.0.2
+
+Fixed a bug where any machine that was rapidly unloaded eg with a tp command the game would crash
+
+1.0.1
+
+Fixed rendering of fluid absorber in guide book
+Tree and fluid absorbers now show the correct number of items in JEI
+Tier 10 structure frames now have a recipe
+
+1.0
+
+Initial Release

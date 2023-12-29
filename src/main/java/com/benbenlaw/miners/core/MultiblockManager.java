@@ -1,7 +1,7 @@
 package com.benbenlaw.miners.core;
 
 import com.benbenlaw.miners.Miners;
-import com.benbenlaw.miners.blocks.FormBlock;
+import com.benbenlaw.opolisutilities.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,20 +25,44 @@ public class MultiblockManager {
         return a -> a.getState().is(block) && a.getState().getValue(property).equals(requiredValue);
     }
 
-
-
-
     static {
         patterns.add(
                 new ModBlockPattern(
-                        "test",
+                        "miners:iron",
+                        BlockPatternBuilder.start()
+                                .aisle("C   C", "     ", "     ", "     ", "C   C")
+                                .aisle("0   0", "     ", "  *  ", "     ", "0   0")
+                                .aisle("00000", "0   0", "0   0", "0   0", "00000")
+                                .aisle("0   0", "     ", "     ", "     ", "0   0")
+                                .aisle("0   0", "     ", "     ", "     ", "0   0")
+                                .aisle("0   0", "     ", "     ", "     ", "0   0")
+                                .where('0', a -> a.getState().is(Blocks.IRON_BLOCK))
+                                .where('C', a -> a.getState().is(ModBlocks.ENDER_SCRAMBLER.get()))
+                                .where('*', a -> a.getState().is(Miners.FORM_BLOCK.get()))
+                                .build()
+                )
+        );
+
+        patterns.add(
+                new ModBlockPattern(
+                        "miners:gold",
                         BlockPatternBuilder.start()
                                 .aisle("0   0", "     ", "     ", "     ", "0   0")
                                 .aisle("00000", "0   0", "0   0", "0   0", "00000")
                                 .aisle("0   0", "     ", "     ", "     ", "0   0")
                                 .aisle("0   0", "     ", "     ", "     ", "0   0")
                                 .aisle("0   0", "     ", "     ", "     ", "0   0")
-                                .where('0', a -> a.getState().is(Blocks.IRON_BLOCK))
+                                .where('0', a -> a.getState().is(Blocks.GOLD_BLOCK))
+                                .build()
+                )
+        );
+
+        patterns.add(
+                new ModBlockPattern(
+                        "miners:cap_test",
+                        BlockPatternBuilder.start()
+                                .aisle("0   0", "     ", "     ", "     ", "0   0")
+                                .where('0', a -> a.getState().is(Blocks.BEACON))
                                 .build()
                 )
         );
