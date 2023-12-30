@@ -14,7 +14,7 @@ public class MultiblockManagers {
 
     public static final MultiBlockManagerBeta<Tier> MINERS = new MultiBlockManagerBeta<>();
 
-    public static final ArrayList<ModBlockPattern<?>> patterns = new ArrayList<>();
+
 
 
     static {
@@ -31,6 +31,7 @@ public class MultiblockManagers {
                         .where('0', a -> a.getState().is(Blocks.IRON_BLOCK))
                         .where('C', a -> a.getState().is(ModBlocks.ENDER_SCRAMBLER.get()))
                         .where('*', a -> a.getState().is(Miners.FORM_BLOCK.get()))
+                        .where(' ', a -> a.getState().is(Blocks.AIR))
                         .build()
         );
 
@@ -44,6 +45,7 @@ public class MultiblockManagers {
                         .aisle("0   0", "     ", "     ", "     ", "0   0")
                         .aisle("0   0", "     ", "     ", "     ", "0   0")
                         .where('0', a -> a.getState().is(Blocks.GOLD_BLOCK))
+                        .where(' ', a -> a.getState().is(Blocks.AIR))
                         .build()
         );
 
