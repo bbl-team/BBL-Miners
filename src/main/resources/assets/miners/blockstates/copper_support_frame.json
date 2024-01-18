@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "miners:block/copper_support_frame"
+    }
+  }
+}

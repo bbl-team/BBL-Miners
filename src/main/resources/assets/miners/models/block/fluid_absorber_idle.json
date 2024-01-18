@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"north": "miners:block/fluid_absorber_side_idle",
+		"east": "miners:block/fluid_absorber_side_idle",
+		"south": "miners:block/fluid_absorber_side_idle",
+		"west": "miners:block/fluid_absorber_side_idle",
+		"up": "miners:block/miner_top",
+		"down": "miners:block/miner_bottom",
+		"particle": "miners:block/fluid_absorber_side_idle"
+	}
+}

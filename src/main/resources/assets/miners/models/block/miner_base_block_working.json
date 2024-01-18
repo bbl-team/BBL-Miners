@@ -1,0 +1,12 @@
+{
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"north": "miners:block/miner_base_block_side",
+		"east": "miners:block/miner_base_block_side",
+		"south": "miners:block/miner_base_block_side",
+		"west": "miners:block/miner_base_block_side",
+		"up": "miners:block/miner_top",
+		"down": "miners:block/miner_bottom",
+		"particle": "miners:block/miner_base_block_side"
+	}
+}

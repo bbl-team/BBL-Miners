@@ -1,65 +1,117 @@
 package com.benbenlaw.miners;
 
-import com.benbenlaw.miners.block.entities.FormBlockEntity;
-import com.benbenlaw.miners.block.FormBlock;
-import com.benbenlaw.miners.item.DetectorItem;
-import com.mojang.logging.LogUtils;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import com.benbenlaw.miners.block.ModBlocks;
+import com.benbenlaw.miners.block.entity.ModBlockEntities;
+import com.benbenlaw.miners.item.ModCreativeTab;
+import com.benbenlaw.miners.item.ModItems;
+import com.benbenlaw.miners.networking.ModMessages;
+import com.benbenlaw.miners.recipe.ModRecipes;
+import com.benbenlaw.miners.screen.MinerScreen;
+import com.benbenlaw.miners.screen.ModMenuTypes;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(Miners.MODID)
-public class Miners {
+@Mod(Miners.MOD_ID)
+public class Miners{
 
-    // Define mod id in a common place for everything to reference
-    public static final String MODID = "miners";
-    // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITYS = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-
-    public static final RegistryObject<DetectorItem> DETECTOR = ITEMS.register("detector", DetectorItem::new);
-
-    public static final RegistryObject<FormBlock> FORM_BLOCK = BLOCKS.register("form", FormBlock::new);
-    public static final RegistryObject<BlockItem> FORM_BLOCK_ITEM = ITEMS.register("form", () -> new BlockItem(FORM_BLOCK.get(), new Item.Properties()));
-    public static final RegistryObject<BlockEntityType<FormBlockEntity>> FORM_BLOCK_ENTITY = BLOCK_ENTITYS.register(
-            "form",
-            () -> BlockEntityType.Builder.of(
-                    FormBlockEntity::new,
-                    FORM_BLOCK.get()
-            ).build(null)
-    );
-
-    public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(Items.BEDROCK::getDefaultInstance)
-            .displayItems((parameters, output) -> {
-                output.accept(Items.BEDROCK);
-                output.accept(DETECTOR.get());
-                output.accept(FORM_BLOCK_ITEM.get());
-            }).build());
+    public static final String MOD_ID = "miners";
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
 
     public Miners() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ITEMS.register(modEventBus);
-        BLOCKS.register(modEventBus);
-        BLOCK_ENTITYS.register(modEventBus);
-        CREATIVE_MODE_TABS.register(modEventBus);
+
+        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ModItems.register(eventBus);
+        ModBlocks.register(eventBus);
+        ModBlockEntities.register(eventBus);
+        ModMenuTypes.register(eventBus);
+        ModRecipes.register(eventBus);
+        ModCreativeTab.register(eventBus);
+
+        eventBus.addListener(this::setup);
+        eventBus.addListener(this::enqueueIMC);
+        eventBus.addListener(this::processIMC);
+        eventBus.addListener(this::setup);
+        eventBus.addListener(this::doClientStuff);
+        eventBus.addListener(this::commonSetup);
+
+        MinecraftForge.EVENT_BUS.register(this);
+
+
+
+    }
+
+
+
+
+    private void setup(final FMLCommonSetupEvent event) {
+        // some preinit code
+        LOGGER.info("HELLO FROM PREINIT");
+        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getName());
+    }
+
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(ModMessages::register);
+
+    }
+
+    private void enqueueIMC(final InterModEnqueueEvent event) {
+        // some example code to dispatch IMC to another mod
+        InterModComms.sendTo("com", "helloworld", () -> {
+            LOGGER.info("Hello world from the MDK");
+            return "Hello world";
+        });
+    }
+
+    private void processIMC(final InterModProcessEvent event) {
+        // some example code to receive and process InterModComms from other mods
+        LOGGER.info("Got IMC {}", event.getIMCStream().
+                map(m -> m.messageSupplier().get()).
+                collect(Collectors.toList()));
+    }
+
+    // You can use SubscribeEvent and let the Event Bus discover methods to call
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event) {
+        // do something when the server starts
+        LOGGER.info("HELLO from server starting");
+    }
+
+    private void doClientStuff(final FMLClientSetupEvent event) {
+
+        event.enqueueWork(() -> {
+
+            MenuScreens.register(ModMenuTypes.MINER_MENU.get(), MinerScreen::new);
+
+        });
+    }
+
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus =Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    public static class ClientModEvents {
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            event.enqueueWork(() -> {
+                //      ModItemProperties.addCustomItemProperties();
+                //     ModItemProperties.addCustomItemProperties();
+            });
+        }
     }
 
 }
