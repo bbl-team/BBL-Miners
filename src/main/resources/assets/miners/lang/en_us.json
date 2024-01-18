@@ -9,6 +9,8 @@
   "block.miners.emerald_support_frame": "Tier 8 Support Frame",
   "block.miners.netherite_support_frame": "Tier 9 Support Frame",
   "block.miners.ultimate_support_frame": "Tier 10 Support Frame",
+  "block.miners.tree_absorber": "Tree Absorber",
+  "block.miners.miner": "Miner",
 
   "itemGroup.miners": "Miners"
 }
