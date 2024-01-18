@@ -17,6 +17,9 @@ public class ModMenuTypes {
     public static final RegistryObject<MenuType<MinerMenu>> MINER_MENU =
             registerMenuType(MinerMenu::new, "miner_menu");
 
+    public static final RegistryObject<MenuType<TreeAbsorberMenu>> TREE_ABSORBER_MENU =
+            registerMenuType(TreeAbsorberMenu::new, "tree_absorber_menu");
+
     private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> registerMenuType(IContainerFactory<T> factory,
                                                                                                   String name) {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));

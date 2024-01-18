@@ -8,6 +8,7 @@ import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.recipe.ModRecipes;
 import com.benbenlaw.miners.screen.MinerScreen;
 import com.benbenlaw.miners.screen.ModMenuTypes;
+import com.benbenlaw.miners.screen.TreeAbsorberScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -99,6 +100,7 @@ public class Miners{
         event.enqueueWork(() -> {
 
             MenuScreens.register(ModMenuTypes.MINER_MENU.get(), MinerScreen::new);
+            MenuScreens.register(ModMenuTypes.TREE_ABSORBER_MENU.get(), TreeAbsorberScreen::new);
 
         });
     }

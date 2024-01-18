@@ -22,6 +22,7 @@ public class ModCreativeTab {
 
                 output.accept(ModItems.DETECTOR.get());
                 output.accept(ModBlocks.MINER.get());
+                output.accept(ModBlocks.TREE_ABSORBER.get());
                 output.accept(ModBlocks.WOODEN_SUPPORT_FRAME.get());
                 output.accept(ModBlocks.STONE_SUPPORT_FRAME.get());
                 output.accept(ModBlocks.LAPIS_SUPPORT_FRAME.get());

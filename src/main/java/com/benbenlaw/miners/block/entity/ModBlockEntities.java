@@ -18,6 +18,11 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(MinerBlockEntity::new,
                             ModBlocks.MINER.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<TreeAbsorberBlockEntity>> TREE_ABSORBER_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("tree_absorber_block_entity", () ->
+                    BlockEntityType.Builder.of(TreeAbsorberBlockEntity::new,
+                            ModBlocks.TREE_ABSORBER.get()).build(null));
+
 
 
 
