@@ -1,0 +1,9 @@
+{
+  "type": "miners:miners",
+  "pattern": "miners:diamond",
+  "output": {
+    "item": "minecraft:diamond_ore"
+  },
+  "rf_per_tick": 30,
+  "duration": 200
+}

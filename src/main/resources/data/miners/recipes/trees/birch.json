@@ -1,0 +1,8 @@
+{
+  "type": "miners:tree_absorber",
+  "pattern": "miners:birch",
+  "log_loottable": "minecraft:birch_log",
+  "leaf_loottable": "minecraft:birch_leaves",
+  "rf_per_tick": 30,
+  "duration": 200
+}

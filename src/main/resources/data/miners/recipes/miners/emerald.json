@@ -1,0 +1,9 @@
+{
+  "type": "miners:miners",
+  "pattern": "miners:emerald",
+  "output": {
+    "item": "minecraft:emerald_ore"
+  },
+  "rf_per_tick": 30,
+  "duration": 200
+}

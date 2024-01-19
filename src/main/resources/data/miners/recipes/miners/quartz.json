@@ -1,0 +1,9 @@
+{
+  "type": "miners:miners",
+  "pattern": "miners:quartz",
+  "output": {
+    "item": "minecraft:quartz_ore"
+  },
+  "rf_per_tick": 30,
+  "duration": 200
+}
