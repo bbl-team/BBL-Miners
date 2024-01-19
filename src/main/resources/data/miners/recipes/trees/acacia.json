@@ -1,0 +1,8 @@
+{
+  "type": "miners:tree_absorber",
+  "pattern": "miners:acacia",
+  "log_loottable": "minecraft:acacia_log",
+  "leaf_loottable": "minecraft:acacia_leaves",
+  "rf_per_tick": 30,
+  "duration": 200
+}
