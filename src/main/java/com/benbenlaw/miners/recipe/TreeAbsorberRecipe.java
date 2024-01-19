@@ -15,18 +15,20 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class MinerRecipe implements Recipe<NoInventoryRecipe> {
+public class TreeAbsorberRecipe implements Recipe<NoInventoryRecipe> {
 
     private final ResourceLocation id;
     private final String pattern;
-    private final ItemStack outputItem;
+    private final String logLoottable;
+    private final String leafLoottable;
     private final int RFPerTick;
     private final int duration;
 
-    public MinerRecipe(ResourceLocation id, String pattern, ItemStack outputItem, int RFPerTick, int duration) {
+    public TreeAbsorberRecipe(ResourceLocation id, String pattern, String logLoottable, String leafLoottable, int RFPerTick, int duration) {
         this.id = id;
         this.pattern = pattern;
-        this.outputItem = outputItem;
+        this.logLoottable = logLoottable;
+        this.leafLoottable = leafLoottable;
         this.RFPerTick = RFPerTick;
         this.duration = duration;
     }
@@ -35,14 +37,16 @@ public class MinerRecipe implements Recipe<NoInventoryRecipe> {
         return pattern;
     }
 
-    public ItemStack getOutputItem() {
-        return outputItem;
+    public String getLogLoottable() {
+        return logLoottable;
+    }
+    public String getLeafLoottable() {
+        return leafLoottable;
     }
 
     public int getRFPerTick() {
         return RFPerTick;
     }
-
     public int getDuration() {
         return duration;
     }
@@ -81,10 +85,10 @@ public class MinerRecipe implements Recipe<NoInventoryRecipe> {
     public RecipeType<?> getType() {
         return Type.INSTANCE;
     }
-    public static class Type implements RecipeType<MinerRecipe> {
+    public static class Type implements RecipeType<TreeAbsorberRecipe> {
         private Type() { }
         public static final Type INSTANCE = new Type();
-        public static final String ID = "miners";
+        public static final String ID = "tree_absorber";
     }
 
     @Override
@@ -93,37 +97,40 @@ public class MinerRecipe implements Recipe<NoInventoryRecipe> {
     }
 
 
-    public static class Serializer implements RecipeSerializer<MinerRecipe> {
+    public static class Serializer implements RecipeSerializer<TreeAbsorberRecipe> {
         public static final Serializer INSTANCE = new Serializer();
         public static final ResourceLocation ID =
-                new ResourceLocation(Miners.MOD_ID, "miners");
+                new ResourceLocation(Miners.MOD_ID, "tree_absorber");
 
         @Override
-        public MinerRecipe fromJson(ResourceLocation id, JsonObject json) {
+        public TreeAbsorberRecipe fromJson(ResourceLocation id, JsonObject json) {
 
             String pattern = GsonHelper.getAsString(json, "pattern");
-            ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json,"output"));
+            String logLoottable = GsonHelper.getAsString(json, "log_loottable");
+            String leafLoottable = GsonHelper.getAsString(json, "leaf_loottable");
             int RFPerTick = GsonHelper.getAsInt(json, "rf_per_tick");
             int duration = GsonHelper.getAsInt(json, "duration");
 
-            return new MinerRecipe(id, pattern, output, RFPerTick, duration);
+            return new TreeAbsorberRecipe(id, pattern, logLoottable, leafLoottable, RFPerTick, duration);
         }
 
         @Override
-        public MinerRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+        public TreeAbsorberRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
             String pattern = buf.readUtf();
-            ItemStack output = buf.readItem();
+            String logLoottable = buf.readUtf();
+            String leafLoottable = buf.readUtf();
             int RFPerTick = buf.readInt();
             int duration = buf.readInt();
 
-            return new MinerRecipe(id, pattern, output, RFPerTick, duration);
+            return new TreeAbsorberRecipe(id, pattern, logLoottable, leafLoottable, RFPerTick, duration);
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buf, MinerRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buf, TreeAbsorberRecipe recipe) {
 
             buf.writeUtf(recipe.getPattern(), Short.MAX_VALUE);
-            buf.writeItemStack(recipe.outputItem, false);
+            buf.writeUtf(recipe.getLogLoottable(), Short.MAX_VALUE);
+            buf.writeUtf(recipe.getLeafLoottable(), Short.MAX_VALUE);
             buf.writeInt(recipe.getRFPerTick());
             buf.writeInt(recipe.getDuration());
         }

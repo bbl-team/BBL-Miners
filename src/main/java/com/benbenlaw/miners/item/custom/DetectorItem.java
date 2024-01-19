@@ -18,10 +18,18 @@ public class DetectorItem extends Item {
             var pos = context.getClickedPos();
             var player = context.getPlayer();
             if (player != null) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, pos);
-                if (result != null) {
-                    player.sendSystemMessage(Component.literal("Found Structure : %s".formatted(result.ID())));
-                } else {
+                var minerResult = MultiBlockManagers.MINERS.findStructure(level, pos);
+                var treeAbsorberResult = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, pos);
+
+                if (minerResult != null) {
+                    player.sendSystemMessage(Component.literal("Found Structure : %s".formatted(minerResult.ID())));
+                }
+                if (treeAbsorberResult != null) {
+                    player.sendSystemMessage(Component.literal("Found Structure : %s".formatted(treeAbsorberResult.ID())));
+                }
+
+
+                else {
                     player.sendSystemMessage(Component.literal("Found no structure!"));
                 }
             }

@@ -85,7 +85,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
 
     protected final ContainerData data;
     public int progress;
-    public int maxProgress = 300;
+    public int maxProgress;
     public ItemStack output;
     public final ModEnergyStorage ENERGY_STORAGE = createEnergyStorage();
     public int RFPerTick;
@@ -302,6 +302,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
                             if (hasEnoughEnergyStorage(this, recipe)) {
                                 output = recipe.getOutputItem().getItem().getDefaultInstance();
                                 this.RFPerTick = recipe.getRFPerTick();
+                                this.maxProgress = recipe.getDuration();
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
                                 break;
                             }
@@ -332,6 +333,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
     private void resetGenerator() {
         this.progress = 0;
         this.RFPerTick = 0;
+        this.maxProgress = 0;
         output = null;
         assert this.level != null;
         setChanged(this.level, this.worldPosition, this.getBlockState());

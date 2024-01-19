@@ -1,4 +1,7 @@
 {
+
+  "itemGroup.miners": "Miners",
+
   "block.miners.wooden_support_frame": "Tier 1 Support Frame",
   "block.miners.stone_support_frame": "Tier 2 Support Frame",
   "block.miners.lapis_support_frame": "Tier 3 Support Frame",
@@ -12,5 +15,7 @@
   "block.miners.tree_absorber": "Tree Absorber",
   "block.miners.miner": "Miner",
 
-  "itemGroup.miners": "Miners"
+  "jei_pattern.miner.iron": "Iron Miner",
+
+  "jei_pattern.tree_absorber.oak": "Oak Tree Absorber"
 }
