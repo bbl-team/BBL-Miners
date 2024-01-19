@@ -1,9 +1,10 @@
 package com.benbenlaw.miners.multiblock;
 
-import com.benbenlaw.opolisutilities.block.ModBlocks;
+import com.benbenlaw.miners.block.ModBlocks;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.Mod;
 
 public class MultiBlockManagers {
@@ -41,15 +42,14 @@ public class MultiBlockManagers {
                 "miners:iron",
                 Miners.IRON,
                 BlockPatternBuilder.start()
-                        .aisle("C   C", "     ", "     ", "     ", "C   C")
-                        .aisle("0   0", "     ", "  *  ", "     ", "0   0")
-                        .aisle("00000", "0   0", "0   0", "0   0", "00000")
-                        .aisle("0   0", "     ", "     ", "     ", "0   0")
-                        .aisle("0   0", "     ", "     ", "     ", "0   0")
-                        .aisle("0   0", "     ", "     ", "     ", "0   0")
-                        .where('0', a -> a.getState().is(Blocks.IRON_BLOCK))
-                        .where('C', a -> a.getState().is(ModBlocks.ENDER_SCRAMBLER.get()))
-                        .where('*', a -> a.getState().is(com.benbenlaw.miners.block.ModBlocks.MINER.get()))
+                        .aisle("F   F", "     ", "  *  ", "     ", "F   F")
+                        .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
+                        .where('O', a -> a.getState().is(Tags.Blocks.ORES_IRON))
+                        .where('*', a -> a.getState().is(ModBlocks.MINER.get()))
                         .build()
         );
 
