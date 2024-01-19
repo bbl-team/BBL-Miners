@@ -10,6 +10,7 @@
   "block.miners.netherite_support_frame": "Netherite Support Frame",
   "block.miners.ultimate_support_frame": "Ultimate Support Frame",
   "block.miners.tree_absorber": "Tree Absorber",
+  "block.miners.fluid_absorber": "Tree Absorber",
   "block.miners.miner": "Miner",
 
   "itemGroup.miners": "Miners"
