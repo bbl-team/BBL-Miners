@@ -268,7 +268,7 @@ public class MultiBlockManagers {
         );
 
         MINERS.register(
-                "miners:copper",
+                "miners:copper.json",
                 Miners.COPPER,
                 BlockPatternBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
