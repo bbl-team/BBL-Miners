@@ -4,6 +4,7 @@ import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
 import com.benbenlaw.miners.recipe.MinerRecipe;
+import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
 import com.benbenlaw.miners.screen.TreeAbsorberMenu;
 import com.benbenlaw.miners.util.ModEnergyStorage;
 import com.benbenlaw.opolisutilities.util.inventory.IInventoryHandlingBlockEntity;
@@ -16,6 +17,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -24,6 +27,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,10 +39,12 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
 
 public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider, IInventoryHandlingBlockEntity {
@@ -84,14 +92,14 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
 
     protected final ContainerData data;
     public int progress;
-    public int maxProgress = 300;
-    public ItemStack output;
+    public int maxProgress;
     public final ModEnergyStorage ENERGY_STORAGE = createEnergyStorage();
     public int RFPerTick;
     public int fuelDuration = 0;
     final int maxEnergyStorage = 1000000;
     final int maxEnergyTransfer = 1000000;
-
+    public String logLoottable;
+    public String leafLoottable;
     public int maxTransferPerTick = 0;
     public boolean hasStructure;
     public boolean hasFuel;
@@ -280,9 +288,9 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         if (!level.isClientSide()) {
 
             if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition);
+                var result = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, this.worldPosition);
 
-                if (result != null && output == null) {
+                if (result != null && logLoottable == null && leafLoottable == null) {
 
                     String foundPattern = result.ID();
                     SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
@@ -291,14 +299,16 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
                     }
                     assert level != null;
 
-                    for (MinerRecipe recipe : level.getRecipeManager().getAllRecipesFor(MinerRecipe.Type.INSTANCE)) {
+                    for (TreeAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(TreeAbsorberRecipe.Type.INSTANCE)) {
                         String patternInRecipe = recipe.getPattern();
 
                         if (foundPattern.equals(patternInRecipe)) {
                             //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
-                                output = recipe.getOutputItem().getItem().getDefaultInstance();
+                                logLoottable = recipe.getLogLoottable();
+                                leafLoottable = recipe.getLeafLoottable();
                                 this.RFPerTick = recipe.getRFPerTick();
+                                this.maxProgress = recipe.getDuration();
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
                                 break;
                             }
@@ -309,13 +319,55 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
 
             progress++;
             if (progress > maxProgress) {
-                if (output != null) {
-                    this.itemHandler.insertItem(0, output, false);
+                if (logLoottable != null && leafLoottable != null) {
+
+                    //Get Loot
+                    List<ItemStack> logDrops;
+                    List<ItemStack> leafDrops;
+                    List<ItemStack> leafDropsShears;
+                    Block logBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(logLoottable));
+                    Block leafBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(leafLoottable));
+                    assert logBlock != null;
+                    logDrops = Block.getDrops(logBlock.defaultBlockState(), (ServerLevel) level, this.worldPosition, null);
+                    assert leafBlock != null;
+                    leafDrops = Block.getDrops(leafBlock.defaultBlockState(), (ServerLevel) level, this.worldPosition, null);
+                    leafDropsShears = Block.getDrops(leafBlock.defaultBlockState(), (ServerLevel) level, this.worldPosition, null, null, new ItemStack(Items.SHEARS));
+
+                    for (ItemStack logItemStack : logDrops) {
+                        for (int i = 0; i <= 4; i++) {
+                            if (this.itemHandler.isItemValid(i, logItemStack) && this.itemHandler.insertItem(i, new ItemStack(logItemStack.getItem()), false).isEmpty()) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (level.getBlockState(this.getBlockPos().above(9)).is(Blocks.DIAMOND_BLOCK)) {
+
+                        for (ItemStack leafItemStackShears : leafDropsShears) {
+                            for (int i = 0; i <= 4; i++) {
+                                if (this.itemHandler.isItemValid(i, leafItemStackShears) && this.itemHandler.insertItem(i, new ItemStack(leafItemStackShears.getItem()), false).isEmpty()) {
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                    else {
+                        for (ItemStack leafItemStack : leafDrops) {
+                            for (int i = 0; i <= 4; i++) {
+                                if (this.itemHandler.isItemValid(i, leafItemStack) && this.itemHandler.insertItem(i, new ItemStack(leafItemStack.getItem()), false).isEmpty()) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                     resetGenerator();
                 }
             }
 
-            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || output == null) {
+            //need to check all slots
+            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || logLoottable == null || leafLoottable == null) {
                 this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
             }
             //reset tick
@@ -329,13 +381,42 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
     private void resetGenerator() {
         this.progress = 0;
         this.RFPerTick = 0;
-        output = null;
+        this.maxProgress = 0;
+        logLoottable = null;
+        leafLoottable = null;
         assert this.level != null;
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }
 
-    boolean hasEnoughEnergyStorage (TreeAbsorberBlockEntity entity, MinerRecipe recipe) {
+    boolean hasEnoughEnergyStorage (TreeAbsorberBlockEntity entity, TreeAbsorberRecipe recipe) {
         return entity.getEnergyStorage().getEnergyStored() >= (recipe.getRFPerTick() * maxProgress) + 1 ;
+    }
+
+    private boolean hasEnoughOutputSpace(SimpleContainer inventory, ItemStack stack) {
+        int emptySlotCounter = 0;
+        int occupiedSlotCounter = 0;
+
+        for (int i = 0; i <= 4; i++) {
+            ItemStack itemStack = inventory.getItem(i);
+
+            if (itemStack.isEmpty()) {
+                emptySlotCounter++;
+            } else if (itemStack.getItem() == stack.getItem()) {
+                int availableSpace = stack.getCount(); // Use the entire stack size
+
+                if (availableSpace > 0) {
+                    // There's enough space for the entire stack, continue checking other slots
+                    continue;
+                } else {
+                    return false; // Item already present in a slot, recipe should not start
+                }
+            } else {
+                occupiedSlotCounter++;
+            }
+        }
+
+        // Return false if all slots are occupied or if there are no empty slots
+        return occupiedSlotCounter != 26 && emptySlotCounter != 0;
     }
 
     @Nullable

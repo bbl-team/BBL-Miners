@@ -19,7 +19,7 @@ public class TreeAbsorberMenu extends AbstractContainerMenu {
     private final ContainerData data;
 
     public TreeAbsorberMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
-        this(id, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(1));
+        this(id, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(5));
     }
 
     public TreeAbsorberMenu(int id, Inventory inv, BlockEntity entity, ContainerData data){
@@ -33,11 +33,11 @@ public class TreeAbsorberMenu extends AbstractContainerMenu {
         addPlayerHotbar(inv);
 
         this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
-            this.addSlot(new ModResultSlot(handler, 0, 80, 38));
-            this.addSlot(new ModResultSlot(handler, 0, 56, 38));
             this.addSlot(new ModResultSlot(handler, 0, 32, 38));
-            this.addSlot(new ModResultSlot(handler, 0, 104, 38));
-            this.addSlot(new ModResultSlot(handler, 0, 128, 38));
+            this.addSlot(new ModResultSlot(handler, 1, 56, 38));
+            this.addSlot(new ModResultSlot(handler, 2, 80, 38));
+            this.addSlot(new ModResultSlot(handler, 3, 104, 38));
+            this.addSlot(new ModResultSlot(handler, 4, 128, 38));
         });
 
         addDataSlots(data);
