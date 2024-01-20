@@ -6,9 +6,11 @@ import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.recipe.ModRecipes;
 import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
 import com.benbenlaw.opolisutilities.loot.ModLootTables;
+import com.google.gson.JsonParser;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotTooltipCallback;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -47,19 +49,21 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.*;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class TreeAbsorberRecipeCategory implements IRecipeCategory<TreeAbsorberRecipe> {
     public final static ResourceLocation UID = new ResourceLocation(Miners.MOD_ID, "tree_absorber");
-    public final static ResourceLocation TEXTURE =
+    public ResourceLocation TEXTURE =
             new ResourceLocation(Miners.MOD_ID, "textures/gui/jei_tree_absorber.png");
 
     static final RecipeType<TreeAbsorberRecipe> RECIPE_TYPE = RecipeType.create(Miners.MOD_ID, "tree_absorber",
             TreeAbsorberRecipe.class);
 
-    private static List<ItemStack> leafItems = new ArrayList();
     private final IDrawable background;
     private final IDrawable icon;
 
@@ -90,46 +94,61 @@ public class TreeAbsorberRecipeCategory implements IRecipeCategory<TreeAbsorberR
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, TreeAbsorberRecipe recipe, @NotNull IFocusGroup focusGroup) {
-        ResourceLocation logLootTable = new ResourceLocation(recipe.getLogLoottable());
-        ResourceLocation leafLootTable = new ResourceLocation(recipe.getLeafLoottable());
 
-        Block log = ForgeRegistries.BLOCKS.getValue(logLootTable);
-        Block leaf = ForgeRegistries.BLOCKS.getValue(leafLootTable);
-        ServerLevel level = Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer()).overworld();
-        assert level != null;
-        assert leaf != null;
-        assert Minecraft.getInstance().player != null;
-        Player player = level.players().get(0);
-        List<ItemStack> leafDropsShears = Block.getDrops(leaf.defaultBlockState(),
-                level,
-                Minecraft.getInstance().player.getOnPos(),
-                null, null, new ItemStack(Items.SHEARS));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 5, 13).addItemStack(new ItemStack(recipe.getSapling().getItem()));
 
-        int slotX = 5;  // Starting X-coordinate for the slot
-        int slotY = 40;  // Starting Y-coordinate for the slot
 
-        int iterations = 1000;
+        if (recipe.getExtraItem() == ItemStack.EMPTY) {
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 90, 42).addItemStack(new ItemStack(recipe.getLog().getItem())).addTooltipCallback(chanceLog());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 42).addItemStack(new ItemStack(recipe.getLeaf().getItem())).addTooltipCallback(requiresShearUpgrade());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 134, 42).addItemStack(new ItemStack(recipe.getSapling().getItem())).addTooltipCallback(chanceSapling());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 156, 42).addItemStack(new ItemStack(Items.STICK)).addTooltipCallback(chanceStick());
 
-        for (int i = 0; i < iterations; i++) {
-            List<ItemStack> leafDrops = Block.getDrops(leaf.defaultBlockState(), level, Minecraft.getInstance().player.getOnPos(),
-                            null, null, ItemStack.EMPTY).stream()
-                    .filter(itemStack -> !itemStack.isEmpty() && itemStack.getItem() != Items.AIR)
-                    .collect(Collectors.toList());
+        } else {
 
-            // Check if leafDrops is not empty before adding a new slot
-            if (!leafDrops.isEmpty()) {
-                int finalSlotX = slotX;
-                leafDrops.forEach(itemStack ->
-                        builder.addSlot(RecipeIngredientRole.OUTPUT, finalSlotX, slotY).addItemStack(itemStack));
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 68, 42).addItemStack(new ItemStack(recipe.getLog().getItem())).addTooltipCallback(chanceLog());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 90, 42).addItemStack(new ItemStack(recipe.getLeaf().getItem())).addTooltipCallback(requiresShearUpgrade());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 42).addItemStack(new ItemStack(recipe.getSapling().getItem())).addTooltipCallback(chanceSapling());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 134, 42).addItemStack(new ItemStack(Items.STICK)).addTooltipCallback(chanceStick());
 
-                // Increment the X-coordinate for the next slot
-                slotX += 10;
-            }
+            builder.addSlot(RecipeIngredientRole.INPUT, 156, 42).addItemStack(new ItemStack(recipe.getExtraItem().getItem()))
+                    .setBackground(JEIMinersPlugin.slotDrawable, -89, -1).addTooltipCallback(chanceExtra(recipe));
         }
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 5, 13).addItemStack(new ItemStack(log.asItem()));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 5, 21).addItemStack(new ItemStack(leafDropsShears.get(0).getItem()));
     }
+
+    private IRecipeSlotTooltipCallback requiresShearUpgrade() {
+        return (chance, addTooltip) -> {
+            addTooltip.add(Component.literal("Chance: 100% (With Shear Upgrade)"));
+        };
+    }
+
+    private IRecipeSlotTooltipCallback chanceExtra(TreeAbsorberRecipe recipe) {
+        return (chance, addTooltip) -> {
+            String string = ("Chance: " + recipe.getExtraItemChance() * 100 + "%").replace("0.0", "");
+            addTooltip.add(Component.literal(string));
+        };
+    }
+
+    private IRecipeSlotTooltipCallback chanceStick() {
+        return (chance, addTooltip) -> {
+            addTooltip.add(Component.literal("Chance: 5% (Without Shear Upgrade)"));
+        };
+    }
+
+    private IRecipeSlotTooltipCallback chanceSapling() {
+        return (chance, addTooltip) -> {
+            addTooltip.add(Component.literal("Chance: 5% (Without Shear Upgrade)"));
+        };
+    }
+    private IRecipeSlotTooltipCallback chanceLog() {
+        return (chance, addTooltip) -> {
+            addTooltip.add(Component.literal("Chance: 100% (With or Without Shear Upgrade)"));
+        };
+    }
+
+
+
 
 
 

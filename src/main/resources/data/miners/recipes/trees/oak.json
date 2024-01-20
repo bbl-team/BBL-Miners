@@ -1,8 +1,19 @@
 {
   "type": "miners:tree_absorber",
   "pattern": "miners:oak",
-  "log_loottable": "minecraft:oak_log",
-  "leaf_loottable": "minecraft:oak_leaves",
-  "rf_per_tick": 30,
+  "log": {
+    "item": "minecraft:oak_log"
+  },
+  "leaf": {
+    "item": "minecraft:oak_leaves"
+  },
+  "sapling": {
+    "item": "minecraft:oak_sapling"
+  },
+  "extra_item": {
+    "item": "minecraft:apple"
+  },
+  "extra_item_chance": 1.0,
+  "rf_per_tick": 10,
   "duration": 200
 }

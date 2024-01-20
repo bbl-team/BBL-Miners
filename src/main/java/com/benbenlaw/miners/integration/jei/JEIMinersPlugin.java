@@ -6,6 +6,8 @@ import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.gui.drawable.IDrawableStatic;
+import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -23,6 +25,8 @@ import java.util.Objects;
 @JeiPlugin
 public class JEIMinersPlugin implements IModPlugin {
 
+    public static IDrawableStatic slotDrawable;
+
     @Override
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(Miners.MOD_ID, "jei_plugin");
@@ -39,10 +43,14 @@ public class JEIMinersPlugin implements IModPlugin {
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
 
+        IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
+
         registration.addRecipeCategories(new
                 MinerRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new
                 TreeAbsorberRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+
+        slotDrawable = guiHelper.getSlotDrawable();
 
     }
     @Override

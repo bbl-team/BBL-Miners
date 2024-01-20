@@ -311,11 +311,13 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
                 }
             }
 
-            progress++;
-            if (progress > maxProgress) {
-                if (output != null) {
-                    this.itemHandler.insertItem(0, output, false);
-                    resetGenerator();
+            if (output != null) {
+                progress++;
+                if (progress > maxProgress) {
+                    if (output != null) {
+                        this.itemHandler.insertItem(0, output, false);
+                        resetGenerator();
+                    }
                 }
             }
 

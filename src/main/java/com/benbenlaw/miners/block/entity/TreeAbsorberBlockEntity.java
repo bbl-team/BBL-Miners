@@ -98,8 +98,11 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
     public int fuelDuration = 0;
     final int maxEnergyStorage = 1000000;
     final int maxEnergyTransfer = 1000000;
-    public String logLoottable;
-    public String leafLoottable;
+    public ItemStack log;
+    public ItemStack leaf;
+    public ItemStack sapling;
+    public ItemStack extraItem;
+    public double extraItemChance;
     public int maxTransferPerTick = 0;
     public boolean hasStructure;
     public boolean hasFuel;
@@ -290,7 +293,7 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
             if (tickCounter % tickBeforeCheck == 0) {
                 var result = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, this.worldPosition);
 
-                if (result != null && logLoottable == null && leafLoottable == null) {
+                if (result != null && log == null && leaf == null) {
 
                     String foundPattern = result.ID();
                     SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
@@ -305,8 +308,11 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
                         if (foundPattern.equals(patternInRecipe)) {
                             //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
-                                logLoottable = recipe.getLogLoottable();
-                                leafLoottable = recipe.getLeafLoottable();
+                                log = recipe.getLog();
+                                leaf = recipe.getLeaf();
+                                sapling = recipe.getSapling();
+                                extraItem = recipe.getExtraItem();
+                                extraItemChance = recipe.getExtraItemChance();
                                 this.RFPerTick = recipe.getRFPerTick();
                                 this.maxProgress = recipe.getDuration();
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
@@ -317,57 +323,69 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
                 }
             }
 
-            progress++;
-            if (progress > maxProgress) {
-                if (logLoottable != null && leafLoottable != null) {
+            if (log != null && leaf != null && sapling != null) {
 
-                    //Get Loot
-                    List<ItemStack> logDrops;
-                    List<ItemStack> leafDrops;
-                    List<ItemStack> leafDropsShears;
-                    Block logBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(logLoottable));
-                    Block leafBlock = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(leafLoottable));
-                    assert logBlock != null;
-                    logDrops = Block.getDrops(logBlock.defaultBlockState(), (ServerLevel) level, this.worldPosition, null);
-                    assert leafBlock != null;
-                    leafDrops = Block.getDrops(leafBlock.defaultBlockState(), (ServerLevel) level, this.worldPosition, null);
-                    leafDropsShears = Block.getDrops(leafBlock.defaultBlockState(), (ServerLevel) level, this.worldPosition, null, null, new ItemStack(Items.SHEARS));
+                progress++;
+                if (progress > maxProgress) {
 
-                    for (ItemStack logItemStack : logDrops) {
+//log drops
                         for (int i = 0; i <= 4; i++) {
-                            if (this.itemHandler.isItemValid(i, logItemStack) && this.itemHandler.insertItem(i, new ItemStack(logItemStack.getItem()), false).isEmpty()) {
+                            if (this.itemHandler.isItemValid(i, log) && this.itemHandler.insertItem(i, new ItemStack(log.getItem()), false).isEmpty()) {
                                 break;
                             }
                         }
-                    }
 
-                    if (level.getBlockState(this.getBlockPos().above(9)).is(Blocks.DIAMOND_BLOCK)) {
+                        //leaf drops
 
-                        for (ItemStack leafItemStackShears : leafDropsShears) {
+
+                        if (level.getBlockState(this.getBlockPos().above(9)).is(Blocks.DIAMOND_BLOCK)) {
+
                             for (int i = 0; i <= 4; i++) {
-                                if (this.itemHandler.isItemValid(i, leafItemStackShears) && this.itemHandler.insertItem(i, new ItemStack(leafItemStackShears.getItem()), false).isEmpty()) {
+                                if (this.itemHandler.isItemValid(i, leaf) && this.itemHandler.insertItem(i, new ItemStack(leaf.getItem()), false).isEmpty()) {
                                     break;
+                                }
+
+                            }
+
+                        } else {
+                            //No leaves other drops
+                            if (0.05 > Math.random()) {
+
+                                for (int i = 0; i <= 4; i++) {
+                                    if (this.itemHandler.isItemValid(i, sapling) && this.itemHandler.insertItem(i, new ItemStack(sapling.getItem()), false).isEmpty()) {
+                                        break;
+                                    }
+                                }
+
+                            }
+                            if (0.05 > Math.random()) {
+
+                                for (int i = 0; i <= 4; i++) {
+                                    if (this.itemHandler.isItemValid(i, Items.STICK.getDefaultInstance()) && this.itemHandler.insertItem(i, new ItemStack(Items.STICK.getDefaultInstance().getItem()), false).isEmpty()) {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (extraItem != null) {
+                                if (extraItemChance > Math.random()) {
+
+                                    for (int i = 0; i <= 4; i++) {
+                                        if (this.itemHandler.isItemValid(i, extraItem) && this.itemHandler.insertItem(i, new ItemStack(extraItem.getItem()), false).isEmpty()) {
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
 
-                    }
-                    else {
-                        for (ItemStack leafItemStack : leafDrops) {
-                            for (int i = 0; i <= 4; i++) {
-                                if (this.itemHandler.isItemValid(i, leafItemStack) && this.itemHandler.insertItem(i, new ItemStack(leafItemStack.getItem()), false).isEmpty()) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
+
 
                     resetGenerator();
                 }
             }
-
             //need to check all slots
-            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || logLoottable == null || leafLoottable == null) {
+            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || log == null || leaf == null) {
                 this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
             }
             //reset tick
@@ -382,8 +400,11 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         this.progress = 0;
         this.RFPerTick = 0;
         this.maxProgress = 0;
-        logLoottable = null;
-        leafLoottable = null;
+        leaf = null;
+        log = null;
+        sapling = null;
+        extraItem = null;
+        extraItemChance = 0;
         assert this.level != null;
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }
