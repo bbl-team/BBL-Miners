@@ -1,10 +1,7 @@
 package com.benbenlaw.miners.block;
 
 import com.benbenlaw.miners.Miners;
-import com.benbenlaw.miners.block.custom.FluidAbsorberBlock;
-import com.benbenlaw.miners.block.custom.MinerBlock;
-import com.benbenlaw.miners.block.custom.MinerFrameBlockBase;
-import com.benbenlaw.miners.block.custom.TreeAbsorberBlock;
+import com.benbenlaw.miners.block.custom.*;
 import com.benbenlaw.miners.item.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -42,6 +39,9 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> FLUID_ABSORBER = registerBlock("fluid_absorber",
             () -> new FluidAbsorberBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).strength(1f).sound(SoundType.METAL)));
+
+    public static final RegistryObject<Block> CRUSHER = registerBlock("crusher",
+            () -> new CrusherBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).strength(1f).sound(SoundType.METAL)));
 
     public static final RegistryObject<Block> WOODEN_SUPPORT_FRAME = registerBlock("wooden_support_frame",
             () -> new MinerFrameBlockBase(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).strength(2.0f, 3f).sound(SoundType.WOOD).noOcclusion()));

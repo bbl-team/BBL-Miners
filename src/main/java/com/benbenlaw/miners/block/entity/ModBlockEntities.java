@@ -28,6 +28,11 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(FluidAbsorberBlockEntity::new,
                             ModBlocks.FLUID_ABSORBER.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<CrusherBlockEntity>> CRUSHER_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("crusher_block_entity", () ->
+                    BlockEntityType.Builder.of(CrusherBlockEntity::new,
+                            ModBlocks.CRUSHER.get()).build(null));
+
 
 
 

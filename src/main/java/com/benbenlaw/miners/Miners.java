@@ -6,10 +6,7 @@ import com.benbenlaw.miners.item.ModCreativeTab;
 import com.benbenlaw.miners.item.ModItems;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.recipe.ModRecipes;
-import com.benbenlaw.miners.screen.FluidAbsorberScreen;
-import com.benbenlaw.miners.screen.MinerScreen;
-import com.benbenlaw.miners.screen.ModMenuTypes;
-import com.benbenlaw.miners.screen.TreeAbsorberScreen;
+import com.benbenlaw.miners.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -103,6 +100,7 @@ public class Miners{
             MenuScreens.register(ModMenuTypes.MINER_MENU.get(), MinerScreen::new);
             MenuScreens.register(ModMenuTypes.TREE_ABSORBER_MENU.get(), TreeAbsorberScreen::new);
             MenuScreens.register(ModMenuTypes.FLUID_ABSORBER_MENU.get(), FluidAbsorberScreen::new);
+            MenuScreens.register(ModMenuTypes.CRUSHER_MENU.get(), CrusherScreen::new);
 
         });
     }

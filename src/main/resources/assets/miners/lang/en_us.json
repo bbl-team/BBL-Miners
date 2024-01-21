@@ -12,6 +12,7 @@
   "block.miners.tree_absorber": "Tree Absorber",
   "block.miners.fluid_absorber": "Fluid Absorber",
   "block.miners.miner": "Miner",
+  "block.miners.crusher": "Crusher",
 
   "itemGroup.miners": "Miners"
 }

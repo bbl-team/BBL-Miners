@@ -23,6 +23,9 @@ public class ModMenuTypes {
     public static final RegistryObject<MenuType<FluidAbsorberMenu>> FLUID_ABSORBER_MENU =
             registerMenuType(FluidAbsorberMenu::new, "fluid_absorber_menu");
 
+    public static final RegistryObject<MenuType<CrusherMenu>> CRUSHER_MENU =
+            registerMenuType(CrusherMenu::new, "crusher_menu");
+
     private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> registerMenuType(IContainerFactory<T> factory,
                                                                                                   String name) {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));
