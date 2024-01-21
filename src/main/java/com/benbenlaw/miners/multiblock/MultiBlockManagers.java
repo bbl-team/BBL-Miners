@@ -1,10 +1,12 @@
 package com.benbenlaw.miners.multiblock;
 
 import com.benbenlaw.miners.block.ModBlocks;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 
 public class MultiBlockManagers {
@@ -12,6 +14,7 @@ public class MultiBlockManagers {
 
     public static final MultiBlockManagerBeta<Miners> MINERS = new MultiBlockManagerBeta<>();
     public static final MultiBlockManagerBeta<TreeAbsorbers> TREE_ABSORBERS = new MultiBlockManagerBeta<>();
+    public static final MultiBlockManagerBeta<FluidAbsorbers> FLUID_ABSORBERS = new MultiBlockManagerBeta<>();
 
     static {
         TREE_ABSORBERS.register (
@@ -341,4 +344,35 @@ public class MultiBlockManagers {
          */
     }
 
+    static {
+        FLUID_ABSORBERS.register(
+                "miners:water",
+                FluidAbsorbers.WATER,
+                BlockPatternBuilder.start()
+                        .aisle("F   F", "     ", "  *  ", "     ", "F   F")
+                        .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
+                        .where('O', a -> a.getState().is(Blocks.WATER))
+                        .where('*', a -> a.getState().is(ModBlocks.FLUID_ABSORBER.get()))
+                        .build()
+        );
+
+        FLUID_ABSORBERS.register(
+                "miners:lava",
+                FluidAbsorbers.LAVA,
+                BlockPatternBuilder.start()
+                        .aisle("F   F", "     ", "  *  ", "     ", "F   F")
+                        .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
+                        .where('O', a -> a.getState().is(Blocks.LAVA))
+                        .where('*', a -> a.getState().is(ModBlocks.FLUID_ABSORBER.get()))
+                        .build()
+        );
+    }
 }

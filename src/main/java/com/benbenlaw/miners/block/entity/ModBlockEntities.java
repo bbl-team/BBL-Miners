@@ -23,7 +23,10 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(TreeAbsorberBlockEntity::new,
                             ModBlocks.TREE_ABSORBER.get()).build(null));
 
-
+    public static final RegistryObject<BlockEntityType<FluidAbsorberBlockEntity>> FLUID_ABSORBER_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("fluid_absorber_block_entity", () ->
+                    BlockEntityType.Builder.of(FluidAbsorberBlockEntity::new,
+                            ModBlocks.FLUID_ABSORBER.get()).build(null));
 
 
 
