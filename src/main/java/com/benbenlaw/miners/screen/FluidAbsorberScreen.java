@@ -91,7 +91,9 @@ public class FluidAbsorberScreen extends AbstractContainerScreen<FluidAbsorberMe
         //  renderProgressArrow(guiGraphics, x, y);
 
         energyInfoArea.render(guiGraphics);
-        renderer.render(guiGraphics, x + 14, y + 11, menu.blockEntity.getFluidStack());;
+        if (!menu.blockEntity.getFluidStack().isEmpty()) {
+            renderer.render(guiGraphics, x + 14, y + 11, menu.blockEntity.getFluidStack());;
+        }
     }
 
     @Override
