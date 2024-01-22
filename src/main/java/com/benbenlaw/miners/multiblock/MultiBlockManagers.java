@@ -2,12 +2,17 @@ package com.benbenlaw.miners.multiblock;
 
 import com.benbenlaw.miners.block.ModBlocks;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class MultiBlockManagers {
 
@@ -329,6 +334,41 @@ public class MultiBlockManagers {
                         .where('*', a -> a.getState().is(ModBlocks.MINER.get()))
                         .build()
         );
+
+        TagKey<Block> oreTin = BlockTags.create(new ResourceLocation("forge","ores/tin"));
+
+        MINERS.register(
+                "miners:tin",
+                Miners.TIN,
+                BlockPatternBuilder.start()
+                        .aisle("F   F", "     ", "  *  ", "     ", "F   F")
+                        .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
+                        .where('O', a -> a.getState().is(oreTin))
+                        .where('*', a -> a.getState().is(ModBlocks.MINER.get()))
+                        .build()
+        );
+
+        TagKey<Block> oreRuby = BlockTags.create(new ResourceLocation("forge","ores/ruby"));
+        MINERS.register(
+                "miners:ruby",
+                Miners.TIN,
+                BlockPatternBuilder.start()
+                        .aisle("F   F", "     ", "  *  ", "     ", "F   F")
+                        .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
+                        .where('O', a -> a.getState().is(oreRuby))
+                        .where('*', a -> a.getState().is(ModBlocks.MINER.get()))
+                        .build()
+        );
+
+
 
         /*
         patterns.add(

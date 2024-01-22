@@ -4,8 +4,12 @@ import com.benbenlaw.miners.Miners;
 import com.benbenlaw.miners.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -35,6 +39,16 @@ public class ModCreativeTab {
                 output.accept(ModBlocks.EMERALD_SUPPORT_FRAME.get());
                 output.accept(ModBlocks.NETHERITE_SUPPORT_FRAME.get());
                 output.accept(ModBlocks.ULTIMATE_SUPPORT_FRAME.get());
+
+                TagKey<Block> oreTin = BlockTags.create(new ResourceLocation("forge","ores/tin"));
+                TagKey<Block> oreRuby = BlockTags.create(new ResourceLocation("forge","ores/ruby"));
+
+                if (oreTin != null){
+                    output.accept(ModItems.RAW_TIN.get());
+                }
+                if (oreRuby != null){
+                    output.accept(ModItems.RAW_RUBY.get());
+                }
 
 
 
