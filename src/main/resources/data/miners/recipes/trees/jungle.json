@@ -1,0 +1,15 @@
+{
+  "type": "miners:tree_absorber",
+  "pattern": "miners:jungle",
+  "log": {
+    "item": "minecraft:jungle_log"
+  },
+  "leaf": {
+    "item": "minecraft:jungle_leaves"
+  },
+  "sapling": {
+    "item": "minecraft:jungle_sapling"
+  },
+  "rf_per_tick": 10,
+  "duration": 200
+}

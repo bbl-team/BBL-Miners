@@ -1,0 +1,18 @@
+{
+  "type": "miners:tree_absorber",
+  "pattern": "miners:dark_oak",
+  "log": {
+    "item": "minecraft:dark_oak_log"
+  },
+  "leaf": {
+    "item": "minecraft:dark_oak_leaves"
+  },
+  "sapling": {
+    "item": "minecraft:dark_oak_sapling"
+  },
+  "extra_item": {
+    "item": "minecraft:apple"
+  },
+  "rf_per_tick": 10,
+  "duration": 200
+}

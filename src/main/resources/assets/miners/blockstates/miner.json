@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "miners:block/miner_vertical",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "miners:block/miner",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "miners:block/miner"
+    },
+    "facing=south": {
+      "model": "miners:block/miner",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "miners:block/miner_vertical"
+    },
+    "facing=west": {
+      "model": "miners:block/miner",
+      "y": 270
+    }
+  }
+}

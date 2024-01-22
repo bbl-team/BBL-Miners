@@ -1,0 +1,15 @@
+{
+  "type": "miners:tree_absorber",
+  "pattern": "miners:acacia",
+  "log": {
+    "item": "minecraft:acacia_log"
+  },
+  "leaf": {
+    "item": "minecraft:acacia_leaves"
+  },
+  "sapling": {
+    "item": "minecraft:acacia_sapling"
+  },
+  "rf_per_tick": 10,
+  "duration": 200
+}

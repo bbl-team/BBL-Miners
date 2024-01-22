@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "miners:block/fluid_absorber_vertical",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "miners:block/fluid_absorber",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "miners:block/fluid_absorber"
+    },
+    "facing=south": {
+      "model": "miners:block/fluid_absorber",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "miners:block/fluid_absorber_vertical"
+    },
+    "facing=west": {
+      "model": "miners:block/fluid_absorber",
+      "y": 270
+    }
+  }
+}

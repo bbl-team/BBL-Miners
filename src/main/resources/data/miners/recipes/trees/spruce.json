@@ -1,0 +1,15 @@
+{
+  "type": "miners:tree_absorber",
+  "pattern": "miners:spruce",
+  "log": {
+    "item": "minecraft:spruce_log"
+  },
+  "leaf": {
+    "item": "minecraft:spruce_leaves"
+  },
+  "sapling": {
+    "item": "minecraft:spruce_sapling"
+  },
+  "rf_per_tick": 10,
+  "duration": 200
+}

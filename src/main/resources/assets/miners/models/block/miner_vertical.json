@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/orientable_vertical",
+	"textures": {
+    "front": "miners:block/miner_front",
+    "side": "opolisutilities:block/machine_side"
+    }
+}
