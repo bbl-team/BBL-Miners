@@ -43,12 +43,12 @@ public class ModCreativeTab {
                 TagKey<Block> oreTin = BlockTags.create(new ResourceLocation("forge","ores/tin"));
                 TagKey<Block> oreRuby = BlockTags.create(new ResourceLocation("forge","ores/ruby"));
 
-                if (oreTin != null){
+                /*if (oreTin != null){
                     output.accept(ModItems.RAW_TIN.get());
                 }
                 if (oreRuby != null){
                     output.accept(ModItems.RAW_RUBY.get());
-                }
+                }*/
 
 
 
