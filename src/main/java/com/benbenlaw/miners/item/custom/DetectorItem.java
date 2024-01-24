@@ -25,16 +25,17 @@ public class DetectorItem extends Item {
 
                 if (minerResult != null) {
                     player.sendSystemMessage(Component.literal("Miner Structure : %s".formatted(minerResult.ID())));
+                    return super.useOn(context);
                 }
                 if (treeAbsorberResult != null) {
                     player.sendSystemMessage(Component.literal("Tree Absorber Structure : %s".formatted(treeAbsorberResult.ID())));
+                    return super.useOn(context);
                 }
                 if (fluidAbsorberResult != null) {
-                    player.sendSystemMessage(Component.literal("Fluid Absorber Structure : %s".formatted(treeAbsorberResult.ID())));
+                    player.sendSystemMessage(Component.literal("Fluid Absorber Structure : %s".formatted(fluidAbsorberResult.ID())));
+                    return super.useOn(context);
                 }
-            }
-            else {
-                assert false;
+
                 player.sendSystemMessage(Component.literal("Found no structure!"));
             }
         }

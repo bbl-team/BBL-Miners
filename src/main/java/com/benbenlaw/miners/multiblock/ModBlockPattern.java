@@ -1,5 +1,5 @@
 package com.benbenlaw.miners.multiblock;
 
-import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import com.benbenlaw.miners.multiblock.core.IMultiBlockPattern;
 
-public record ModBlockPattern<T>(String ID, T data, BlockPattern structure) { }
+public record ModBlockPattern<T>(String ID, T data, IMultiBlockPattern structure) { }
