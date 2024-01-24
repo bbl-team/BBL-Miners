@@ -1,15 +1,13 @@
 package com.benbenlaw.miners.multiblock;
 
 import com.benbenlaw.miners.block.ModBlocks;
-import com.benbenlaw.miners.multiblock.core.IMultiBlockPattern;
-import com.benbenlaw.miners.multiblock.core.IMultiBlockPatternBuilder;
-import com.benbenlaw.miners.multiblock.core.SimpleMultiBlockPattern;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
+import org.mangorage.mangomultiblock.core.SimpleMultiBlockPattern;
 
 public class MultiBlockManagers {
 

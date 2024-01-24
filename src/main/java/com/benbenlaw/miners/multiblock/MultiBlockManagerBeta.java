@@ -1,10 +1,8 @@
 package com.benbenlaw.miners.multiblock;
 
-import com.benbenlaw.miners.multiblock.core.IMultiBlockPattern;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import org.mangorage.mangomultiblock.core.IMultiBlockPattern;
 
 import java.util.ArrayList;
 
