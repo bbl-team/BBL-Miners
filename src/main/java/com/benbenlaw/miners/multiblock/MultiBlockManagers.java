@@ -20,6 +20,7 @@ public class MultiBlockManagers {
     public static final MultiBlockManagerBeta<Miners> MINERS = new MultiBlockManagerBeta<>();
     public static final MultiBlockManagerBeta<TreeAbsorbers> TREE_ABSORBERS = new MultiBlockManagerBeta<>();
     public static final MultiBlockManagerBeta<FluidAbsorbers> FLUID_ABSORBERS = new MultiBlockManagerBeta<>();
+    public static final MultiBlockManagerBeta<Crusher> CRUSHER = new MultiBlockManagerBeta<>();
 
     static {
         TREE_ABSORBERS.register (
@@ -412,6 +413,17 @@ public class MultiBlockManagers {
                         .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
                         .where('O', a -> a.getState().is(Blocks.LAVA))
                         .where('*', a -> a.getState().is(ModBlocks.FLUID_ABSORBER.get()))
+                        .build()
+        );
+    }
+
+    static  {
+        CRUSHER.register(
+                "miners:glass",
+                Crusher.GLASS,
+                BlockPatternBuilder.start()
+                        .aisle("*")
+                        .where('*', a -> a.getState().is(ModBlocks.CRUSHER.get()))
                         .build()
         );
     }

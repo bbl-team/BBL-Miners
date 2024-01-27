@@ -3,6 +3,7 @@ package com.benbenlaw.miners.block.entity;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
+import com.benbenlaw.miners.recipe.CrusherRecipe;
 import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.screen.CrusherMenu;
 import com.benbenlaw.miners.util.ModEnergyStorage;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IInventoryHandlingBlockEntity {
 
@@ -86,7 +88,10 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
     protected final ContainerData data;
     public int progress;
     public int maxProgress;
+    public ItemStack input;
     public ItemStack output;
+    public Map<ItemStack, Integer> chances;
+
     public final ModEnergyStorage ENERGY_STORAGE = createEnergyStorage();
     public int RFPerTick;
     public int fuelDuration = 0;
@@ -277,13 +282,12 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
     public void tick() {
 
-        tickCounter++;
+        progress++;
 
         assert level != null;
         if (!level.isClientSide()) {
 
-            if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition);
+                var result = MultiBlockManagers.CRUSHER.findStructure(level, this.worldPosition);
 
                 if (result != null && output == null) {
 
@@ -294,13 +298,15 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
                     }
                     assert level != null;
 
-                    for (MinerRecipe recipe : level.getRecipeManager().getAllRecipesFor(MinerRecipe.Type.INSTANCE)) {
+                    for (CrusherRecipe recipe : level.getRecipeManager().getAllRecipesFor(CrusherRecipe.Type.INSTANCE)) {
                         String patternInRecipe = recipe.getPattern();
 
                         if (foundPattern.equals(patternInRecipe)) {
                             //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
+                                input = recipe.getInputItem().getItem().getDefaultInstance();
                                 output = recipe.getOutputItem().getItem().getDefaultInstance();
+                                chances = recipe.getChanceOutputs();
                                 this.RFPerTick = recipe.getRFPerTick();
                                 this.maxProgress = recipe.getDuration();
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
@@ -309,24 +315,10 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
                         }
                     }
                 }
-            }
-
-            if (output != null) {
-                progress++;
-                if (progress > maxProgress) {
-                    if (output != null) {
-                        this.itemHandler.insertItem(0, output, false);
-                        resetGenerator();
-                    }
-                }
-            }
-
-            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || output == null) {
-                this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
-            }
-            //reset tick
-            if (tickCounter > tickBeforeCheck) {
-                tickCounter = 0;
+            if (hasItemInInputSlot(input)) {
+                Logger.getLogger("test").info("tick");
+            } else {
+                resetGenerator();
             }
         }
     }
@@ -341,8 +333,12 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }
 
-    boolean hasEnoughEnergyStorage (CrusherBlockEntity entity, MinerRecipe recipe) {
+    boolean hasEnoughEnergyStorage (CrusherBlockEntity entity, CrusherRecipe recipe) {
         return entity.getEnergyStorage().getEnergyStored() >= (recipe.getRFPerTick() * maxProgress) + 1 ;
+    }
+
+    boolean hasItemInInputSlot(ItemStack itemStack) {
+        return itemHandler.getStackInSlot(6).is(itemStack.getItem());
     }
 
     @Nullable

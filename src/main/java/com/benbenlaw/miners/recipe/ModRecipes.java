@@ -21,6 +21,8 @@ public class ModRecipes {
     public static final RegistryObject<RecipeSerializer<FluidAbsorberRecipe>> FLUID_ABSORBER_SERIALIZER =
             SERIALIZER.register("fluid_absorber", () -> FluidAbsorberRecipe.Serializer.INSTANCE);
 
+    public static final RegistryObject<RecipeSerializer<CrusherRecipe>> CRUSHER_SERIALIZER =
+            SERIALIZER.register("crusher", () -> CrusherRecipe.Serializer.INSTANCE);
 
     public static void register(IEventBus eventBus) {
         SERIALIZER.register(eventBus);
