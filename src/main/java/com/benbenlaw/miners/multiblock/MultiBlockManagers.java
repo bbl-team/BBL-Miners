@@ -6,13 +6,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.mangorage.mangomultiblock.core.SimpleMultiBlockPattern;
 
 public class MultiBlockManagers {
 
@@ -26,7 +21,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:oak",
                 TreeAbsorbers.OAK,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -48,7 +43,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:acacia",
                 TreeAbsorbers.ACACIA,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -70,7 +65,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:birch",
                 TreeAbsorbers.BIRCH,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -92,7 +87,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:spruce",
                 TreeAbsorbers.SPRUCE,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -114,7 +109,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:jungle",
                 TreeAbsorbers.JUNGLE,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -136,7 +131,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:dark_oak",
                 TreeAbsorbers.DARK_OAK,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -158,7 +153,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:cherry",
                 TreeAbsorbers.CHERRY,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -180,7 +175,7 @@ public class MultiBlockManagers {
         TREE_ABSORBERS.register (
                 "miners:mangrove",
                 TreeAbsorbers.MANGROVE,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
                         .aisle("WWWWWWW","W     W","W     W","W     W","W     W", "W     W","WWWWWWW")
                         .aisle("W     W","       ","       ","       ","       ", "       ","W     W")
@@ -204,7 +199,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:iron",
                 Miners.IRON,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -219,7 +214,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:gold",
                 Miners.GOLD,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -234,7 +229,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:redstone",
                 Miners.REDSTONE,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -249,7 +244,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:lapis",
                 Miners.LAPIS,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -264,7 +259,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:diamond",
                 Miners.DIAMOND,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -279,7 +274,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:copper",
                 Miners.COPPER,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -294,7 +289,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:emerald",
                 Miners.EMERALD,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -309,7 +304,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:quartz",
                 Miners.QUARTZ,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -324,7 +319,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:coal",
                 Miners.COAL,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -341,7 +336,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:tin",
                 Miners.TIN,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -357,7 +352,7 @@ public class MultiBlockManagers {
         MINERS.register(
                 "miners:ruby",
                 Miners.TIN,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -376,7 +371,7 @@ public class MultiBlockManagers {
                 new ModBlockPattern(
                         "miners:cap_test",
                         1,
-                        BlockPatternBuilder.start()
+                        SimpleMultiBlockPattern.AisleBuilder.start()
                                 .aisle("0   0", "     ", "     ", "     ", "0   0")
                                 .where('0', a -> a.getState().is(Blocks.BEACON))
                                 .build()
@@ -389,7 +384,7 @@ public class MultiBlockManagers {
         FLUID_ABSORBERS.register(
                 "miners:water",
                 FluidAbsorbers.WATER,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
@@ -404,7 +399,7 @@ public class MultiBlockManagers {
         FLUID_ABSORBERS.register(
                 "miners:lava",
                 FluidAbsorbers.LAVA,
-                BlockPatternBuilder.start()
+                SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
                         .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
