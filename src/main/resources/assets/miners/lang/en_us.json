@@ -14,6 +14,39 @@
   "block.miners.miner": "Miner",
   "block.miners.crusher": "Crusher",
 
+  "item.miners.improved_speed_upgrade": "Improved Speed Upgrade",
+  "item.miners.improved_output_upgrade": "Improved Output Upgrade",
+  "item.miners.improved_rf_upgrade": "Improved RF Upgrade",
+
+  "item.miners.sturdy_speed_upgrade": "Sturdy Speed Upgrade",
+  "item.miners.sturdy_output_upgrade": "Sturdy Output Upgrade",
+  "item.miners.sturdy_rf_upgrade": "Sturdy RF Upgrade",
+
+  "item.miners.reinforced_speed_upgrade": "Reinforced Speed Upgrade",
+  "item.miners.reinforced_output_upgrade": "Reinforced Output Upgrade",
+  "item.miners.reinforced_rf_upgrade": "Reinforced RF Upgrade",
+
+  "item.miners.everlasting_speed_upgrade": "Everlasting Speed Upgrade",
+  "item.miners.everlasting_output_upgrade": "Everlasting Output Upgrade",
+  "item.miners.everlasting_rf_upgrade": "Everlasting RF Upgrade",
+
+  "tooltips.miners.upgrade": "Press §eSHIFT§r for more information!",
+
+  "tooltips.miners.improved_speed_upgrade.shift": "§aA recipe duration is dropped to 80% of total duration.",
+  "tooltips.miners.sturdy_speed_upgrade.shift": "§aA recipe duration is dropped to 60% of total duration.",
+  "tooltips.miners.reinforced_speed_upgrade.shift": "§aA recipe duration is dropped to 40% of total duration.",
+  "tooltips.miners.everlasting_speed_upgrade.shift": "§aA recipe duration is dropped to 20% of total duration.",
+
+  "tooltips.miners.improved_output_upgrade.shift": "§aRecipe outputs have a 20% additional chance to do an extra roll.",
+  "tooltips.miners.sturdy_output_upgrade.shift": "§aRecipe outputs have a 40% additional chance to do an extra roll.",
+  "tooltips.miners.reinforced_output_upgrade.shift": "§aRecipe outputs have a 60% additional chance to do an extra roll.",
+  "tooltips.miners.everlasting_output_upgrade.shift": "§aRecipe outputs have a 80% additional chance to do an extra roll.",
+
+  "tooltips.miners.improved_rf_upgrade.shift": "§aRF consumption is dropped to 80% of total.",
+  "tooltips.miners.sturdy_rf_upgrade.shift": "§aRF consumption is dropped to 60% of total.",
+  "tooltips.miners.reinforced_rf_upgrade.shift": "§aRF consumption is dropped to 40% of total.",
+  "tooltips.miners.everlasting_rf_upgrade.shift": "§aRF consumption is dropped to 20% of total.",
+
   "jei_pattern.tree_absorber.acacia": "Acacia Tree Absorber",
   "jei_pattern.tree_absorber.birch": "Birch Tree Absorber",
   "jei_pattern.tree_absorber.jungle": "Jungle Tree Absorber",
@@ -35,9 +68,4 @@
   "jei_pattern.fluid_absorber.lava": "Lava Fluid Absorber",
 
   "itemGroup.miners": "Miners"
-
-
-
-
-
 }
