@@ -411,15 +411,4 @@ public class MultiBlockManagers {
                         .build()
         );
     }
-
-    static  {
-        CRUSHER.register(
-                "miners:glass",
-                Crusher.GLASS,
-                BlockPatternBuilder.start()
-                        .aisle("*")
-                        .where('*', a -> a.getState().is(ModBlocks.CRUSHER.get()))
-                        .build()
-        );
-    }
 }
