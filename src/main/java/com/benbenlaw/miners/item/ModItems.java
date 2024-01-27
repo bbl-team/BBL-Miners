@@ -2,6 +2,9 @@ package com.benbenlaw.miners.item;
 
 import com.benbenlaw.miners.Miners;
 import com.benbenlaw.miners.item.custom.DetectorItem;
+import com.benbenlaw.miners.item.custom.upgrades.everlasting.EverlastingOutputUpgrade;
+import com.benbenlaw.miners.item.custom.upgrades.everlasting.EverlastingRFUpgrade;
+import com.benbenlaw.miners.item.custom.upgrades.everlasting.EverlastingSpeedUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.improved.ImprovedOutputUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.improved.ImprovedRFUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.improved.ImprovedSpeedUpgrade;
@@ -64,13 +67,13 @@ public class ModItems {
 
     // Everlasting Upgrades
     public static final RegistryObject<Item> EVERLASTING_SPEED_UPGRADE = ITEMS.register("everlasting_speed_upgrade",
-            () -> new ReinforcedSpeedUpgrade(new Item.Properties().stacksTo(1)));
+            () -> new EverlastingSpeedUpgrade(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> EVERLASTING_OUTPUT_UPGRADE = ITEMS.register("everlasting_output_upgrade",
-            () -> new ReinforcedOutputUpgrade(new Item.Properties().stacksTo(1)));
+            () -> new EverlastingOutputUpgrade(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> EVERLASTING_RF_UPGRADE = ITEMS.register("everlasting_rf_upgrade",
-            () -> new ReinforcedRFUpgrade(new Item.Properties().stacksTo(1)));
+            () -> new EverlastingRFUpgrade(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
