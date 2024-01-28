@@ -67,6 +67,9 @@ public class ModCreativeTab {
                 output.accept(ModItems.EVERLASTING_SPEED_UPGRADE.get());
                 output.accept(ModItems.EVERLASTING_RF_UPGRADE.get());
 
+                output.accept(ModItems.SPECIALIZED_OUTPUT_UPGRADE.get());
+                output.accept(ModItems.SPECIALIZED_SPEED_UPGRADE.get());
+                output.accept(ModItems.SPECIALIZED_RF_UPGRADE.get());
             }).build());
 
     public static void register(IEventBus eventBus) {

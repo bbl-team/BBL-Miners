@@ -11,6 +11,9 @@ import com.benbenlaw.miners.item.custom.upgrades.improved.ImprovedSpeedUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.reinforced.ReinforcedOutputUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.reinforced.ReinforcedRFUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.reinforced.ReinforcedSpeedUpgrade;
+import com.benbenlaw.miners.item.custom.upgrades.specialized.SpecializedOutputUpgrade;
+import com.benbenlaw.miners.item.custom.upgrades.specialized.SpecializedRFUpgrade;
+import com.benbenlaw.miners.item.custom.upgrades.specialized.SpecializedSpeedUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.sturdy.SturdyOutputUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.sturdy.SturdyRFUpgrade;
 import com.benbenlaw.miners.item.custom.upgrades.sturdy.SturdySpeedUpgrade;
@@ -74,6 +77,16 @@ public class ModItems {
 
     public static final RegistryObject<Item> EVERLASTING_RF_UPGRADE = ITEMS.register("everlasting_rf_upgrade",
             () -> new EverlastingRFUpgrade(new Item.Properties().stacksTo(1)));
+
+    // Specialized Upgrades
+    public static final RegistryObject<Item> SPECIALIZED_SPEED_UPGRADE = ITEMS.register("specialized_speed_upgrade",
+            () -> new SpecializedSpeedUpgrade(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> SPECIALIZED_OUTPUT_UPGRADE = ITEMS.register("specialized_output_upgrade",
+            () -> new SpecializedOutputUpgrade(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> SPECIALIZED_RF_UPGRADE = ITEMS.register("specialized_rf_upgrade",
+            () -> new SpecializedRFUpgrade(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
