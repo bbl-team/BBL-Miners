@@ -39,6 +39,9 @@ public class MinerScreen extends AbstractContainerScreen<MinerMenu> {
 
         renderEnergyAreaTooltip(guiGraphics, pMouseX, pMouseY, x, y);
         renderInformationTooltip(guiGraphics, pMouseX, pMouseY, x, y);
+
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+
     }
 
     private void renderEnergyAreaTooltip(GuiGraphics guiGraphics, int pMouseX, int pMouseY, int x, int y) {
