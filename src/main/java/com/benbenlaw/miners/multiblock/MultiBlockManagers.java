@@ -330,6 +330,38 @@ public class MultiBlockManagers {
                         .build()
         );
 
+        MINERS.register(
+                "miners:stone",
+                Miners.STONE,
+                SimpleMultiBlockPattern.AisleBuilder.start()
+                        .aisle("       ", "       ","       ","   *   ","       ","       ","       ")
+                        .aisle("       ", "   F   ","  FFF  "," FFFFF ","  FFF  ","   F   ","       ")
+                        .aisle("   F   ", "  SSS  "," SSSSS ","FSSSSSF"," SSSSS ","  SSS  ","   F   ")
+                        .aisle("   F   ", "  SSS  "," SSSSS ","FSSSSSF"," SSSSS ","  SSS  ","   F   ")
+                        .aisle("   F   ", " SSSSS "," SSSSS ","FSSSSSF"," SSSSS "," SSSSS ","   F   ")
+                        .aisle("   F   ", " SSSSS "," SSSSS ","FSSSSSF"," SSSSS "," SSSSS ","   F   ")
+                        .where('F', a -> a.getState().is(ModBlocks.WOODEN_SUPPORT_FRAME.get()))
+                        .where('S', a -> a.getState().is(Blocks.STONE))
+                        .where('*', a -> a.getState().is(ModBlocks.MINER.get()))
+                        .build()
+        );
+
+        MINERS.register(
+                "miners:cobblestone",
+                Miners.COBBLESTONE,
+                SimpleMultiBlockPattern.AisleBuilder.start()
+                        .aisle("       ", "       ","       ","   *   ","       ","       ","       ")
+                        .aisle("       ", "   F   ","  FFF  "," FFFFF ","  FFF  ","   F   ","       ")
+                        .aisle("   F   ", "  SSS  "," SSSSS ","FSSSSSF"," SSSSS ","  SSS  ","   F   ")
+                        .aisle("   F   ", "  SSS  "," SSSSS ","FSSSSSF"," SSSSS ","  SSS  ","   F   ")
+                        .aisle("   F   ", " SSSSS "," SSSSS ","FSSSSSF"," SSSSS "," SSSSS ","   F   ")
+                        .aisle("   F   ", " SSSSS "," SSSSS ","FSSSSSF"," SSSSS "," SSSSS ","   F   ")
+                        .where('F', a -> a.getState().is(ModBlocks.WOODEN_SUPPORT_FRAME.get()))
+                        .where('S', a -> a.getState().is(Blocks.COBBLESTONE))
+                        .where('*', a -> a.getState().is(ModBlocks.MINER.get()))
+                        .build()
+        );
+
         TagKey<Block> oreTin = BlockTags.create(new ResourceLocation("forge","ores/tin"));
 
         MINERS.register(
@@ -350,7 +382,7 @@ public class MultiBlockManagers {
         TagKey<Block> oreRuby = BlockTags.create(new ResourceLocation("forge","ores/ruby"));
         MINERS.register(
                 "miners:ruby",
-                Miners.TIN,
+                Miners.RUBY,
                 SimpleMultiBlockPattern.AisleBuilder.start()
                         .aisle("F   F", "     ", "  *  ", "     ", "F   F")
                         .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")

@@ -5,6 +5,7 @@ import com.benbenlaw.miners.block.ModBlocks;
 import com.benbenlaw.miners.recipe.FluidAbsorberRecipe;
 import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
+import com.benbenlaw.opolisutilities.integration.jei.UpgradeRecipeUtilCategory;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
@@ -40,6 +41,9 @@ public class JEIMinersPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.TREE_ABSORBER.get()), TreeAbsorberRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_ABSORBER.get()), FluidAbsorberRecipeCategory.RECIPE_TYPE);
 
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TREE_ABSORBER.get()), UpgradeRecipeUtilCategory.RECIPE_TYPE);
+
+
     }
 
     @Override
@@ -53,6 +57,7 @@ public class JEIMinersPlugin implements IModPlugin {
                 TreeAbsorberRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new
                 FluidAbsorberRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+
 
         slotDrawable = guiHelper.getSlotDrawable();
 

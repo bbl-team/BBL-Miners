@@ -18,7 +18,7 @@ public class ModCreativeTab {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Miners.MOD_ID);
 
-    public static final RegistryObject<CreativeModeTab> INFINITY_TAB = CREATIVE_MODE_TABS.register("miners", () -> CreativeModeTab.builder()
+    public static final RegistryObject<CreativeModeTab> MINERS_TAB = CREATIVE_MODE_TABS.register("miners", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> ModBlocks.MINER.get().asItem().getDefaultInstance())
             .title(Component.translatable("itemGroup.miners"))

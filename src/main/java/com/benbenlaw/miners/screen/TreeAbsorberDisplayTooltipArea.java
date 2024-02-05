@@ -29,12 +29,35 @@ public class TreeAbsorberDisplayTooltipArea {
 
     public List<Component> getTooltips() {
 
+        //Improved GUI
 
+        Component patternComponent = Component.literal("Pattern: No Pattern Found!");
+        Component RFPerTickComponent = Component.literal("RF Per Tick: " + entity.getRFPerTick());
+        Component durationComponent = Component.literal("Ticks Per Tree: " + entity.getMaxProgress());
+        Component progressComponent = Component.literal("Progress: No Tree Found!");
+
+        if (entity.getPattern() != null) {
+            patternComponent = Component.literal("Pattern: " + entity.getPattern());
+        }
+        if (entity.getMaxProgress() != 0 && entity.getProgress() != 0) {
+            progressComponent = Component.literal("Progress: " + ((entity.getProgress() * 100) / entity.getMaxProgress()) + " %");
+        }
+
+
+
+        return List.of(
+                patternComponent,
+                RFPerTickComponent,
+                durationComponent,
+                progressComponent
+        );
+
+/*
         System.out.println("getTooltips method called. RFPerTick: " + entity.getRFPerTick());
         System.out.println("getTooltips method called. power: " + entity.getMaxProgress());
 
 
-        if (entity.getMaxProgress() != 0 && entity.getProgress() != 0 && entity.getRFPerTick() != 0) {
+        if (entity.getMaxProgress() != 0 && entity.getProgress() != 0) {
             return List.of(
                     Component.literal("Progress: " + ((entity.getProgress() * 100) / entity.getMaxProgress()) + " %"),
                     Component.literal("RF Per Tick: " + entity.getRFPerTick()),
@@ -47,4 +70,7 @@ public class TreeAbsorberDisplayTooltipArea {
         );
     }
 
+ */
+
+    }
 }

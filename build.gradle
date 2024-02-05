@@ -104,8 +104,8 @@ dependencies {
 
     //Opolis Utilities
 
-    compileOnly fg.deobf("curse.maven:opolis-utilities-649644:4844870")
-    runtimeOnly fg.deobf("curse.maven:opolis-utilities-649644:4844870")
+    compileOnly fg.deobf("curse.maven:opolis-utilities-649644:5076299")
+    runtimeOnly fg.deobf("curse.maven:opolis-utilities-649644:5076299")
 
     //JEI
 

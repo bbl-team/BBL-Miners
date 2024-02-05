@@ -34,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -294,7 +295,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         if (!level.isClientSide()) {
 
             if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.FLUID_ABSORBERS.findStructure(level, this.worldPosition);
+                var result = MultiBlockManagers.FLUID_ABSORBERS.findStructure(level, this.worldPosition, Rotation.NONE);
                 if (result != null) {
 
                     String foundPattern = result.ID();

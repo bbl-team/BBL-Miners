@@ -111,7 +111,7 @@ public class TreeAbsorberRecipeCategory implements IRecipeCategory<TreeAbsorberR
             builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 42).addItemStack(new ItemStack(recipe.getSapling().getItem())).addTooltipCallback(chanceSapling());
             builder.addSlot(RecipeIngredientRole.OUTPUT, 134, 42).addItemStack(new ItemStack(Items.STICK)).addTooltipCallback(chanceStick());
 
-            builder.addSlot(RecipeIngredientRole.INPUT, 156, 42).addItemStack(new ItemStack(recipe.getExtraItem().getItem()))
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 156, 42).addItemStack(new ItemStack(recipe.getExtraItem().getItem()))
                     .setBackground(JEIMinersPlugin.slotDrawable, -89, -1).addTooltipCallback(chanceExtra(recipe));
         }
 
@@ -125,7 +125,7 @@ public class TreeAbsorberRecipeCategory implements IRecipeCategory<TreeAbsorberR
 
     private IRecipeSlotTooltipCallback chanceExtra(TreeAbsorberRecipe recipe) {
         return (chance, addTooltip) -> {
-            String string = ("Chance: " + recipe.getExtraItemChance() * 100 + "%").replace("0.0", "");
+            String string = ("Chance: " + recipe.getExtraItemChance() * 100 + "% (Without Shear Upgrade)").replace(".0", "");
             addTooltip.add(Component.literal(string));
         };
     }

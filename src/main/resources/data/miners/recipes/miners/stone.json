@@ -1,0 +1,9 @@
+{
+  "type": "miners:miners",
+  "pattern": "miners:stone",
+  "output": {
+    "item": "minecraft:stone"
+  },
+  "rf_per_tick": 100,
+  "duration": 10
+}

@@ -29,6 +29,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -283,7 +284,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
         if (!level.isClientSide()) {
 
             if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition);
+                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
 
                 if (result != null && output == null) {
 
@@ -314,10 +315,8 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
             if (output != null) {
                 progress++;
                 if (progress > maxProgress) {
-                    if (output != null) {
-                        this.itemHandler.insertItem(0, output, false);
-                        resetGenerator();
-                    }
+                    this.itemHandler.insertItem(0, output, false);
+                    resetGenerator();
                 }
             }
 

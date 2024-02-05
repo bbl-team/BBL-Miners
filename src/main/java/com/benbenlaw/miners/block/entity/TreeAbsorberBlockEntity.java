@@ -7,11 +7,13 @@ import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
 import com.benbenlaw.miners.screen.TreeAbsorberMenu;
 import com.benbenlaw.miners.util.ModEnergyStorage;
+import com.benbenlaw.opolisutilities.recipe.UpgradeRecipeUtil;
 import com.benbenlaw.opolisutilities.util.inventory.IInventoryHandlingBlockEntity;
 import com.benbenlaw.opolisutilities.util.inventory.WrappedHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -28,8 +30,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,9 +50,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider, IInventoryHandlingBlockEntity {
-    private final ItemStackHandler itemHandler = new ItemStackHandler(5) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(6) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -90,6 +96,13 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
 
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
+    //Upgrades
+
+    double durationMultiplier = 1.0;
+    double RFPerTickMultiplier = 1.0;
+    int outputRuns = 0;
+    ItemStack upgradeItem = ItemStack.EMPTY;
+
     protected final ContainerData data;
     public int progress;
     public int maxProgress;
@@ -103,12 +116,9 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
     public ItemStack sapling;
     public ItemStack extraItem;
     public double extraItemChance;
-    public int maxTransferPerTick = 0;
-    public boolean hasStructure;
-    public boolean hasFuel;
-    public boolean hasEnoughPowerStorageAvailable;
+    public String pattern;
     public int tickCounter = 0;
-    public int tickBeforeCheck = 10;
+    public int tickBeforeCheck = 20;
 
     public ModEnergyStorage createEnergyStorage() {
         return new ModEnergyStorage(maxEnergyStorage, maxEnergyTransfer) {
@@ -126,16 +136,8 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         };
     }
 
-    public boolean getHasStructure() {
-        return hasStructure;
-    }
-
-    public boolean getHasFuel() {
-        return hasStructure;
-    }
-
-    public boolean hasEnoughPowerStorageAvailable() {
-        return hasStructure;
+    public String getPattern() {
+        return pattern;
     }
 
     public int getProgress() {
@@ -191,6 +193,42 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
                 return 1; //Change to 1 from 2 to fix log spam not sure why it causes spam though
             }
         };
+    }
+
+    private void updateUpgrades(@NotNull TreeAbsorberBlockEntity entity) {
+
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+
+        assert level != null;
+        List<UpgradeRecipeUtil> upgradeRecipe = level.getRecipeManager().getAllRecipesFor(UpgradeRecipeUtil.Type.INSTANCE);
+
+        List<UpgradeRecipeUtil> matchingUpgradeRecipes = upgradeRecipe.stream()
+                .filter(recipe -> recipe.matches(inventory, level))
+                .collect(Collectors.toList());
+
+
+        if (!matchingUpgradeRecipes.isEmpty()) {
+            for (UpgradeRecipeUtil matchingUpgrade : matchingUpgradeRecipes) {
+                if (itemHandler.getStackInSlot(5).is(matchingUpgrade.getUpgradeItem().getItem())) {
+                    durationMultiplier = matchingUpgrade.getDurationMultiplier();
+                    RFPerTickMultiplier = matchingUpgrade.getRFPerTick();
+                    outputRuns = matchingUpgrade.getOutputIncreaseAmount();
+                    upgradeItem = matchingUpgrade.getUpgradeItem();
+                    break;
+                }
+            }
+        }
+
+        if (itemHandler.getStackInSlot(5).isEmpty()) {
+            upgradeItem = ItemStack.EMPTY;
+            durationMultiplier = 1.0;
+            outputRuns = 0;
+            RFPerTickMultiplier = 1.0;
+        }
     }
 
     @Override
@@ -256,6 +294,7 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         tag.putInt("current_tick", tickCounter);
         tag.putInt("RFPerTick", RFPerTick);
         tag.putInt("fuelDuration", fuelDuration);
+        tag.putString("pattern", Objects.requireNonNullElse(pattern, ""));
 
         super.saveAdditional(tag);
     }
@@ -270,7 +309,7 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         tickCounter = tag.getInt("current_tick");
         RFPerTick = tag.getInt("RFPerTick");
         fuelDuration = tag.getInt("fuelDuration");
-
+        pattern = tag.getString("pattern");
     }
 
     public void drops() {
@@ -287,34 +326,33 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
 
         tickCounter++;
 
+        updateUpgrades(this);
+
         assert level != null;
         if (!level.isClientSide()) {
 
+            //Structure Check
             if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, this.worldPosition);
-
-                if (result != null && log == null && leaf == null) {
+                var result = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, this.worldPosition, Rotation.NONE);
+                if (result != null) {
 
                     String foundPattern = result.ID();
-                    SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        inventory.setItem(i, this.itemHandler.getStackInSlot(i));
-                    }
                     assert level != null;
+                    // Move this line here
 
                     for (TreeAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(TreeAbsorberRecipe.Type.INSTANCE)) {
                         String patternInRecipe = recipe.getPattern();
 
                         if (foundPattern.equals(patternInRecipe)) {
-                            //Set Recipe
-                            if (hasEnoughEnergyStorage(this, recipe)) {
+                            if (hasEnoughEnergy(this, recipe)) {
+                                pattern = foundPattern;
                                 log = recipe.getLog();
                                 leaf = recipe.getLeaf();
                                 sapling = recipe.getSapling();
                                 extraItem = recipe.getExtraItem();
                                 extraItemChance = recipe.getExtraItemChance();
-                                this.RFPerTick = recipe.getRFPerTick();
-                                this.maxProgress = recipe.getDuration();
+                                this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
                                 break;
                             }
@@ -323,45 +361,41 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
                 }
             }
 
-            if (log != null && leaf != null && sapling != null) {
 
-                progress++;
-                if (progress > maxProgress) {
+            if (pattern != null) {
+                if (log != null && leaf != null && sapling != null && extraItem != null) {
+                    progress++;
+                    if (progress > maxProgress) {
 
-//log drops
+                        //log drops
                         for (int i = 0; i <= 4; i++) {
-                            if (this.itemHandler.isItemValid(i, log) && this.itemHandler.insertItem(i, new ItemStack(log.getItem()), false).isEmpty()) {
+                            if (this.itemHandler.isItemValid(i, log) && this.itemHandler.insertItem(i, new ItemStack(log.getItem(), 1 + outputRuns), false).isEmpty()) {
                                 break;
                             }
                         }
 
                         //leaf drops
-
-
                         if (level.getBlockState(this.getBlockPos().above(9)).is(Blocks.DIAMOND_BLOCK)) {
-
                             for (int i = 0; i <= 4; i++) {
-                                if (this.itemHandler.isItemValid(i, leaf) && this.itemHandler.insertItem(i, new ItemStack(leaf.getItem()), false).isEmpty()) {
+                                if (this.itemHandler.isItemValid(i, leaf) && this.itemHandler.insertItem(i, new ItemStack(leaf.getItem(), 1 + outputRuns), false).isEmpty()) {
                                     break;
                                 }
-
                             }
+                        }
 
-                        } else {
-                            //No leaves other drops
+                        //No leaves other drops
+                        else {
                             if (0.05 > Math.random()) {
-
                                 for (int i = 0; i <= 4; i++) {
-                                    if (this.itemHandler.isItemValid(i, sapling) && this.itemHandler.insertItem(i, new ItemStack(sapling.getItem()), false).isEmpty()) {
+                                    if (this.itemHandler.isItemValid(i, sapling) && this.itemHandler.insertItem(i, new ItemStack(sapling.getItem(), 1 + outputRuns), false).isEmpty()) {
                                         break;
                                     }
                                 }
-
                             }
-                            if (0.05 > Math.random()) {
 
+                            if (0.05 > Math.random()) {
                                 for (int i = 0; i <= 4; i++) {
-                                    if (this.itemHandler.isItemValid(i, Items.STICK.getDefaultInstance()) && this.itemHandler.insertItem(i, new ItemStack(Items.STICK.getDefaultInstance().getItem()), false).isEmpty()) {
+                                    if (this.itemHandler.isItemValid(i, Items.STICK.getDefaultInstance()) && this.itemHandler.insertItem(i, new ItemStack(Items.STICK.getDefaultInstance().getItem(), 1 + outputRuns), false).isEmpty()) {
                                         break;
                                     }
                                 }
@@ -369,32 +403,26 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
 
                             if (extraItem != null) {
                                 if (extraItemChance > Math.random()) {
-
                                     for (int i = 0; i <= 4; i++) {
-                                        if (this.itemHandler.isItemValid(i, extraItem) && this.itemHandler.insertItem(i, new ItemStack(extraItem.getItem()), false).isEmpty()) {
+                                        if (this.itemHandler.isItemValid(i, extraItem) && this.itemHandler.insertItem(i, new ItemStack(extraItem.getItem(), 1 + outputRuns), false).isEmpty()) {
                                             break;
                                         }
                                     }
                                 }
                             }
                         }
-
-
-
-                    resetGenerator();
+                        resetGenerator();
+                    }
                 }
             }
-            //need to check all slots
-            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || log == null || leaf == null) {
-                this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
-            }
-            //reset tick
+
+            this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+
             if (tickCounter > tickBeforeCheck) {
                 tickCounter = 0;
             }
         }
     }
-
 
     private void resetGenerator() {
         this.progress = 0;
@@ -405,11 +433,14 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         sapling = null;
         extraItem = null;
         extraItemChance = 0;
+        pattern = null;
         assert this.level != null;
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }
 
-    boolean hasEnoughEnergyStorage (TreeAbsorberBlockEntity entity, TreeAbsorberRecipe recipe) {
+
+
+    boolean hasEnoughEnergy(TreeAbsorberBlockEntity entity, TreeAbsorberRecipe recipe) {
         return entity.getEnergyStorage().getEnergyStored() >= (recipe.getRFPerTick() * maxProgress) + 1 ;
     }
 

@@ -1,0 +1,9 @@
+{
+  "type": "miners:miners",
+  "pattern": "miners:cobblestone",
+  "output": {
+    "item": "minecraft:cobblestone"
+  },
+  "rf_per_tick": 400,
+  "duration": 40
+}

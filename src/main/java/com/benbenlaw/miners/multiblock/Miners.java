@@ -11,5 +11,8 @@ public enum Miners {
     QUARTZ,
     COAL,
     WOOD,
-    TIN
+    TIN,
+    STONE,
+    RUBY,
+    COBBLESTONE,
 }

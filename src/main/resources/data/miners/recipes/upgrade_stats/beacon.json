@@ -1,0 +1,9 @@
+{
+  "type": "opolisutilities:upgrades",
+  "item": {
+    "item": "minecraft:beacon"
+  },
+  "duration_multiplier": 0.37,
+  "output_increase_amount": 1,
+  "rf_per_tick_multiplier": 0.4
+}

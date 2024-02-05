@@ -13,6 +13,7 @@
   "extra_item": {
     "item": "minecraft:apple"
   },
+  "extra_item_chance": 0.05,
   "rf_per_tick": 10,
   "duration": 200
 }
