@@ -15,6 +15,7 @@ public class MultiBlockManagers {
     public static final MultiBlockManagerBeta<Miners> MINERS = new MultiBlockManagerBeta<>();
     public static final MultiBlockManagerBeta<TreeAbsorbers> TREE_ABSORBERS = new MultiBlockManagerBeta<>();
     public static final MultiBlockManagerBeta<FluidAbsorbers> FLUID_ABSORBERS = new MultiBlockManagerBeta<>();
+    public static final MultiBlockManagerBeta<Crusher> CRUSHER = new MultiBlockManagerBeta<>();
 
     static {
         TREE_ABSORBERS.register (

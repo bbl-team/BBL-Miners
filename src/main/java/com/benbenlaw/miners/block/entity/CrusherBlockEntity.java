@@ -24,7 +24,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -284,7 +283,7 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         if (!level.isClientSide()) {
 
             if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
+                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition);
 
                 if (result != null && output == null) {
 

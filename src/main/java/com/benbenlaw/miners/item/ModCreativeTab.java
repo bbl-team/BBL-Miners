@@ -50,8 +50,26 @@ public class ModCreativeTab {
                     output.accept(ModItems.RAW_RUBY.get());
                 }*/
 
+                // Upgrades
+                output.accept(ModItems.IMPROVED_OUTPUT_UPGRADE.get());
+                output.accept(ModItems.IMPROVED_SPEED_UPGRADE.get());
+                output.accept(ModItems.IMPROVED_RF_UPGRADE.get());
 
+                output.accept(ModItems.STURDY_OUTPUT_UPGRADE.get());
+                output.accept(ModItems.STURDY_SPEED_UPGRADE.get());
+                output.accept(ModItems.STURDY_RF_UPGRADE.get());
 
+                output.accept(ModItems.REINFORCED_OUTPUT_UPGRADE.get());
+                output.accept(ModItems.REINFORCED_SPEED_UPGRADE.get());
+                output.accept(ModItems.REINFORCED_RF_UPGRADE.get());
+
+                output.accept(ModItems.EVERLASTING_OUTPUT_UPGRADE.get());
+                output.accept(ModItems.EVERLASTING_SPEED_UPGRADE.get());
+                output.accept(ModItems.EVERLASTING_RF_UPGRADE.get());
+
+                output.accept(ModItems.SPECIALIZED_OUTPUT_UPGRADE.get());
+                output.accept(ModItems.SPECIALIZED_SPEED_UPGRADE.get());
+                output.accept(ModItems.SPECIALIZED_RF_UPGRADE.get());
             }).build());
 
     public static void register(IEventBus eventBus) {
