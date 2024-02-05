@@ -1,15 +1,21 @@
 package com.benbenlaw.miners.block.entity;
 
+import com.benbenlaw.miners.multiblock.Crusher;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
+import com.benbenlaw.miners.recipe.CrusherRecipe;
 import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.screen.CrusherMenu;
 import com.benbenlaw.miners.util.ModEnergyStorage;
+import com.benbenlaw.opolisutilities.recipe.DryingTableRecipe;
+import com.benbenlaw.opolisutilities.recipe.NoInventoryRecipe;
+import com.benbenlaw.opolisutilities.recipe.UpgradeRecipeUtil;
 import com.benbenlaw.opolisutilities.util.inventory.IInventoryHandlingBlockEntity;
 import com.benbenlaw.opolisutilities.util.inventory.WrappedHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -24,6 +30,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,11 +46,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IInventoryHandlingBlockEntity {
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(7) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(8) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -84,10 +96,16 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
+    double durationMultiplier = 1.0;
+    double RFPerTickMultiplier = 1.0;
+    int outputRuns = 0;
+    ItemStack upgradeItem = ItemStack.EMPTY;
+
     protected final ContainerData data;
     public int progress;
     public int maxProgress;
     public ItemStack output;
+    public NonNullList<Ingredient> input;
     public final ModEnergyStorage ENERGY_STORAGE = createEnergyStorage();
     public int RFPerTick;
     public int fuelDuration = 0;
@@ -185,6 +203,41 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         };
     }
 
+    private void updateUpgrades(@NotNull CrusherBlockEntity entity) {
+
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+
+        assert level != null;
+        List<UpgradeRecipeUtil> upgradeRecipe = level.getRecipeManager().getAllRecipesFor(UpgradeRecipeUtil.Type.INSTANCE);
+
+        List<UpgradeRecipeUtil> matchingUpgradeRecipes = upgradeRecipe.stream()
+                .filter(recipe -> recipe.matches(inventory, level))
+                .collect(Collectors.toList());
+
+
+        if (!matchingUpgradeRecipes.isEmpty()) {
+            for (UpgradeRecipeUtil matchingUpgrade : matchingUpgradeRecipes) {
+                if (itemHandler.getStackInSlot(7).is(matchingUpgrade.getUpgradeItem().getItem())) {
+                    durationMultiplier = matchingUpgrade.getDurationMultiplier();
+                    RFPerTickMultiplier = matchingUpgrade.getRFPerTick();
+                    outputRuns = matchingUpgrade.getOutputIncreaseAmount();
+                    upgradeItem = matchingUpgrade.getUpgradeItem();
+                    break;
+                }
+            }
+        }
+
+        if (itemHandler.getStackInSlot(7).isEmpty()) {
+            upgradeItem = ItemStack.EMPTY;
+            durationMultiplier = 1.0;
+            outputRuns = 0;
+            RFPerTickMultiplier = 1.0;
+        }
+    }
 
     @Override
     public Component getDisplayName() {
@@ -280,13 +333,15 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
         tickCounter++;
 
+        updateUpgrades(this);
+
         assert level != null;
         if (!level.isClientSide()) {
 
             if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
+                var result = MultiBlockManagers.CRUSHER.findStructure(level, this.worldPosition, Rotation.NONE);
 
-                if (result != null && output == null) {
+                if (result != null) {
 
                     String foundPattern = result.ID();
                     SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
@@ -295,17 +350,21 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
                     }
                     assert level != null;
 
-                    for (MinerRecipe recipe : level.getRecipeManager().getAllRecipesFor(MinerRecipe.Type.INSTANCE)) {
+                    for (CrusherRecipe recipe : level.getRecipeManager().getAllRecipesFor(CrusherRecipe.Type.INSTANCE)) {
                         String patternInRecipe = recipe.getPattern();
 
                         if (foundPattern.equals(patternInRecipe)) {
-                            //Set Recipe
-                            if (hasEnoughEnergyStorage(this, recipe)) {
-                                output = recipe.getOutputItem().getItem().getDefaultInstance();
-                                this.RFPerTick = recipe.getRFPerTick();
-                                this.maxProgress = recipe.getDuration();
-                                setChanged(this.level, this.worldPosition, this.getBlockState());
-                                break;
+
+                            if (hasInputItem(this, recipe)) {
+
+                                //Set Recipe
+                                if (hasEnoughEnergyStorage(this, recipe)) {
+                                    output = recipe.getOutputItem().getItem().getDefaultInstance();
+                                    this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                    this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
+                                    setChanged(this.level, this.worldPosition, this.getBlockState());
+                                    break;
+                               }
                             }
                         }
                     }
@@ -315,12 +374,22 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
             if (output != null) {
                 progress++;
                 if (progress > maxProgress) {
-                    if (output != null) {
-                        this.itemHandler.insertItem(0, output, false);
-                        resetGenerator();
+
+                    this.itemHandler.extractItem(6, 1, false);
+
+                    int remainingOutput = 1 + outputRuns; // Total items to insert
+                    for (int slotIndex = 0; slotIndex <= 5 && remainingOutput > 0; slotIndex++) {
+                        ItemStack remaining = this.itemHandler.insertItem(slotIndex, output.copy(), false);
+                        int inserted = 1 + outputRuns - remaining.getCount(); // Calculate how many items were inserted
+                        remainingOutput -= inserted; // Update the remaining items to insert
                     }
+
+                    resetGenerator();
+
                 }
             }
+
+
 
             if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || output == null) {
                 this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
@@ -342,7 +411,20 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }
 
-    boolean hasEnoughEnergyStorage (CrusherBlockEntity entity, MinerRecipe recipe) {
+    private boolean hasInputItem(@NotNull CrusherBlockEntity entity, @NotNull CrusherRecipe recipe) {
+
+        ItemStack[] items = recipe.getIngredients().get(0).getItems();
+        ItemStack slotItem = entity.itemHandler.getStackInSlot(6);
+
+        for (ItemStack item : items) {
+            if (ItemStack.isSameItem(item, slotItem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean hasEnoughEnergyStorage (CrusherBlockEntity entity, CrusherRecipe recipe) {
         return entity.getEnergyStorage().getEnergyStored() >= (recipe.getRFPerTick() * maxProgress) + 1 ;
     }
 

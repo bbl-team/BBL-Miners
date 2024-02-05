@@ -2,6 +2,7 @@ package com.benbenlaw.miners.block.entity;
 
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
+import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
 import com.benbenlaw.miners.recipe.FluidAbsorberRecipe;
 import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
@@ -9,6 +10,7 @@ import com.benbenlaw.miners.screen.FluidAbsorberMenu;
 import com.benbenlaw.miners.screen.TreeAbsorberMenu;
 import com.benbenlaw.miners.util.IFluidHandlingBlockEntity;
 import com.benbenlaw.miners.util.ModEnergyStorage;
+import com.benbenlaw.opolisutilities.recipe.UpgradeRecipeUtil;
 import com.benbenlaw.opolisutilities.util.inventory.IInventoryHandlingBlockEntity;
 import com.benbenlaw.opolisutilities.util.inventory.WrappedHandler;
 import com.benbenlaw.miners.networking.packets.PacketSyncFluidToClient;
@@ -32,6 +34,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -56,13 +59,20 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvider, IInventoryHandlingBlockEntity, IFluidHandlingBlockEntity {
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+            assert level != null;
+            if (!level.isClientSide()) {
+                ModMessages.sendToClients(new PacketSyncItemStackToClient(this, worldPosition));
+            }
+
         }
 
         @Override
@@ -76,10 +86,16 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
     };
 
     private LazyOptional<IFluidHandler> lazyFluidHandler = LazyOptional.empty();
-
+    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
     protected final ContainerData data;
+
+    //Upgrades
+
+    double durationMultiplier = 1.0;
+    double RFPerTickMultiplier = 1.0;
+    ItemStack upgradeItem = ItemStack.EMPTY;
 
     public String fluid;
     public int progress;
@@ -129,6 +145,40 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
                 getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         };
+    }
+
+    private void updateUpgrades(@NotNull FluidAbsorberBlockEntity entity) {
+
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+
+        assert level != null;
+        List<UpgradeRecipeUtil> upgradeRecipe = level.getRecipeManager().getAllRecipesFor(UpgradeRecipeUtil.Type.INSTANCE);
+
+        List<UpgradeRecipeUtil> matchingUpgradeRecipes = upgradeRecipe.stream()
+                .filter(recipe -> recipe.matches(inventory, level))
+                .collect(Collectors.toList());
+
+
+        if (!matchingUpgradeRecipes.isEmpty()) {
+            for (UpgradeRecipeUtil matchingUpgrade : matchingUpgradeRecipes) {
+                if (itemHandler.getStackInSlot(0).is(matchingUpgrade.getUpgradeItem().getItem())) {
+                    durationMultiplier = matchingUpgrade.getDurationMultiplier();
+                    RFPerTickMultiplier = matchingUpgrade.getRFPerTick();
+                    upgradeItem = matchingUpgrade.getUpgradeItem();
+                    break;
+                }
+            }
+        }
+
+        if (itemHandler.getStackInSlot(0).isEmpty()) {
+            upgradeItem = ItemStack.EMPTY;
+            durationMultiplier = 1.0;
+            RFPerTickMultiplier = 1.0;
+        }
     }
 
     public boolean getHasStructure() {
@@ -217,6 +267,9 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             return lazyFluidHandler.cast();
         }
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            return lazyItemHandler.cast();
+        }
         return super.getCapability(cap);
     }
 
@@ -238,6 +291,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         super.onLoad();
         lazyFluidHandler = LazyOptional.of(() -> FLUID_TANK);
         lazyEnergyHandler = LazyOptional.of(() -> ENERGY_STORAGE);
+        lazyItemHandler = LazyOptional.of(() -> itemHandler);
     }
 
     @Override
@@ -245,6 +299,8 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         super.invalidateCaps();
         lazyFluidHandler.invalidate();
         lazyEnergyHandler.invalidate();
+        lazyItemHandler.invalidate();
+
     }
 
     @Override
@@ -291,6 +347,8 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
 
         tickCounter++;
 
+        updateUpgrades(this);
+
         assert level != null;
         if (!level.isClientSide()) {
 
@@ -308,9 +366,9 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
                             //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
                                 fluid = recipe.getOutputFluid();
-                                this.RFPerTick = recipe.getRFPerTick();
-                                this.maxProgress = recipe.getDuration();
-                                this.outputAmount = recipe.getOutputAmount();
+                                outputAmount = recipe.getOutputAmount();
+                                this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
                                 break;
                             }
@@ -322,7 +380,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
             if (fluid != null) {
                 progress++;
                 if (progress > maxProgress) {
-                    FluidStack fluidStack = new FluidStack(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluid)) , outputAmount);
+                    FluidStack fluidStack = new FluidStack(Objects.requireNonNull(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluid))), outputAmount);
                     this.FLUID_TANK.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
                     resetGenerator();
                 }

@@ -43,7 +43,7 @@ public class FluidAbsorberScreen extends AbstractContainerScreen<FluidAbsorberMe
         renderInformationTooltip(guiGraphics, pMouseX, pMouseY, x, y);
         renderFluidAreaTooltips(guiGraphics, pMouseX, pMouseY, x, y);
 
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX + 26, this.titleLabelY, 4210752, false);
 
     }
 

@@ -23,6 +23,7 @@ public class DetectorItem extends Item {
                 var minerResult = MultiBlockManagers.MINERS.findStructure(level, pos, Rotation.NONE);
                 var treeAbsorberResult = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, pos, Rotation.NONE);
                 var fluidAbsorberResult = MultiBlockManagers.FLUID_ABSORBERS.findStructure(level, pos, Rotation.NONE);
+                var crusherResult = MultiBlockManagers.CRUSHER.findStructure(level, pos, Rotation.NONE);
 
                 if (minerResult != null) {
                     player.sendSystemMessage(Component.literal("Miner Structure : %s".formatted(minerResult.ID())));
@@ -34,6 +35,10 @@ public class DetectorItem extends Item {
                 }
                 if (fluidAbsorberResult != null) {
                     player.sendSystemMessage(Component.literal("Fluid Absorber Structure : %s".formatted(fluidAbsorberResult.ID())));
+                    return super.useOn(context);
+                }
+                if (crusherResult != null) {
+                    player.sendSystemMessage(Component.literal("Crusher Structure : %s".formatted(crusherResult.ID())));
                     return super.useOn(context);
                 }
 

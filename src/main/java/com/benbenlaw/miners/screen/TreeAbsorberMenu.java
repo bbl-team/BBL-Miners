@@ -41,7 +41,7 @@ public class TreeAbsorberMenu extends AbstractContainerMenu {
             this.addSlot(new ModResultSlot(handler, 3, 104, 38));
             this.addSlot(new ModResultSlot(handler, 4, 128, 38));
 
-            this.addSlot(new WhitelistTagInputSlot(handler, 5, 8, 17,
+            this.addSlot(new WhitelistTagInputSlot(handler, 5, 8, 65,
                     com.benbenlaw.opolisutilities.util.ModTags.Items.UPGRADES, 1)); //Upgrade
 
         });

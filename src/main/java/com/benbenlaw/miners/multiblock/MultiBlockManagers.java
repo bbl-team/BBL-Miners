@@ -396,20 +396,6 @@ public class MultiBlockManagers {
                         .build()
         );
 
-
-
-        /*
-        patterns.add(
-                new ModBlockPattern(
-                        "miners:cap_test",
-                        1,
-                        SimpleMultiBlockPattern.AisleBuilder.start()
-                                .aisle("0   0", "     ", "     ", "     ", "0   0")
-                                .where('0', a -> a.getState().is(Blocks.BEACON))
-                                .build()
-                )
-        );
-         */
     }
 
     static {
@@ -440,6 +426,21 @@ public class MultiBlockManagers {
                         .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
                         .where('O', a -> a.getState().is(Blocks.LAVA))
                         .where('*', a -> a.getState().is(ModBlocks.FLUID_ABSORBER.get()))
+                        .build()
+        );
+
+        CRUSHER.register(
+                "miners:crusher",
+                Crusher.DEFAULT,
+                SimpleMultiBlockPattern.AisleBuilder.start()
+                        .aisle("F   F", "     ", "  *  ", "     ", "F   F")
+                        .aisle("FFFFF", "FOOOF", "FOOOF", "FOOOF", "FFFFF")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .aisle("F   F", " OOO ", " OOO ", " OOO ", "F   F")
+                        .where('F', a -> a.getState().is(ModBlocks.STONE_SUPPORT_FRAME.get()))
+                        .where('O', a -> a.getState().is(BlockTags.IRON_ORES))
+                        .where('*', a -> a.getState().is(ModBlocks.CRUSHER.get()))
                         .build()
         );
     }

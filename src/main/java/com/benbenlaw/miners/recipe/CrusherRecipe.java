@@ -2,41 +2,34 @@ package com.benbenlaw.miners.recipe;
 
 import com.benbenlaw.miners.Miners;
 import com.benbenlaw.opolisutilities.recipe.NoInventoryRecipe;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class CrusherRecipe implements Recipe<NoInventoryRecipe> {
 
     private final ResourceLocation id;
     private final String pattern;
+    private final NonNullList<Ingredient> input;
     private final ItemStack outputItem;
     private final int RFPerTick;
     private final int duration;
 
-    private final ItemStack inputItem;
-    private final Map<ItemStack, Integer> chanceOutputs;
-
-    public CrusherRecipe(ResourceLocation id, String pattern, ItemStack inputItem, ItemStack outputItem, Map<ItemStack, Integer> chanceOutputs, int RFPerTick, int duration) {
+    public CrusherRecipe(ResourceLocation id, String pattern, NonNullList<Ingredient> input, ItemStack outputItem, int RFPerTick, int duration) {
         this.id = id;
         this.pattern = pattern;
+        this.input = input;
         this.outputItem = outputItem;
         this.RFPerTick = RFPerTick;
         this.duration = duration;
-        this.inputItem = inputItem;
-        this.chanceOutputs = chanceOutputs;
     }
 
     public String getPattern() {
@@ -45,14 +38,6 @@ public class CrusherRecipe implements Recipe<NoInventoryRecipe> {
 
     public ItemStack getOutputItem() {
         return outputItem;
-    }
-
-    public ItemStack getInputItem() {
-        return inputItem;
-    }
-
-    public Map<ItemStack, Integer> getChanceOutputs() {
-        return chanceOutputs;
     }
 
     public int getRFPerTick() {
@@ -64,9 +49,15 @@ public class CrusherRecipe implements Recipe<NoInventoryRecipe> {
     }
 
     @Override
+    public NonNullList<Ingredient> getIngredients() {
+        return input;
+    }
+
+    @Override
     public boolean matches(@NotNull NoInventoryRecipe inv, @NotNull Level pLevel) {
         return true;
     }
+
 
     @Override
     public ItemStack assemble(NoInventoryRecipe p_44001_, RegistryAccess p_267165_) {
@@ -118,57 +109,53 @@ public class CrusherRecipe implements Recipe<NoInventoryRecipe> {
         public CrusherRecipe fromJson(ResourceLocation id, JsonObject json) {
 
             String pattern = GsonHelper.getAsString(json, "pattern");
+
+            JsonArray ingredients = GsonHelper.getAsJsonArray(json, "input");
+            NonNullList<Ingredient> input = NonNullList.withSize(1, Ingredient.EMPTY);
+
             ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json,"output"));
             int RFPerTick = GsonHelper.getAsInt(json, "rf_per_tick");
             int duration = GsonHelper.getAsInt(json, "duration");
 
-            ItemStack input = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json,"input"));
 
-            JsonObject chancesJson = GsonHelper.getAsJsonObject(json, "chances");
-            Map<ItemStack, Integer> chanceOutputs = new HashMap<>();
-            for (String key : chancesJson.keySet()) {
-                JsonObject chanceObj = chancesJson.getAsJsonObject(key);
-                ItemStack chanceItem = ShapedRecipe.itemStackFromJson(chanceObj);
-                int chance = GsonHelper.getAsInt(chanceObj, "chance");
-                chanceOutputs.put(chanceItem, chance);
+            for (int i = 0; i < input.size(); i++) {
+                input.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new CrusherRecipe(id, pattern, input, output, chanceOutputs, RFPerTick, duration);
+
+            return new CrusherRecipe(id, pattern, input, output, RFPerTick, duration);
         }
 
         @Override
         public CrusherRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
             String pattern = buf.readUtf();
-            ItemStack inputItem = buf.readItem();
-            ItemStack outputItem = buf.readItem();
+            NonNullList<Ingredient> input = NonNullList.withSize(buf.readInt(), Ingredient.EMPTY);
+
+            for (int i = 0; i < input.size(); i++) {
+                input.set(i, Ingredient.fromNetwork(buf));
+            }
+
+            ItemStack output = buf.readItem();
             int RFPerTick = buf.readInt();
             int duration = buf.readInt();
 
-            int chanceOutputsSize = buf.readInt();
-            Map<ItemStack, Integer> chanceOutputs = new HashMap<>();
-            for (int i = 0; i < chanceOutputsSize; i++) {
-                ItemStack chanceItem = buf.readItem();
-                int chance = buf.readInt();
-                chanceOutputs.put(chanceItem, chance);
-            }
-
-            return new CrusherRecipe(id, pattern, inputItem, outputItem, chanceOutputs, RFPerTick, duration);
+            return new CrusherRecipe(id, pattern, input, output, RFPerTick, duration);
         }
-
 
         @Override
         public void toNetwork(FriendlyByteBuf buf, CrusherRecipe recipe) {
 
             buf.writeUtf(recipe.getPattern(), Short.MAX_VALUE);
+
+            buf.writeInt(recipe.getIngredients().size());
+
+            for (Ingredient ing : recipe.getIngredients()) {
+                ing.toNetwork(buf);
+            }
+
             buf.writeItemStack(recipe.outputItem, false);
             buf.writeInt(recipe.getRFPerTick());
             buf.writeInt(recipe.getDuration());
-            buf.writeItemStack(recipe.inputItem, false);
-            buf.writeInt(recipe.getChanceOutputs().size());
-            for (Map.Entry<ItemStack, Integer> entry : recipe.getChanceOutputs().entrySet()) {
-                buf.writeItemStack(entry.getKey(), false);
-                buf.writeInt(entry.getValue());
-            }
         }
     }
 }

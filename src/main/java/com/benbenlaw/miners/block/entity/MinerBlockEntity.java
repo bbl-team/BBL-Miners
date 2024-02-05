@@ -1,11 +1,13 @@
 package com.benbenlaw.miners.block.entity;
 
+import com.benbenlaw.miners.block.custom.MinerBlock;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
 import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.screen.MinerMenu;
 import com.benbenlaw.miners.util.ModEnergyStorage;
+import com.benbenlaw.opolisutilities.recipe.UpgradeRecipeUtil;
 import com.benbenlaw.opolisutilities.util.inventory.IInventoryHandlingBlockEntity;
 import com.benbenlaw.opolisutilities.util.inventory.WrappedHandler;
 import net.minecraft.core.BlockPos;
@@ -28,6 +30,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,13 +45,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInventoryHandlingBlockEntity {
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(2) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -84,6 +89,14 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
 
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
+
+    //Upgrades
+
+    double durationMultiplier = 1.0;
+    double RFPerTickMultiplier = 1.0;
+    int outputRuns = 0;
+    ItemStack upgradeItem = ItemStack.EMPTY;
+
     protected final ContainerData data;
     public int progress;
     public int maxProgress;
@@ -98,7 +111,43 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
     public boolean hasFuel;
     public boolean hasEnoughPowerStorageAvailable;
     public int tickCounter = 0;
-    public int tickBeforeCheck = 10; // ticks before checking for structure again
+    public int tickBeforeCheck = 20; // ticks before checking for structure again
+
+    private void updateUpgrades(@NotNull MinerBlockEntity entity) {
+
+        Level level = entity.level;
+        SimpleContainer inventory = new SimpleContainer(entity.itemHandler.getSlots());
+        for (int i = 0; i < entity.itemHandler.getSlots(); i++) {
+            inventory.setItem(i, entity.itemHandler.getStackInSlot(i));
+        }
+
+        assert level != null;
+        List<UpgradeRecipeUtil> upgradeRecipe = level.getRecipeManager().getAllRecipesFor(UpgradeRecipeUtil.Type.INSTANCE);
+
+        List<UpgradeRecipeUtil> matchingUpgradeRecipes = upgradeRecipe.stream()
+                .filter(recipe -> recipe.matches(inventory, level))
+                .collect(Collectors.toList());
+
+
+        if (!matchingUpgradeRecipes.isEmpty()) {
+            for (UpgradeRecipeUtil matchingUpgrade : matchingUpgradeRecipes) {
+                if (itemHandler.getStackInSlot(1).is(matchingUpgrade.getUpgradeItem().getItem())) {
+                    durationMultiplier = matchingUpgrade.getDurationMultiplier();
+                    RFPerTickMultiplier = matchingUpgrade.getRFPerTick();
+                    outputRuns = matchingUpgrade.getOutputIncreaseAmount();
+                    upgradeItem = matchingUpgrade.getUpgradeItem();
+                    break;
+                }
+            }
+        }
+
+        if (itemHandler.getStackInSlot(1).isEmpty()) {
+            upgradeItem = ItemStack.EMPTY;
+            durationMultiplier = 1.0;
+            outputRuns = 0;
+            RFPerTickMultiplier = 1.0;
+        }
+    }
 
     public ModEnergyStorage createEnergyStorage() {
         return new ModEnergyStorage(maxEnergyStorage, maxEnergyTransfer) {
@@ -280,13 +329,15 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
 
         tickCounter++;
 
+        updateUpgrades(this);
+
         assert level != null;
         if (!level.isClientSide()) {
 
             if (tickCounter % tickBeforeCheck == 0) {
                 var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
 
-                if (result != null && output == null) {
+                if (result != null) {
 
                     String foundPattern = result.ID();
                     SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
@@ -302,8 +353,8 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
                             //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
                                 output = recipe.getOutputItem().getItem().getDefaultInstance();
-                                this.RFPerTick = recipe.getRFPerTick();
-                                this.maxProgress = recipe.getDuration();
+                                this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
                                 setChanged(this.level, this.worldPosition, this.getBlockState());
                                 break;
                             }
@@ -315,7 +366,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
             if (output != null) {
                 progress++;
                 if (progress > maxProgress) {
-                    this.itemHandler.insertItem(0, output, false);
+                    this.itemHandler.insertItem(0, output.copyWithCount(1 + outputRuns), false);
                     resetGenerator();
                 }
             }

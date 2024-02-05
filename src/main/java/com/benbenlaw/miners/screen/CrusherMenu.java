@@ -4,6 +4,7 @@ import com.benbenlaw.miners.block.ModBlocks;
 import com.benbenlaw.miners.block.entity.CrusherBlockEntity;
 import com.benbenlaw.miners.block.entity.MinerBlockEntity;
 import com.benbenlaw.opolisutilities.screen.slot.utils.ModResultSlot;
+import com.benbenlaw.opolisutilities.screen.slot.utils.WhitelistTagInputSlot;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,12 +22,12 @@ public class CrusherMenu extends AbstractContainerMenu {
     private final ContainerData data;
 
     public CrusherMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
-        this(id, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(7));
+        this(id, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(8));
     }
 
     public CrusherMenu(int id, Inventory inv, BlockEntity entity, ContainerData data){
         super(ModMenuTypes.CRUSHER_MENU.get(), id);
-        checkContainerSize(inv, 1);
+        checkContainerSize(inv, 8);
         blockEntity = (CrusherBlockEntity) entity;
         this.level = inv.player.level();
         this.data = data;
@@ -42,7 +43,10 @@ public class CrusherMenu extends AbstractContainerMenu {
             this.addSlot(new ModResultSlot(handler, 4, 108, 37));
             this.addSlot(new ModResultSlot(handler, 5, 132, 37));
 
-            this.addSlot(new SlotItemHandler(handler, 6, 17, 26));
+            this.addSlot(new SlotItemHandler(handler, 6, 17, 26)); //input
+
+            this.addSlot(new WhitelistTagInputSlot(handler, 7, 8, 65,
+                    com.benbenlaw.opolisutilities.util.ModTags.Items.UPGRADES, 1)); //Upgrade
         });
 
         addDataSlots(data);
@@ -58,7 +62,7 @@ public class CrusherMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 7;  // must be the number of slots you have!
+    private static final int TE_INVENTORY_SLOT_COUNT = 8;  // must be the number of slots you have!
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
