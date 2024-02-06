@@ -124,6 +124,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
     public int fuelDuration = 0;
     final int maxEnergyStorage = 1000000;
     final int maxEnergyTransfer = 1000000;
+    public String pattern;
     public int maxTransferPerTick = 0;
     public boolean hasStructure;
     public boolean hasFuel;
@@ -179,6 +180,11 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
             durationMultiplier = 1.0;
             RFPerTickMultiplier = 1.0;
         }
+    }
+
+
+    public String getPattern() {
+        return pattern;
     }
 
     public boolean getHasStructure() {
@@ -314,6 +320,8 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         tag.putInt("fuelDuration", fuelDuration);
         tag.putInt("outputAmount", outputAmount);
         tag = FLUID_TANK.writeToNBT(tag);
+        tag.putString("pattern", Objects.requireNonNullElse(pattern, ""));
+
 
         super.saveAdditional(tag);
     }
@@ -330,6 +338,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         fuelDuration = tag.getInt("fuelDuration");
         outputAmount = tag.getInt("outputAmount");
         FLUID_TANK.readFromNBT(tag);
+        pattern = tag.getString("pattern");
 
     }
 
@@ -365,6 +374,7 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
                         if (foundPattern.equals(patternInRecipe)) {
                             //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
+                                pattern = foundPattern;
                                 fluid = recipe.getOutputFluid();
                                 outputAmount = recipe.getOutputAmount();
                                 this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
@@ -397,8 +407,8 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         }
     }
 
-
     private void resetGenerator() {
+        pattern = null;
         this.progress = 0;
         this.RFPerTick = 0;
         this.maxProgress = 0;

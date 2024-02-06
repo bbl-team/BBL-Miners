@@ -29,21 +29,23 @@ public class CrusherDisplayTooltipArea {
 
     public List<Component> getTooltips() {
 
+        Component patternComponent = Component.literal("Pattern: No Pattern Found!");
+        Component RFPerTickComponent = Component.literal("RF Per Tick: " + entity.getRFPerTick());
+        Component durationComponent = Component.literal("Ticks Per Crush: " + entity.getMaxProgress());
+        Component progressComponent = Component.literal("Progress: No Crusher Recipe Found!");
 
-        /*System.out.println("getTooltips method called. RFPerTick: " + entity.getRFPerTick());
-        System.out.println("getTooltips method called. power: " + entity.getMaxProgress());*/
-
-
-        if (entity.getMaxProgress() != 0 && entity.getProgress() != 0 && entity.getRFPerTick() != 0) {
-            return List.of(
-                    Component.literal("Progress: " + ((entity.getProgress() * 100) / entity.getMaxProgress()) + " %"),
-                    Component.literal("RF Per Tick: " + entity.getRFPerTick()),
-                    Component.literal(entity.getMaxProgress() + " Ticks Per Resource")
-            );
+        if (entity.getPattern() != null) {
+            patternComponent = Component.literal("Pattern: " + entity.getPattern());
+        }
+        if (entity.getMaxProgress() != 0 && entity.getProgress() != 0) {
+            progressComponent = Component.literal("Progress: " + ((entity.getProgress() * 100) / entity.getMaxProgress()) + " %");
         }
 
         return List.of(
-                Component.literal("No resource being generated")
+                patternComponent,
+                RFPerTickComponent,
+                durationComponent,
+                progressComponent
         );
     }
 

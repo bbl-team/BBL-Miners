@@ -43,8 +43,6 @@ public class TreeAbsorberDisplayTooltipArea {
             progressComponent = Component.literal("Progress: " + ((entity.getProgress() * 100) / entity.getMaxProgress()) + " %");
         }
 
-
-
         return List.of(
                 patternComponent,
                 RFPerTickComponent,

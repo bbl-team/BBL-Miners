@@ -338,7 +338,6 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
 
                     String foundPattern = result.ID();
                     assert level != null;
-                    // Move this line here
 
                     for (TreeAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(TreeAbsorberRecipe.Type.INSTANCE)) {
                         String patternInRecipe = recipe.getPattern();

@@ -106,12 +106,14 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
     public int fuelDuration = 0;
     final int maxEnergyStorage = 1000000;
     final int maxEnergyTransfer = 1000000;
+    public String pattern;
+
     public int maxTransferPerTick = 0;
     public boolean hasStructure;
     public boolean hasFuel;
     public boolean hasEnoughPowerStorageAvailable;
     public int tickCounter = 0;
-    public int tickBeforeCheck = 20; // ticks before checking for structure again
+    public int tickBeforeCheck = 20;
 
     private void updateUpgrades(@NotNull MinerBlockEntity entity) {
 
@@ -163,6 +165,10 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
                 getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         };
+    }
+
+    public String getPattern() {
+        return pattern;
     }
 
     public boolean getHasStructure() {
@@ -298,6 +304,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
         tag.putInt("current_tick", tickCounter);
         tag.putInt("RFPerTick", RFPerTick);
         tag.putInt("fuelDuration", fuelDuration);
+        tag.putString("pattern", Objects.requireNonNullElse(pattern, ""));
 
         super.saveAdditional(tag);
     }
@@ -312,6 +319,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
         tickCounter = tag.getInt("current_tick");
         RFPerTick = tag.getInt("RFPerTick");
         fuelDuration = tag.getInt("fuelDuration");
+        pattern = tag.getString("pattern");
 
     }
 
@@ -336,22 +344,17 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
 
             if (tickCounter % tickBeforeCheck == 0) {
                 var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
-
                 if (result != null) {
 
                     String foundPattern = result.ID();
-                    SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        inventory.setItem(i, this.itemHandler.getStackInSlot(i));
-                    }
                     assert level != null;
 
                     for (MinerRecipe recipe : level.getRecipeManager().getAllRecipesFor(MinerRecipe.Type.INSTANCE)) {
                         String patternInRecipe = recipe.getPattern();
 
                         if (foundPattern.equals(patternInRecipe)) {
-                            //Set Recipe
                             if (hasEnoughEnergyStorage(this, recipe)) {
+                                pattern = foundPattern;
                                 output = recipe.getOutputItem().getItem().getDefaultInstance();
                                 this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
                                 this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
@@ -363,7 +366,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
                 }
             }
 
-            if (output != null) {
+            if (pattern != null && output != null ) {
                 progress++;
                 if (progress > maxProgress) {
                     this.itemHandler.insertItem(0, output.copyWithCount(1 + outputRuns), false);
@@ -371,9 +374,8 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
                 }
             }
 
-            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || output == null) {
-                this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
-            }
+            this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+
             //reset tick
             if (tickCounter > tickBeforeCheck) {
                 tickCounter = 0;
@@ -387,6 +389,7 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
         this.RFPerTick = 0;
         this.maxProgress = 0;
         output = null;
+        pattern = null;
         assert this.level != null;
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }

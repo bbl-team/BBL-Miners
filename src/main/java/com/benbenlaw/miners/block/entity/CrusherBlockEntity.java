@@ -48,6 +48,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -69,29 +70,34 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private final Map<Direction, LazyOptional<WrappedHandler>> directionWrappedHandlerMap =
-            Map.of(Direction.DOWN, LazyOptional.of(() -> new WrappedHandler(itemHandler,
-                            (i) -> i >= 0 && i < 7,
-                            (i, s) -> false)),
+            Map.of(
+                    Direction.DOWN, LazyOptional.of(() -> new WrappedHandler(itemHandler,
+                            (i) -> i >= 0 && i < 5,
+                            (i, s) -> i == 6 && itemHandler.isItemValid(6, s))),
 
                     Direction.UP, LazyOptional.of(() -> new WrappedHandler(itemHandler,
-                            (index) -> index >= 0 && index < 7,
-                            (index, stack) -> index >= 0 && index < 7 && itemHandler.isItemValid(index, stack))),
+                            (i) -> i >= 0 && i < 5,
+                            (i, s) -> i == 6 && itemHandler.isItemValid(6, s))),
 
                     Direction.NORTH, LazyOptional.of(() -> new WrappedHandler(itemHandler,
-                            (index) -> index >= 0 && index < 7,
-                            (index, stack) -> index >= 0 && index < 7 && itemHandler.isItemValid(index, stack))),
+                            (i) -> i >= 0 && i < 5,
+                            (i, s) -> i == 6 && itemHandler.isItemValid(6, s))),
 
                     Direction.SOUTH, LazyOptional.of(() -> new WrappedHandler(itemHandler,
-                            (index) -> index >= 0 && index < 7,
-                            (index, stack) -> index >= 0 && index < 7 && itemHandler.isItemValid(index, stack))),
+                            (i) -> i >= 0 && i < 5,
+                            (i, s) -> i == 6 && itemHandler.isItemValid(6, s))),
 
                     Direction.WEST, LazyOptional.of(() -> new WrappedHandler(itemHandler,
-                            (index) -> index >= 0 && index < 7,
-                            (index, stack) -> index >= 0 && index < 7 && itemHandler.isItemValid(index, stack))),
+                            (i) -> i >= 0 && i < 5,
+                            (i, s) -> i == 6 && itemHandler.isItemValid(6, s))),
 
                     Direction.EAST, LazyOptional.of(() -> new WrappedHandler(itemHandler,
-                            (index) -> index >= 0 && index < 7,
-                            (index, stack) -> index >= 0 && index < 7 && itemHandler.isItemValid(index, stack)))
+                            (i) -> i >= 0 && i < 5,
+                            (i, s) -> i == 6 && itemHandler.isItemValid(6, s)))
+
+
+
+
             );
 
     private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
@@ -112,6 +118,7 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
     final int maxEnergyStorage = 1000000;
     final int maxEnergyTransfer = 1000000;
     public int maxTransferPerTick = 0;
+    public String pattern;
     public boolean hasStructure;
     public boolean hasFuel;
     public boolean hasEnoughPowerStorageAvailable;
@@ -132,6 +139,11 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
                 getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         };
+    }
+
+
+    public String getPattern() {
+        return pattern;
     }
 
     public boolean getHasStructure() {
@@ -302,6 +314,8 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         tag.putInt("current_tick", tickCounter);
         tag.putInt("RFPerTick", RFPerTick);
         tag.putInt("fuelDuration", fuelDuration);
+        tag.putString("pattern", Objects.requireNonNullElse(pattern, ""));
+
 
         super.saveAdditional(tag);
     }
@@ -316,7 +330,7 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         tickCounter = tag.getInt("current_tick");
         RFPerTick = tag.getInt("RFPerTick");
         fuelDuration = tag.getInt("fuelDuration");
-
+        pattern = tag.getString("pattern");
     }
 
     public void drops() {
@@ -359,6 +373,7 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
                                 //Set Recipe
                                 if (hasEnoughEnergyStorage(this, recipe)) {
+                                    pattern = foundPattern;
                                     output = recipe.getOutputItem().getItem().getDefaultInstance();
                                     this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
                                     this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
@@ -379,7 +394,7 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
                     int remainingOutput = 1 + outputRuns; // Total items to insert
                     for (int slotIndex = 0; slotIndex <= 5 && remainingOutput > 0; slotIndex++) {
-                        ItemStack remaining = this.itemHandler.insertItem(slotIndex, output.copy(), false);
+                        ItemStack remaining = this.itemHandler.insertItem(slotIndex, new ItemStack (output.copy().getItem().asItem(), 1 + outputRuns), false);
                         int inserted = 1 + outputRuns - remaining.getCount(); // Calculate how many items were inserted
                         remainingOutput -= inserted; // Update the remaining items to insert
                     }
@@ -407,6 +422,7 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
         this.RFPerTick = 0;
         this.maxProgress = 0;
         output = null;
+        pattern = null;
         assert this.level != null;
         setChanged(this.level, this.worldPosition, this.getBlockState());
     }
