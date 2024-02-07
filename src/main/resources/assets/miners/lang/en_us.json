@@ -14,6 +14,8 @@
   "block.miners.miner": "Miner",
   "block.miners.crusher": "Crusher",
 
+  "item.miners.detector": "Detector",
+
   "jei_pattern.tree_absorber.acacia": "Acacia Tree Absorber",
   "jei_pattern.tree_absorber.birch": "Birch Tree Absorber",
   "jei_pattern.tree_absorber.jungle": "Jungle Tree Absorber",

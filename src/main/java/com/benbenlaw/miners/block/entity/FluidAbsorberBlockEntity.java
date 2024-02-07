@@ -405,6 +405,9 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
                 tickCounter = 0;
             }
         }
+
+        setChanged(this.level, this.worldPosition, this.getBlockState());
+
     }
 
     private void resetGenerator() {

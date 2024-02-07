@@ -384,6 +384,10 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
                         }
                     }
                 }
+                if (result == null) {
+                    setChanged(this.level, this.worldPosition, this.getBlockState());
+                }
+
             }
 
             if (output != null) {
@@ -392,13 +396,13 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
                     this.itemHandler.extractItem(6, 1, false);
 
-                    int remainingOutput = 1 + outputRuns; // Total items to insert
+                    int remainingOutput = 1 + outputRuns;
                     for (int slotIndex = 0; slotIndex <= 5 && remainingOutput > 0; slotIndex++) {
                         ItemStack remaining = this.itemHandler.insertItem(slotIndex, new ItemStack (output.copy().getItem().asItem(), 1 + outputRuns), false);
-                        int inserted = 1 + outputRuns - remaining.getCount(); // Calculate how many items were inserted
-                        remainingOutput -= inserted; // Update the remaining items to insert
+                        int inserted = 1 + outputRuns - remaining.getCount();
+                        remainingOutput -= inserted;
                     }
-
+                    setChanged(this.level, this.worldPosition, this.getBlockState());
                     resetGenerator();
 
                 }

@@ -8,6 +8,11 @@
     "miners:netherite_support_frame",
     "miners:ultimate_support_frame",
     "miners:diamond_support_frame",
-    "miners:emerald_support_frame"
-    ]
+    "miners:emerald_support_frame",
+
+    "miners:crusher",
+    "miners:tree_absorber",
+    "miners:fluid_absorber",
+    "miners:miner"
+  ]
 }

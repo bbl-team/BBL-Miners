@@ -1,0 +1,9 @@
+{
+  "values": [
+    "miners:gold_support_frame",
+    "miners:diamond_support_frame",
+    "miners:emerald_support_frame",
+    "miners:netherite_support_frame",
+    "miners:ultimate_support_frame"
+  ]
+}

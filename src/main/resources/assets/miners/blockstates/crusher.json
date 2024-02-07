@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "miners:block/crusher_vertical",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "miners:block/crusher",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "miners:block/crusher"
+    },
+    "facing=south": {
+      "model": "miners:block/crusher",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "miners:block/crusher_vertical"
+    },
+    "facing=west": {
+      "model": "miners:block/crusher",
+      "y": 270
+    }
+  }
+}
