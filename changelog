@@ -1,5 +1,10 @@
 Changelog BBL Miners
 
+2.2.0
+
+Redstone control to all machines (power off when redstone signal is applied)
+Machines now have running particles and running state
+
 2.1.0
 
 All current machine sided item handlers now work with the machines

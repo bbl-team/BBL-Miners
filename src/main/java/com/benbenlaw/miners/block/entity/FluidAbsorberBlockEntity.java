@@ -1,5 +1,7 @@
 package com.benbenlaw.miners.block.entity;
 
+import com.benbenlaw.miners.block.custom.CrusherBlock;
+import com.benbenlaw.miners.block.custom.FluidAbsorberBlock;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
@@ -17,6 +19,7 @@ import com.benbenlaw.miners.networking.packets.PacketSyncFluidToClient;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -359,55 +362,79 @@ public class FluidAbsorberBlockEntity extends BlockEntity implements MenuProvide
         updateUpgrades(this);
 
         assert level != null;
-        if (!level.isClientSide()) {
 
-            if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.FLUID_ABSORBERS.findStructure(level, this.worldPosition, Rotation.NONE);
-                if (result != null) {
+        if (!level.getBlockState(worldPosition).getValue(FluidAbsorberBlock.POWERED)) {
 
-                    String foundPattern = result.ID();
-                    assert level != null;
+            if (!level.isClientSide()) {
 
-                    for (FluidAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(FluidAbsorberRecipe.Type.INSTANCE)) {
-                        String patternInRecipe = recipe.getPattern();
+                if (tickCounter % tickBeforeCheck == 0) {
+                    var result = MultiBlockManagers.FLUID_ABSORBERS.findStructure(level, this.worldPosition, Rotation.NONE);
+                    if (result != null) {
 
-                        if (foundPattern.equals(patternInRecipe)) {
-                            //Set Recipe
-                            if (hasEnoughEnergyStorage(this, recipe)) {
-                                pattern = foundPattern;
-                                fluid = recipe.getOutputFluid();
-                                outputAmount = recipe.getOutputAmount();
-                                this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
-                                this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
-                                setChanged(this.level, this.worldPosition, this.getBlockState());
-                                break;
+                        String foundPattern = result.ID();
+                        assert level != null;
+
+                        for (FluidAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(FluidAbsorberRecipe.Type.INSTANCE)) {
+                            String patternInRecipe = recipe.getPattern();
+
+                            if (foundPattern.equals(patternInRecipe)) {
+                                //Set Recipe
+                                if (hasEnoughEnergyStorage(this, recipe)) {
+                                    pattern = foundPattern;
+                                    fluid = recipe.getOutputFluid();
+                                    outputAmount = recipe.getOutputAmount();
+                                    this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                    this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
+                                    level.setBlock(this.worldPosition, this.getBlockState().setValue(FluidAbsorberBlock.RUNNING, true), 3);
+                                    setChanged(this.level, this.worldPosition, this.getBlockState());
+                                    break;
+                                }
                             }
+                        }
+                    } else {
+                        this.pattern = null;
+                        this.fluid = null;
+                        this.outputAmount = 0;
+                        this.RFPerTick = 0;
+                        level.setBlock(this.worldPosition, this.getBlockState().setValue(FluidAbsorberBlock.RUNNING, false), 3);
+                        setChanged(this.level, this.worldPosition, this.getBlockState());
+                    }
+                }
+
+                //Has Enough Energy -> Progress
+                if (fluid != null) {
+                    if (this.ENERGY_STORAGE.getEnergyStored() >= RFPerTick) {
+                        progress++;
+                        this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+                        if (progress > maxProgress) {
+                            FluidStack fluidStack = new FluidStack(Objects.requireNonNull(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluid))), outputAmount);
+                            this.FLUID_TANK.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
+                            resetGenerator();
                         }
                     }
                 }
-            }
 
-            if (fluid != null) {
-                progress++;
-                if (progress > maxProgress) {
-                    FluidStack fluidStack = new FluidStack(Objects.requireNonNull(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluid))), outputAmount);
-                    this.FLUID_TANK.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
-                    resetGenerator();
+
+                //reset tick
+                if (tickCounter > tickBeforeCheck) {
+                    tickCounter = 0;
                 }
             }
 
-            //need to check all slots
-            if (this.FLUID_TANK.getFluidAmount() < this.FLUID_TANK.getCapacity() || fluid == null) {
-                this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
-            }
-            //reset tick
-            if (tickCounter > tickBeforeCheck) {
-                tickCounter = 0;
+            setChanged(this.level, this.worldPosition, this.getBlockState());
+
+            if (level.isClientSide()) {
+                if (this.getBlockState().getValue(CrusherBlock.RUNNING)) {
+                    level.addParticle(ParticleTypes.INSTANT_EFFECT,
+                            (double) worldPosition.getX() + 0.5D,
+                            (double) worldPosition.getY() + 0.5D,
+                            (double) worldPosition.getZ() + 0.5D,
+                            0.5D, 0.5D, 0.5D);
+
+                    //SOUNDS?
+                }
             }
         }
-
-        setChanged(this.level, this.worldPosition, this.getBlockState());
-
     }
 
     private void resetGenerator() {

@@ -1,5 +1,8 @@
 package com.benbenlaw.miners.block.entity;
 
+import com.benbenlaw.miners.block.custom.CrusherBlock;
+import com.benbenlaw.miners.block.custom.MinerBlock;
+import com.benbenlaw.miners.block.custom.TreeAbsorberBlock;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
 import com.benbenlaw.miners.networking.packets.PacketSyncItemStackToClient;
@@ -12,6 +15,7 @@ import com.benbenlaw.opolisutilities.util.inventory.IInventoryHandlingBlockEntit
 import com.benbenlaw.opolisutilities.util.inventory.WrappedHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
@@ -41,6 +45,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -329,96 +335,135 @@ public class TreeAbsorberBlockEntity extends BlockEntity implements MenuProvider
         updateUpgrades(this);
 
         assert level != null;
-        if (!level.isClientSide()) {
 
-            //Structure Check
-            if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, this.worldPosition, Rotation.NONE);
-                if (result != null) {
+        if (!level.getBlockState(worldPosition).getValue(TreeAbsorberBlock.POWERED)) {
 
-                    String foundPattern = result.ID();
-                    assert level != null;
+            if (!level.isClientSide()) {
 
-                    for (TreeAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(TreeAbsorberRecipe.Type.INSTANCE)) {
-                        String patternInRecipe = recipe.getPattern();
+                //Structure Check
+                if (tickCounter % tickBeforeCheck == 0) {
+                    var result = MultiBlockManagers.TREE_ABSORBERS.findStructure(level, this.worldPosition, Rotation.NONE);
+                    if (result != null) {
 
-                        if (foundPattern.equals(patternInRecipe)) {
-                            if (hasEnoughEnergy(this, recipe)) {
-                                pattern = foundPattern;
-                                log = recipe.getLog();
-                                leaf = recipe.getLeaf();
-                                sapling = recipe.getSapling();
-                                extraItem = recipe.getExtraItem();
-                                extraItemChance = recipe.getExtraItemChance();
-                                this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
-                                this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
-                                setChanged(this.level, this.worldPosition, this.getBlockState());
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+                        String foundPattern = result.ID();
+                        assert level != null;
 
+                        for (TreeAbsorberRecipe recipe : level.getRecipeManager().getAllRecipesFor(TreeAbsorberRecipe.Type.INSTANCE)) {
+                            String patternInRecipe = recipe.getPattern();
 
-            if (pattern != null) {
-                if (log != null && leaf != null && sapling != null && extraItem != null) {
-                    progress++;
-                    if (progress > maxProgress) {
-
-                        //log drops
-                        for (int i = 0; i <= 4; i++) {
-                            if (this.itemHandler.isItemValid(i, log) && this.itemHandler.insertItem(i, new ItemStack(log.getItem(), 1 + outputRuns), false).isEmpty()) {
-                                break;
-                            }
-                        }
-
-                        //leaf drops
-                        if (level.getBlockState(this.getBlockPos().above(9)).is(Blocks.DIAMOND_BLOCK)) {
-                            for (int i = 0; i <= 4; i++) {
-                                if (this.itemHandler.isItemValid(i, leaf) && this.itemHandler.insertItem(i, new ItemStack(leaf.getItem(), 1 + outputRuns), false).isEmpty()) {
+                            if (foundPattern.equals(patternInRecipe)) {
+                                if (hasEnoughEnergy(this, recipe)) {
+                                    pattern = foundPattern;
+                                    log = recipe.getLog();
+                                    leaf = recipe.getLeaf();
+                                    sapling = recipe.getSapling();
+                                    extraItem = recipe.getExtraItem();
+                                    extraItemChance = recipe.getExtraItemChance();
+                                    this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                    this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
+                                    level.setBlock(this.worldPosition, this.getBlockState().setValue(TreeAbsorberBlock.RUNNING, true), 3);
+                                    setChanged(this.level, this.worldPosition, this.getBlockState());
                                     break;
                                 }
                             }
                         }
+                    } else {
+                        this.pattern = null;
+                        this.leaf = null;
+                        this.log = null;
+                        this.sapling = null;
+                        this.extraItem = null;
+                        this.extraItemChance = 0;
+                        this.RFPerTick = 0;
+                        level.setBlock(this.worldPosition, this.getBlockState().setValue(TreeAbsorberBlock.RUNNING, false), 3);
 
-                        //No leaves other drops
-                        else {
-                            if (0.05 > Math.random()) {
+                        setChanged(this.level, this.worldPosition, this.getBlockState());
+                    }
+                }
+
+
+                //Has Enough Energy -> Progress
+                if (pattern != null) {
+                    if (log != null && leaf != null && sapling != null) {
+                        if (this.ENERGY_STORAGE.getEnergyStored() >= RFPerTick) {
+
+                            if (level.isClientSide) {
+                                level.addParticle(ParticleTypes.INSTANT_EFFECT,
+                                        (double) this.worldPosition.getX() + 0.5D,
+                                        (double) this.worldPosition.getY() + 0.5D,
+                                        (double) this.worldPosition.getZ() + 0.5D,
+                                        0.5D, 0.5D, 0.5D);
+                            }
+
+                            progress++;
+                            this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+                            if (progress > maxProgress) {
+
+                                //log drops
                                 for (int i = 0; i <= 4; i++) {
-                                    if (this.itemHandler.isItemValid(i, sapling) && this.itemHandler.insertItem(i, new ItemStack(sapling.getItem(), 1 + outputRuns), false).isEmpty()) {
+                                    if (this.itemHandler.isItemValid(i, log) && this.itemHandler.insertItem(i, new ItemStack(log.getItem(), 1 + outputRuns), false).isEmpty()) {
                                         break;
                                     }
                                 }
-                            }
 
-                            if (0.05 > Math.random()) {
-                                for (int i = 0; i <= 4; i++) {
-                                    if (this.itemHandler.isItemValid(i, Items.STICK.getDefaultInstance()) && this.itemHandler.insertItem(i, new ItemStack(Items.STICK.getDefaultInstance().getItem(), 1 + outputRuns), false).isEmpty()) {
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (extraItem != null) {
-                                if (extraItemChance > Math.random()) {
+                                //leaf drops
+                                if (level.getBlockState(this.getBlockPos().above(9)).is(Blocks.DIAMOND_BLOCK)) {
                                     for (int i = 0; i <= 4; i++) {
-                                        if (this.itemHandler.isItemValid(i, extraItem) && this.itemHandler.insertItem(i, new ItemStack(extraItem.getItem(), 1 + outputRuns), false).isEmpty()) {
+                                        if (this.itemHandler.isItemValid(i, leaf) && this.itemHandler.insertItem(i, new ItemStack(leaf.getItem(), 1 + outputRuns), false).isEmpty()) {
                                             break;
                                         }
                                     }
                                 }
+
+                                //No leaves other drops
+                                else {
+                                    if (0.05 > Math.random()) {
+                                        for (int i = 0; i <= 4; i++) {
+                                            if (this.itemHandler.isItemValid(i, sapling) && this.itemHandler.insertItem(i, new ItemStack(sapling.getItem(), 1 + outputRuns), false).isEmpty()) {
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (0.05 > Math.random()) {
+                                        for (int i = 0; i <= 4; i++) {
+                                            if (this.itemHandler.isItemValid(i, Items.STICK.getDefaultInstance()) && this.itemHandler.insertItem(i, new ItemStack(Items.STICK.getDefaultInstance().getItem(), 1 + outputRuns), false).isEmpty()) {
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (extraItem != null) {
+                                        if (extraItemChance > Math.random()) {
+                                            for (int i = 0; i <= 4; i++) {
+                                                if (this.itemHandler.isItemValid(i, extraItem) && this.itemHandler.insertItem(i, new ItemStack(extraItem.getItem(), 1 + outputRuns), false).isEmpty()) {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                resetGenerator();
                             }
                         }
-                        resetGenerator();
                     }
+                }
+
+                if (tickCounter > tickBeforeCheck) {
+                    tickCounter = 0;
                 }
             }
 
-            this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+            if (level.isClientSide()) {
+                if (this.getBlockState().getValue(CrusherBlock.RUNNING)) {
+                    level.addParticle(ParticleTypes.INSTANT_EFFECT,
+                            (double) worldPosition.getX() + 0.5D,
+                            (double) worldPosition.getY() + 0.5D,
+                            (double) worldPosition.getZ() + 0.5D,
+                            0.5D, 0.5D, 0.5D);
 
-            if (tickCounter > tickBeforeCheck) {
-                tickCounter = 0;
+                    //SOUNDS?
+                }
             }
         }
     }

@@ -1,0 +1,14 @@
+{
+  "type": "miners:crusher",
+  "pattern": "miners:crusher",
+  "output": {
+    "item": "minecraft:gravel"
+  },
+  "input":[
+    {
+      "tag": "forge:cobblestone"
+    }
+  ],
+  "rf_per_tick": 60,
+  "duration": 500
+}

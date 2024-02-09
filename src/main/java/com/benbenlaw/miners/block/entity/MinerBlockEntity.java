@@ -1,5 +1,7 @@
 package com.benbenlaw.miners.block.entity;
 
+import com.benbenlaw.miners.block.custom.CrusherBlock;
+import com.benbenlaw.miners.block.custom.FluidAbsorberBlock;
 import com.benbenlaw.miners.block.custom.MinerBlock;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
@@ -19,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
@@ -39,8 +42,11 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -340,45 +346,70 @@ public class MinerBlockEntity extends BlockEntity implements MenuProvider, IInve
         updateUpgrades(this);
 
         assert level != null;
-        if (!level.isClientSide()) {
 
-            if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
-                if (result != null) {
+        if (!level.getBlockState(worldPosition).getValue(MinerBlock.POWERED)) {
 
-                    String foundPattern = result.ID();
-                    assert level != null;
+            if (!level.isClientSide()) {
 
-                    for (MinerRecipe recipe : level.getRecipeManager().getAllRecipesFor(MinerRecipe.Type.INSTANCE)) {
-                        String patternInRecipe = recipe.getPattern();
+                if (tickCounter % tickBeforeCheck == 0) {
+                    var result = MultiBlockManagers.MINERS.findStructure(level, this.worldPosition, Rotation.NONE);
+                    if (result != null) {
 
-                        if (foundPattern.equals(patternInRecipe)) {
-                            if (hasEnoughEnergyStorage(this, recipe)) {
-                                pattern = foundPattern;
-                                output = recipe.getOutputItem().getItem().getDefaultInstance();
-                                this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
-                                this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
-                                setChanged(this.level, this.worldPosition, this.getBlockState());
-                                break;
+                        String foundPattern = result.ID();
+                        assert level != null;
+
+                        for (MinerRecipe recipe : level.getRecipeManager().getAllRecipesFor(MinerRecipe.Type.INSTANCE)) {
+                            String patternInRecipe = recipe.getPattern();
+
+                            if (foundPattern.equals(patternInRecipe)) {
+                                if (hasEnoughEnergyStorage(this, recipe)) {
+                                    pattern = foundPattern;
+                                    output = recipe.getOutputItem().getItem().getDefaultInstance();
+                                    this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                    this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
+                                    level.setBlock(this.worldPosition, this.getBlockState().setValue(MinerBlock.RUNNING, true), 3);
+                                    setChanged(this.level, this.worldPosition, this.getBlockState());
+                                    break;
+                                }
                             }
+                        }
+                    } else {
+                        this.pattern = null;
+                        this.output = null;
+                        this.RFPerTick = 0;
+                        level.setBlock(this.worldPosition, this.getBlockState().setValue(MinerBlock.RUNNING, false), 3);
+                        setChanged(this.level, this.worldPosition, this.getBlockState());
+                    }
+                }
+
+                //Has Enough Energy -> Progress
+                if (pattern != null && output != null) {
+                    if (this.ENERGY_STORAGE.getEnergyStored() >= RFPerTick) {
+                        progress++;
+                        this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+                        if (progress > maxProgress) {
+                            this.itemHandler.insertItem(0, output.copyWithCount(1 + outputRuns), false);
+                            resetGenerator();
                         }
                     }
                 }
-            }
 
-            if (pattern != null && output != null ) {
-                progress++;
-                if (progress > maxProgress) {
-                    this.itemHandler.insertItem(0, output.copyWithCount(1 + outputRuns), false);
-                    resetGenerator();
+                //reset tick
+                if (tickCounter > tickBeforeCheck) {
+                    tickCounter = 0;
                 }
             }
 
-            this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+            if (level.isClientSide()) {
+                if (this.getBlockState().getValue(CrusherBlock.RUNNING)) {
+                    level.addParticle(ParticleTypes.INSTANT_EFFECT,
+                            (double) worldPosition.getX() + 0.5D,
+                            (double) worldPosition.getY() + 0.5D,
+                            (double) worldPosition.getZ() + 0.5D,
+                            0.5D, 0.5D, 0.5D);
 
-            //reset tick
-            if (tickCounter > tickBeforeCheck) {
-                tickCounter = 0;
+                    //SOUNDS?
+                }
             }
         }
     }

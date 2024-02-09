@@ -4,7 +4,9 @@ import com.benbenlaw.miners.block.entity.FluidAbsorberBlockEntity;
 import com.benbenlaw.miners.block.entity.ModBlockEntities;
 import com.benbenlaw.miners.block.entity.TreeAbsorberBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
@@ -28,28 +31,59 @@ public class FluidAbsorberBlock extends BaseEntityBlock {
         super(properties);
     }
 
+
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty RUNNING = BooleanProperty.create("running");
+
+    /* FACING */
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, pContext.getNearestLookingDirection().getOpposite()).setValue(POWERED, false).setValue(RUNNING, false);
     }
 
     @Override
     public @NotNull BlockState rotate(BlockState pState, Rotation pRotation) {
-        return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
+        return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING))).setValue(POWERED, pState.getValue(POWERED)).setValue(RUNNING, pState.getValue(RUNNING));
     }
 
     @Override
     public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
-        return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
+        return pState.rotate(pMirror.getRotation(pState.getValue(FACING))).setValue(POWERED, pState.getValue(POWERED)).setValue(RUNNING, pState.getValue(RUNNING));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING);
+        pBuilder.add(FACING, POWERED, RUNNING);
     }
 
+    // Redstone Control
+
+    @Override
+    public void neighborChanged(BlockState p_55666_, Level p_55667_, BlockPos p_55668_, Block p_55669_, BlockPos p_55670_, boolean p_55671_) {
+        if (!p_55667_.isClientSide) {
+            boolean flag = p_55666_.getValue(POWERED);
+            if (flag != p_55667_.hasNeighborSignal(p_55668_)) {
+                if (flag) {
+                    p_55667_.scheduleTick(p_55668_, this, 4);
+                } else {
+                    p_55667_.setBlock(p_55668_, p_55666_.cycle(POWERED), 2);
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public void tick(BlockState p_221937_, ServerLevel p_221938_, BlockPos p_221939_, RandomSource p_221940_) {
+        if (p_221937_.getValue(POWERED) && !p_221938_.hasNeighborSignal(p_221939_)) {
+            p_221938_.setBlock(p_221939_, p_221937_.cycle(POWERED), 2);
+        }
+
+    }
+
+    // block entity
     @Override
     public @NotNull RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;

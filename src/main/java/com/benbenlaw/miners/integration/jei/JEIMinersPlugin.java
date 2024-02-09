@@ -2,6 +2,7 @@ package com.benbenlaw.miners.integration.jei;
 
 import com.benbenlaw.miners.Miners;
 import com.benbenlaw.miners.block.ModBlocks;
+import com.benbenlaw.miners.recipe.CrusherRecipe;
 import com.benbenlaw.miners.recipe.FluidAbsorberRecipe;
 import com.benbenlaw.miners.recipe.MinerRecipe;
 import com.benbenlaw.miners.recipe.TreeAbsorberRecipe;
@@ -40,8 +41,12 @@ public class JEIMinersPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MINER.get()), MinerRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.TREE_ABSORBER.get()), TreeAbsorberRecipeCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_ABSORBER.get()), FluidAbsorberRecipeCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRUSHER.get()), CrusherRecipeCategory.RECIPE_TYPE);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.TREE_ABSORBER.get()), UpgradeRecipeUtilCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRUSHER.get()), UpgradeRecipeUtilCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.MINER.get()), UpgradeRecipeUtilCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FLUID_ABSORBER.get()), UpgradeRecipeUtilCategory.RECIPE_TYPE);
 
 
     }
@@ -57,6 +62,8 @@ public class JEIMinersPlugin implements IModPlugin {
                 TreeAbsorberRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
         registration.addRecipeCategories(new
                 FluidAbsorberRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new
+                CrusherRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
 
 
         slotDrawable = guiHelper.getSlotDrawable();
@@ -75,6 +82,9 @@ public class JEIMinersPlugin implements IModPlugin {
 
         List<FluidAbsorberRecipe> fluidAbsorberRecipes = rm.getAllRecipesFor(FluidAbsorberRecipe.Type.INSTANCE);
         registration.addRecipes(new RecipeType<>(FluidAbsorberRecipeCategory.UID, FluidAbsorberRecipe.class), fluidAbsorberRecipes);
+
+        List<CrusherRecipe> crusherRecipes = rm.getAllRecipesFor(CrusherRecipe.Type.INSTANCE);
+        registration.addRecipes(new RecipeType<>(CrusherRecipeCategory.UID, CrusherRecipe.class), crusherRecipes);
 
 
     }

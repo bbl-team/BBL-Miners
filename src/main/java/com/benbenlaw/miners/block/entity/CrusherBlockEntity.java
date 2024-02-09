@@ -1,5 +1,6 @@
 package com.benbenlaw.miners.block.entity;
 
+import com.benbenlaw.miners.block.custom.CrusherBlock;
 import com.benbenlaw.miners.multiblock.Crusher;
 import com.benbenlaw.miners.multiblock.MultiBlockManagers;
 import com.benbenlaw.miners.networking.ModMessages;
@@ -16,12 +17,15 @@ import com.benbenlaw.opolisutilities.util.inventory.WrappedHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -33,9 +37,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.PoweredBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -347,79 +353,96 @@ public class CrusherBlockEntity extends BlockEntity implements MenuProvider, IIn
 
         tickCounter++;
 
-        updateUpgrades(this);
-
         assert level != null;
-        if (!level.isClientSide()) {
 
-            if (tickCounter % tickBeforeCheck == 0) {
-                var result = MultiBlockManagers.CRUSHER.findStructure(level, this.worldPosition, Rotation.NONE);
+        updateUpgrades(this);
+        assert level != null;
 
-                if (result != null) {
+        if (!level.getBlockState(worldPosition).getValue(CrusherBlock.POWERED)) {
 
-                    String foundPattern = result.ID();
-                    SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        inventory.setItem(i, this.itemHandler.getStackInSlot(i));
-                    }
-                    assert level != null;
+            if (!level.isClientSide()) {
 
-                    for (CrusherRecipe recipe : level.getRecipeManager().getAllRecipesFor(CrusherRecipe.Type.INSTANCE)) {
-                        String patternInRecipe = recipe.getPattern();
+                if (tickCounter % tickBeforeCheck == 0) {
+                    var result = MultiBlockManagers.CRUSHER.findStructure(level, this.worldPosition, Rotation.NONE);
 
-                        if (foundPattern.equals(patternInRecipe)) {
+                    if (result != null) {
 
-                            if (hasInputItem(this, recipe)) {
+                        String foundPattern = result.ID();
+                        SimpleContainer inventory = new SimpleContainer(this.itemHandler.getSlots());
+                        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                            inventory.setItem(i, this.itemHandler.getStackInSlot(i));
+                        }
+                        assert level != null;
 
-                                //Set Recipe
-                                if (hasEnoughEnergyStorage(this, recipe)) {
-                                    pattern = foundPattern;
-                                    output = recipe.getOutputItem().getItem().getDefaultInstance();
-                                    this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
-                                    this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
-                                    setChanged(this.level, this.worldPosition, this.getBlockState());
-                                    break;
-                               }
+                        for (CrusherRecipe recipe : level.getRecipeManager().getAllRecipesFor(CrusherRecipe.Type.INSTANCE)) {
+                            String patternInRecipe = recipe.getPattern();
+
+                            if (foundPattern.equals(patternInRecipe)) {
+
+                                if (hasInputItem(this, recipe)) {
+
+                                    //Set Recipe
+                                    if (hasEnoughEnergyStorage(this, recipe)) {
+                                        pattern = foundPattern;
+                                        output = recipe.getOutputItem().getItem().getDefaultInstance();
+                                        this.RFPerTick = (int) (recipe.getRFPerTick() * RFPerTickMultiplier);
+                                        this.maxProgress = (int) (recipe.getDuration() * durationMultiplier);
+                                        level.setBlock(this.worldPosition, this.getBlockState().setValue(CrusherBlock.RUNNING, true), 3);
+                                        setChanged(this.level, this.worldPosition, this.getBlockState());
+                                        break;
+                                    }
+                                }
                             }
+                        }
+                    } else {
+                        this.pattern = null;
+                        this.output = null;
+                        this.RFPerTick = 0;
+                        level.setBlock(this.worldPosition, this.getBlockState().setValue(CrusherBlock.RUNNING, false), 3);
+                        setChanged(this.level, this.worldPosition, this.getBlockState());
+                    }
+
+                }
+
+                //Has Enough Energy -> Progress
+                if (output != null) {
+                    if (this.ENERGY_STORAGE.getEnergyStored() >= RFPerTick) {
+                        progress++;
+                        this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
+                        setChanged(this.level, this.worldPosition, this.getBlockState());
+
+                        if (progress > maxProgress) {
+
+                            this.itemHandler.extractItem(6, 1, false);
+                            int remainingOutput = 1 + outputRuns;
+                            for (int slotIndex = 0; slotIndex <= 5 && remainingOutput > 0; slotIndex++) {
+                                ItemStack remaining = this.itemHandler.insertItem(slotIndex, new ItemStack(output.copy().getItem().asItem(), 1 + outputRuns), false);
+                                int inserted = 1 + outputRuns - remaining.getCount();
+                                remainingOutput -= inserted;
+                            }
+                            resetGenerator();
                         }
                     }
                 }
-                if (result == null) {
-                    setChanged(this.level, this.worldPosition, this.getBlockState());
-                }
-
-            }
-
-            if (output != null) {
-                progress++;
-                if (progress > maxProgress) {
-
-                    this.itemHandler.extractItem(6, 1, false);
-
-                    int remainingOutput = 1 + outputRuns;
-                    for (int slotIndex = 0; slotIndex <= 5 && remainingOutput > 0; slotIndex++) {
-                        ItemStack remaining = this.itemHandler.insertItem(slotIndex, new ItemStack (output.copy().getItem().asItem(), 1 + outputRuns), false);
-                        int inserted = 1 + outputRuns - remaining.getCount();
-                        remainingOutput -= inserted;
-                    }
-                    setChanged(this.level, this.worldPosition, this.getBlockState());
-                    resetGenerator();
-
+                //reset tick
+                if (tickCounter > tickBeforeCheck) {
+                    tickCounter = 0;
                 }
             }
 
+            if (level.isClientSide()) {
+                if (this.getBlockState().getValue(CrusherBlock.RUNNING)) {
+                    level.addParticle(ParticleTypes.INSTANT_EFFECT,
+                            (double) worldPosition.getX() + 0.5D,
+                            (double) worldPosition.getY() + 0.5D,
+                            (double) worldPosition.getZ() + 0.5D,
+                            0.5D, 0.5D, 0.5D);
 
-
-            if (this.itemHandler.getStackInSlot(0).getCount() < this.itemHandler.getSlotLimit(0) || output == null) {
-                this.ENERGY_STORAGE.extractEnergy(RFPerTick, false);
-            }
-            //reset tick
-            if (tickCounter > tickBeforeCheck) {
-                tickCounter = 0;
+                    //SOUNDS?
+                }
             }
         }
     }
-
 
     private void resetGenerator() {
         this.progress = 0;
