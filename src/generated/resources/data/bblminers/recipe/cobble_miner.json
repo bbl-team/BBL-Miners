@@ -1,0 +1,7 @@
+{
+  "type": "bblminers:structure",
+  "loot_tables": [
+    "minecraft:blocks/cobblestone"
+  ],
+  "structure_id": "bblminers:cobble_miner"
+}

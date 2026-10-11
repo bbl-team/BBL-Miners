@@ -1,0 +1,33 @@
+{
+  "keys": {
+    "C": "minecraft:cobblestone",
+    "D": "minecraft:stone"
+  },
+  "pattern": [
+    [
+      "CCC",
+      "CCC",
+      "CCC"
+    ],
+    [
+      "CCC",
+      "CCC",
+      "CCC"
+    ],
+    [
+      "CCC",
+      "CCC",
+      "CCC"
+    ],
+    [
+      "DDD",
+      "DDD",
+      "DDD"
+    ],
+    [
+      "   ",
+      " @ ",
+      "   "
+    ]
+  ]
+}

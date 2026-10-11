@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "bblminers:block/miner_controller_front",
+    "side": "bblminers:block/machine_side_idle",
+    "top": "bblminers:block/machine_top"
+  }
+}
