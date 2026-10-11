@@ -23,6 +23,10 @@ public class MinersLootTableProvider extends VanillaBlockLoot {
     protected void generate() {
 
         this.dropSelf(MinersBlocks.MINER_CONTROLLER.get());
+
+        MinersBlocks.CAPS.forEach(cap -> this.dropSelf(cap.get()));
+
+        SupportFrames.ALL.forEach(frame -> this.dropSelf(frame.get()));
     }
 
     @Override

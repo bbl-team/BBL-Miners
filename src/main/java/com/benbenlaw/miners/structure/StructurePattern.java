@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.ArrayList;
@@ -12,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCodecs.TagOrElementLocation> keys) {
+public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCodecs.TagOrElementLocation> keys, List<Vec3i> caps) {
+
+    /** Upgrade slots. Each is a position relative to the controller where any cap block can go. */
 
     public static final char CONTROLLER = '@';
     public static final char ANY = ' ';
@@ -25,7 +28,8 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
 
     public static final MapCodec<StructurePattern> MAP_CODEC = RecordCodecBuilder.<StructurePattern>mapCodec(instance -> instance.group(
             Codec.STRING.listOf().listOf().fieldOf("pattern").forGetter(StructurePattern::layers),
-            Codec.unboundedMap(KEY_CHAR, ExtraCodecs.TAG_OR_ELEMENT_ID).fieldOf("keys").forGetter(StructurePattern::keys)
+            Codec.unboundedMap(KEY_CHAR, ExtraCodecs.TAG_OR_ELEMENT_ID).fieldOf("keys").forGetter(StructurePattern::keys),
+            Vec3i.CODEC.listOf().optionalFieldOf("caps", List.of()).forGetter(StructurePattern::caps)
     ).apply(instance, StructurePattern::new)).validate(StructurePattern::validate);
 
     public static final Codec<StructurePattern> CODEC = MAP_CODEC.codec();
@@ -38,6 +42,7 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
         if (rowCount == 0 || width == 0) return error("pattern layers must contain non-empty rows");
 
         int controllers = 0;
+        int cx = 0, cy = 0, cz = 0;
         Set<Character> used = new HashSet<>();
 
         for (int y = 0; y < layers.size(); y++) {
@@ -53,6 +58,9 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
                 for (char c : row.toCharArray()) {
                     if (c == CONTROLLER) {
                         controllers++;
+                        cx = row.indexOf(CONTROLLER);
+                        cy = y;
+                        cz = z;
                     } else if (c != ANY) {
                         if (!keys.containsKey(c)) return error("pattern uses '" + c + "' but it is not defined in keys");
                         used.add(c);
@@ -65,6 +73,28 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
 
         for (Character key : keys.keySet()) {
             if (!used.contains(key)) return error("key '" + key + "' is never used in the pattern");
+        }
+
+        return validateCaps(cx, cy, cz);
+    }
+
+    private DataResult<StructurePattern> validateCaps(int cx, int cy, int cz) {
+        Set<Vec3i> occupied = new HashSet<>();
+        for (int y = 0; y < layers.size(); y++) {
+            for (int z = 0; z < layers.get(y).size(); z++) {
+                String row = layers.get(y).get(z);
+                for (int x = 0; x < row.length(); x++) {
+                    if (row.charAt(x) != ANY) occupied.add(new Vec3i(x - cx, y - cy, z - cz));
+                }
+            }
+        }
+
+        Set<Vec3i> seen = new HashSet<>();
+        for (Vec3i cap : caps) {
+            if (occupied.contains(cap)) {
+                return error("cap at " + cap.toShortString() + " overlaps the pattern (use a space or leave it outside)");
+            }
+            if (!seen.add(cap)) return error("two caps share the position " + cap.toShortString());
         }
 
         return DataResult.success(this);
@@ -98,6 +128,6 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
                 }
             }
         }
-        return new CompiledStructure(List.copyOf(entries));
+        return new CompiledStructure(List.copyOf(entries), List.copyOf(caps));
     }
 }

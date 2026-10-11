@@ -44,6 +44,10 @@ public class MinersModelProvider extends ModelProvider {
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         createMachineBlock(MinersBlocks.MINER_CONTROLLER.get(), blockModels.blockStateOutput, blockModels.modelOutput);
+
+        MinersBlocks.CAPS.forEach(cap -> blockModels.createTrivialCube(cap.get()));
+
+        SupportFrames.ALL.forEach(frame -> blockModels.createTrivialCube(frame.get()));
     }
 
     public void createMachineBlock(Block block, Consumer<BlockModelDefinitionGenerator> blockStateOutput, BiConsumer<Identifier, ModelInstance> modelOutput) {

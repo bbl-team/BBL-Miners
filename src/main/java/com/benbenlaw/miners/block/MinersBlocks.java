@@ -1,16 +1,21 @@
 package com.benbenlaw.miners.block;
 
 import com.benbenlaw.miners.Miners;
+import com.benbenlaw.miners.block.custom.CapBlock;
 import com.benbenlaw.miners.block.custom.MinerControllerBlock;
+import com.benbenlaw.miners.cap.CapType;
 import com.benbenlaw.miners.item.MinersItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class MinersBlocks {
@@ -22,7 +27,59 @@ public class MinersBlocks {
                     .requiresCorrectToolForDrops()));
 
     //Caps
+    public static final List<DeferredBlock<CapBlock>> CAPS = new ArrayList<>();
 
+    public static final DeferredBlock<CapBlock> SILK_TOUCH_CAP_1 = registerCap(CapType.SILK_TOUCH, 1);
+    public static final DeferredBlock<CapBlock> FORTUNE_CAP_1 = registerCap(CapType.FORTUNE, 1);
+    public static final DeferredBlock<CapBlock> FORTUNE_CAP_2 = registerCap(CapType.FORTUNE, 2);
+    public static final DeferredBlock<CapBlock> FORTUNE_CAP_3 = registerCap(CapType.FORTUNE, 3);
+    public static final DeferredBlock<CapBlock> EFFICIENCY_CAP_1 = registerCap(CapType.EFFICIENCY, 1);
+    public static final DeferredBlock<CapBlock> EFFICIENCY_CAP_2 = registerCap(CapType.EFFICIENCY, 2);
+    public static final DeferredBlock<CapBlock> EFFICIENCY_CAP_3 = registerCap(CapType.EFFICIENCY, 3);
+
+    public static final DeferredBlock<Block> WOODEN_SUPPORT_FRAME = registerBlock("wooden_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.WOOD)));
+
+    public static final DeferredBlock<Block> STONE_SUPPORT_FRAME = registerBlock("stone_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.STONE)));
+
+    public static final DeferredBlock<Block> COPPER_SUPPORT_FRAME = registerBlock("copper_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final DeferredBlock<Block> IRON_SUPPORT_FRAME = registerBlock("iron_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final DeferredBlock<Block> GOLD_SUPPORT_FRAME = registerBlock("gold_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final DeferredBlock<Block> DIAMOND_SUPPORT_FRAME = registerBlock("diamond_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final DeferredBlock<Block> NETHERITE_SUPPORT_FRAME = registerBlock("netherite_support_frame",
+            properties -> new Block(properties
+                    .strength(2.0F)
+                    .sound(SoundType.METAL)));
+
+    private static DeferredBlock<CapBlock> registerCap(CapType type, int level) {
+        DeferredBlock<CapBlock> cap = registerBlock(type.getId() + "_cap_" + level,
+                properties -> new CapBlock(properties
+                        .strength(3.0F)
+                        .requiresCorrectToolForDrops(), type, level));
+        CAPS.add(cap);
+        return cap;
+    }
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> function) {
         DeferredBlock<T> toReturn = BLOCKS.registerBlock(name, function);

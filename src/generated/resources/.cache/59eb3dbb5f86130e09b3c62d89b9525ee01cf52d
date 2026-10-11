@@ -1,2 +1,16 @@
-// 26.1.2	2026-10-11T10:49:31.6786322	Loot Tables
+// 26.1.2	2026-10-11T11:14:52.1511838	Loot Tables
+466ca2e88077832b12b1b4397bbc934272f76032 data/bblminers/loot_table/blocks/copper_support_frame.json
+e224e67bb8d76a09771e8ca2e9bcf942b609c444 data/bblminers/loot_table/blocks/diamond_support_frame.json
+1f4ce361b7b2c5dfa062a1aa84b62a8e0a8f4b1a data/bblminers/loot_table/blocks/efficiency_cap_1.json
+1d58ae95a011d91319ff62e7fc29a08e2f68486c data/bblminers/loot_table/blocks/efficiency_cap_2.json
+8c17869875c5f8fd2ca1b99d98e165ee21533190 data/bblminers/loot_table/blocks/efficiency_cap_3.json
+6e0581010e9305e2e5b17cee9146db46433ca0f5 data/bblminers/loot_table/blocks/fortune_cap_1.json
+394509dcb1bfb476458804008e140660684be7ad data/bblminers/loot_table/blocks/fortune_cap_2.json
+157352d518716328d362460495755641c086b396 data/bblminers/loot_table/blocks/fortune_cap_3.json
+053cc9a670f39daa2f4fe3ca865e6cc221e06793 data/bblminers/loot_table/blocks/gold_support_frame.json
+258525c01821310d5422032227e74b110a45045d data/bblminers/loot_table/blocks/iron_support_frame.json
 6967b46331a7e26d4c7545c7d63f93154c72f314 data/bblminers/loot_table/blocks/miner_controller.json
+463aec35b6551cd4f249b82386d67ed477149725 data/bblminers/loot_table/blocks/netherite_support_frame.json
+5edc36588e0e05c66325b728f5ea112ed52988cb data/bblminers/loot_table/blocks/silk_touch_cap_1.json
+5aa8e760dd4dcb2549415c357ac20937c8f2d9dc data/bblminers/loot_table/blocks/stone_support_frame.json
+f63d7391c6175f327a86fb941919932e0d10c267 data/bblminers/loot_table/blocks/wooden_support_frame.json

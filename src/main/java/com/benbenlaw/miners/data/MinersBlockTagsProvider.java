@@ -22,6 +22,12 @@ public class MinersBlockTagsProvider extends BlockTagsProvider {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(MinersBlocks.MINER_CONTROLLER.get())
         ;
+
+        MinersBlocks.CAPS.forEach(cap -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(cap.get()));
+
+        SupportFrames.ALL.forEach(frame -> tag(SupportFrames.isWooden(frame)
+                ? BlockTags.MINEABLE_WITH_AXE
+                : BlockTags.MINEABLE_WITH_PICKAXE).add(frame.get()));
     }
 
 

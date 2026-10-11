@@ -1,4 +1,26 @@
 {
+  "caps": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      -1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      -1
+    ]
+  ],
   "keys": {
     "C": "minecraft:cobblestone",
     "D": "minecraft:stone"

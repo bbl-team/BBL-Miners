@@ -1,5 +1,18 @@
 {
   "values": [
-    "bblminers:miner_controller"
+    "bblminers:miner_controller",
+    "bblminers:silk_touch_cap_1",
+    "bblminers:fortune_cap_1",
+    "bblminers:fortune_cap_2",
+    "bblminers:fortune_cap_3",
+    "bblminers:efficiency_cap_1",
+    "bblminers:efficiency_cap_2",
+    "bblminers:efficiency_cap_3",
+    "bblminers:stone_support_frame",
+    "bblminers:copper_support_frame",
+    "bblminers:iron_support_frame",
+    "bblminers:gold_support_frame",
+    "bblminers:diamond_support_frame",
+    "bblminers:netherite_support_frame"
   ]
 }

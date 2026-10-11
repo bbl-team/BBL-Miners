@@ -7,6 +7,7 @@ import com.benbenlaw.miners.block.entity.MinerControllerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,7 @@ public class MinerControllerMenu extends SimpleAbstractContainerMenu {
     public final ContainerData data;
 
     public MinerControllerMenu(int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(containerId, inventory, extraData.readBlockPos(), new SimpleContainerData(5));
+        this(containerId, inventory, extraData.readBlockPos(), new SimpleContainerData(8));
     }
 
     public MinerControllerMenu(int containerId, Inventory inventory, BlockPos pos, ContainerData data) {
@@ -45,6 +46,29 @@ public class MinerControllerMenu extends SimpleAbstractContainerMenu {
         }
 
         addDataSlots(data);
+    }
+
+    public static final int BUTTON_SHOW_CAPS = 0;
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == BUTTON_SHOW_CAPS) {
+            blockEntity.toggleCapOutlines(player);
+            return true;
+        }
+        return super.clickMenuButton(player, id);
+    }
+
+    public int getEfficiencyLevels() {
+        return data.get(5);
+    }
+
+    public int getFortuneLevels() {
+        return data.get(6);
+    }
+
+    public boolean hasSilkTouch() {
+        return data.get(7) == 1;
     }
 
     public int getScaledProgress(int pixels) {

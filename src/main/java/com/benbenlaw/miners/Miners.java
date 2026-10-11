@@ -2,6 +2,7 @@ package com.benbenlaw.miners;
 
 import com.benbenlaw.miners.block.MinersBlockEntities;
 import com.benbenlaw.miners.block.MinersBlocks;
+import com.benbenlaw.miners.item.MinersCreativeTab;
 import com.benbenlaw.miners.item.MinersItems;
 import com.benbenlaw.miners.recipe.MinersRecipeTypes;
 import com.benbenlaw.miners.screen.MinerControllerScreen;
@@ -38,6 +39,7 @@ public class Miners {
         MinersMenuTypes.MENUS.register(eventBus);
         MinersRecipeTypes.SERIALIZER.register(eventBus);
         MinersRecipeTypes.TYPES.register(eventBus);
+        MinersCreativeTab.CREATIVE_MODE_TABS.register(eventBus);
 
     }
 

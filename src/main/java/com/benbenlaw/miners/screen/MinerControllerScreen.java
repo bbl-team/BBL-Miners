@@ -4,15 +4,19 @@ import com.benbenlaw.core.Core;
 import com.benbenlaw.core.screen.util.DurationTooltip;
 import com.benbenlaw.core.util.MouseUtil;
 import com.benbenlaw.miners.Miners;
+import com.benbenlaw.miners.cap.CapEffects;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MinerControllerScreen extends AbstractContainerScreen<MinerControllerMenu> {
@@ -24,7 +28,12 @@ public class MinerControllerScreen extends AbstractContainerScreen<MinerControll
     private static final Identifier STATUS_BUILT = Miners.identifier("status_built");
     private static final Identifier STATUS_NOT_BUILT = Miners.identifier("status_not_built");
 
-    private static final int STATUS_X = 149;
+private static final Identifier CAP_INFO = Miners.identifier("cap_info");
+
+private static final int CAP_X = 137;
+private static final int CAP_Y = 5;
+
+private static final int STATUS_X = 149;
     private static final int STATUS_Y = 5;
 
     private static final int ARROW_X = 76;
@@ -74,6 +83,54 @@ public class MinerControllerScreen extends AbstractContainerScreen<MinerControll
                     ? "gui.bblminers.structure_valid"
                     : "gui.bblminers.structure_invalid"), mouseX, mouseY);
         }
+
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, CAP_INFO, 10, 10, 0, 0, x + CAP_X, y + CAP_Y, 10, 10);
+
+        if (MouseUtil.isMouseAboveArea(mouseX, mouseY, x, y, CAP_X, CAP_Y, 10, 10)) {
+            guiGraphics.setComponentTooltipForNextFrame(font, capTooltip(), mouseX, mouseY);
+        }
+    }
+
+    private List<Component> capTooltip() {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable("gui.bblminers.cap_effects").withStyle(ChatFormatting.WHITE));
+
+        int efficiency = menu.getEfficiencyLevels();
+        int fortune = menu.getFortuneLevels();
+        boolean silkTouch = menu.hasSilkTouch();
+
+        if (efficiency == 0 && fortune == 0 && !silkTouch) {
+            lines.add(Component.translatable("gui.bblminers.cap_none").withStyle(ChatFormatting.GRAY));
+        } else {
+            double speed = 1.0 + CapEffects.SPEED_PER_EFFICIENCY_LEVEL * efficiency;
+            if (efficiency > 0) {
+                lines.add(Component.translatable("gui.bblminers.cap_efficiency", efficiency, String.format("%.2f", speed)).withStyle(ChatFormatting.GOLD));
+            }
+            if (fortune > 0) {
+                lines.add(Component.translatable("gui.bblminers.cap_fortune", fortune).withStyle(ChatFormatting.GREEN));
+            }
+            if (silkTouch) {
+                lines.add(Component.translatable("gui.bblminers.cap_silk_touch").withStyle(ChatFormatting.LIGHT_PURPLE));
+            }
+        }
+
+        lines.add(Component.translatable("gui.bblminers.cap_hint").withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
+        return lines;
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        if (event.button() == 1 && event.hasShiftDown()
+                && MouseUtil.isMouseAboveArea((int) event.x(), (int) event.y(), x, y, CAP_X, CAP_Y, 10, 10)) {
+            assert minecraft.gameMode != null;
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, MinerControllerMenu.BUTTON_SHOW_CAPS);
+            return true;
+        }
+
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override

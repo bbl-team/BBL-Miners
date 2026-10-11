@@ -1,5 +1,25 @@
 {
+  "block.bblminers.copper_support_frame": "Copper Support Frame",
+  "block.bblminers.diamond_support_frame": "Diamond Support Frame",
+  "block.bblminers.efficiency_cap_1": "Efficiency Cap I",
+  "block.bblminers.efficiency_cap_2": "Efficiency Cap II",
+  "block.bblminers.efficiency_cap_3": "Efficiency Cap III",
+  "block.bblminers.fortune_cap_1": "Fortune Cap I",
+  "block.bblminers.fortune_cap_2": "Fortune Cap II",
+  "block.bblminers.fortune_cap_3": "Fortune Cap III",
+  "block.bblminers.gold_support_frame": "Gold Support Frame",
+  "block.bblminers.iron_support_frame": "Iron Support Frame",
   "block.bblminers.miner_controller": "Miner Controller",
+  "block.bblminers.netherite_support_frame": "Netherite Support Frame",
+  "block.bblminers.silk_touch_cap_1": "Silk Touch Cap I",
+  "block.bblminers.stone_support_frame": "Stone Support Frame",
+  "block.bblminers.wooden_support_frame": "Wooden Support Frame",
+  "gui.bblminers.cap_effects": "Cap Effects",
+  "gui.bblminers.cap_efficiency": "Efficiency: %s levels (x%s speed)",
+  "gui.bblminers.cap_fortune": "Fortune: %s",
+  "gui.bblminers.cap_hint": "Shift + right-click to toggle cap outlines",
+  "gui.bblminers.cap_none": "No caps installed",
+  "gui.bblminers.cap_silk_touch": "Silk Touch",
   "gui.bblminers.structure_invalid": "Structure not built",
   "gui.bblminers.structure_valid": "Structure built",
   "jei.bblminers.chance": "Chance per roll: %s",
@@ -35,5 +55,6 @@
   "jei.bblminers.note.luck": "Weight affected by Luck",
   "jei.bblminers.note.modifier": "Added by %s",
   "jei.bblminers.note.tag": "One random item from %s",
-  "jei.bblminers.summary": "%s rolls, %ss, %s FE/t"
+  "jei.bblminers.summary": "%s rolls, %ss, %s FE/t",
+  "message.bblminers.build_structure_first": "Build the structure to see its cap positions"
 }

@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -34,6 +35,15 @@ public class StructurePreviewBuilder {
             maxZ = Math.max(maxZ, entry.dz());
         }
 
+        for (Vec3i cap : pattern.caps()) {
+            minX = Math.min(minX, cap.getX());
+            minY = Math.min(minY, cap.getY());
+            minZ = Math.min(minZ, cap.getZ());
+            maxX = Math.max(maxX, cap.getX());
+            maxY = Math.max(maxY, cap.getY());
+            maxZ = Math.max(maxZ, cap.getZ());
+        }
+
         int cycle = (int) (timeMillis / 1000);
         List<StructurePreviewRenderState.PreviewBlock> blocks = new ArrayList<>();
 
@@ -45,6 +55,12 @@ public class StructurePreviewBuilder {
             if (state == null) continue;
             blocks.add(new StructurePreviewRenderState.PreviewBlock(
                     new BlockPos(entry.dx() - minX, entry.dy() - minY, entry.dz() - minZ), state));
+        }
+
+        for (Vec3i cap : pattern.caps()) {
+            blocks.add(new StructurePreviewRenderState.PreviewBlock(
+                    new BlockPos(cap.getX() - minX, cap.getY() - minY, cap.getZ() - minZ),
+                    Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState()));
         }
 
         return new Result(blocks, new Vec3i(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1));

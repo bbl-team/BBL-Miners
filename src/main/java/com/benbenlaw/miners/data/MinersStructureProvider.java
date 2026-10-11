@@ -39,6 +39,10 @@ public class MinersStructureProvider implements DataProvider {
                 .layer("   ", " @ ", "   ")
                 .key('C', "minecraft:cobblestone")
                 .key('D', "minecraft:stone")
+                .cap(1, 0, 0)
+                .cap(-1, 0, 0)
+                .cap(0, 0, 1)
+                .cap(0, 0, -1)
                 .build());
     }
 

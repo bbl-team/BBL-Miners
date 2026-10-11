@@ -2,6 +2,7 @@ package com.benbenlaw.miners.data;
 
 import com.benbenlaw.miners.Miners;
 import com.benbenlaw.miners.block.MinersBlocks;
+import com.benbenlaw.miners.block.custom.CapBlock;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -11,15 +12,47 @@ public class MinersLangProvider extends LanguageProvider {
         super(output, Miners.MOD_ID, "en_us");
     }
 
+    private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V"};
+
+    private static String titleCase(String id) {
+        StringBuilder name = new StringBuilder();
+        for (String word : id.split("_")) {
+            if (!name.isEmpty()) name.append(' ');
+            name.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return name.toString();
+    }
+
+    private static String capName(CapBlock cap) {
+        StringBuilder name = new StringBuilder();
+        for (String word : cap.getCapType().getId().split("_")) {
+            name.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(' ');
+        }
+        return name + "Cap " + ROMAN[cap.getLevel()];
+    }
+
     @Override
     protected void addTranslations() {
 
         //Blocks
         addBlock(MinersBlocks.MINER_CONTROLLER, "Miner Controller");
 
+        //Caps
+        MinersBlocks.CAPS.forEach(cap -> addBlock(cap, capName(cap.get())));
+
+        //Support Frames
+        SupportFrames.ALL.forEach(frame -> addBlock(frame, titleCase(frame.getId().getPath())));
+
         //GUI
         add("gui.bblminers.structure_valid", "Structure built");
         add("gui.bblminers.structure_invalid", "Structure not built");
+        add("gui.bblminers.cap_effects", "Cap Effects");
+        add("gui.bblminers.cap_none", "No caps installed");
+        add("gui.bblminers.cap_efficiency", "Efficiency: %s levels (x%s speed)");
+        add("gui.bblminers.cap_fortune", "Fortune: %s");
+        add("gui.bblminers.cap_silk_touch", "Silk Touch");
+        add("gui.bblminers.cap_hint", "Shift + right-click to toggle cap outlines");
+        add("message.bblminers.build_structure_first", "Build the structure to see its cap positions");
 
         //JEI
         add("jei.bblminers.miner_structure", "Miner Structure");

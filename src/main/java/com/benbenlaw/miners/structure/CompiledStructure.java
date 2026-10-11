@@ -1,11 +1,12 @@
 package com.benbenlaw.miners.structure;
 
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.List;
 import java.util.Optional;
 
-public record CompiledStructure(List<Entry> entries) {
+public record CompiledStructure(List<Entry> entries, List<Vec3i> caps) {
 
     public record Entry(int dx, int dy, int dz, ExtraCodecs.TagOrElementLocation block) {
     }

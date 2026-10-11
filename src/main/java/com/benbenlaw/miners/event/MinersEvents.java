@@ -3,6 +3,7 @@ package com.benbenlaw.miners.event;
 import com.benbenlaw.miners.Miners;
 import com.benbenlaw.miners.block.MinersBlockEntities;
 import com.benbenlaw.miners.loot.LootPreviewBuilder;
+import com.benbenlaw.miners.network.CapOutlinesPacket;
 import com.benbenlaw.miners.network.MinerPreviewPacket;
 import com.benbenlaw.miners.recipe.MinerStructureRecipe;
 import com.benbenlaw.miners.structure.StructureManager;
@@ -51,6 +52,7 @@ public class MinersEvents {
 
         //Server to Client
         event.registrar(Miners.MOD_ID).playToClient(MinerPreviewPacket.TYPE, MinerPreviewPacket.STREAM_CODEC, MinerPreviewPacket.HANDLER);
+        event.registrar(Miners.MOD_ID).playToClient(CapOutlinesPacket.TYPE, CapOutlinesPacket.STREAM_CODEC, CapOutlinesPacket.HANDLER);
     }
 
     @SubscribeEvent

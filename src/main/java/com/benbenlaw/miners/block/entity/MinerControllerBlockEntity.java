@@ -4,6 +4,9 @@ import com.benbenlaw.core.block.SyncableBlock;
 import com.benbenlaw.core.block.entity.SyncableBlockEntity;
 import com.benbenlaw.core.block.entity.handler.item.SyncableItemHandler;
 import com.benbenlaw.miners.block.MinersBlockEntities;
+import com.benbenlaw.miners.block.custom.CapBlock;
+import com.benbenlaw.miners.cap.CapEffects;
+import com.benbenlaw.miners.network.CapOutlinesPacket;
 import com.benbenlaw.miners.recipe.MinerStructureRecipe;
 import com.benbenlaw.miners.screen.MinerControllerMenu;
 import com.benbenlaw.miners.structure.CompiledStructure;
@@ -12,11 +15,14 @@ import com.benbenlaw.miners.structure.StructurePattern;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.MenuProvider;
@@ -27,6 +33,8 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -36,6 +44,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -73,7 +82,8 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
     private RecipeHolder<MinerStructureRecipe> structure;
     private boolean structureDirty = true;
 
-    private final ItemStack miningTool = new ItemStack(Items.DIAMOND_PICKAXE);
+    private ItemStack miningTool = new ItemStack(Items.DIAMOND_PICKAXE);
+    private CapEffects capEffects = CapEffects.NONE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -84,6 +94,9 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
                 case 2 -> energy.getAmountAsInt();
                 case 3 -> energy.getCapacityAsInt();
                 case 4 -> structure != null ? 1 : 0;
+                case 5 -> capEffects.efficiency();
+                case 6 -> capEffects.fortune();
+                case 7 -> capEffects.silkTouch() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -98,7 +111,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
 
         @Override
         public int getCount() {
-            return 5;
+            return 8;
         }
     };
 
@@ -125,7 +138,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
         }
 
         MinerStructureRecipe recipe = structure.value();
-        maxProgress = recipe.baseDuration();
+        maxProgress = capEffects.duration(recipe.baseDuration());
 
         if (!hasOutputSpace() || energy.getAmountAsInt() < recipe.energyPerTick()) return;
 
@@ -170,21 +183,70 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
 
         if (previous != null && matches(previous)) {
             structure = previous;
-            return;
-        }
+        } else {
+            for (RecipeHolder<MinerStructureRecipe> holder : serverLevel.getServer().getRecipeManager()
+                    .recipeMap().byType(MinerStructureRecipe.TYPE)) {
+                if (matches(holder)) {
+                    structure = holder;
+                    break;
+                }
+            }
 
-        for (RecipeHolder<MinerStructureRecipe> holder : serverLevel.getServer().getRecipeManager()
-                .recipeMap().byType(MinerStructureRecipe.TYPE)) {
-            if (matches(holder)) {
-                structure = holder;
-                break;
+            if (previous != structure) {
+                progress = 0;
+                sync();
             }
         }
 
-        if (previous != structure) {
-            progress = 0;
-            sync();
+        updateCaps(serverLevel);
+    }
+
+    public void toggleCapOutlines(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
+
+        StructurePattern pattern = structure == null ? null : StructureManager.INSTANCE.get(structure.value().structureId());
+        if (pattern == null) {
+            player.sendOverlayMessage(Component.translatable("message.bblminers.build_structure_first"));
+            return;
         }
+
+        BlockPos origin = getBlockPos();
+        List<BlockPos> positions = new ArrayList<>();
+        for (Vec3i cap : COMPILED.computeIfAbsent(pattern, StructurePattern::compile).caps()) {
+            positions.add(origin.offset(cap));
+        }
+
+        PacketDistributor.sendToPlayer(serverPlayer, new CapOutlinesPacket(origin, positions));
+    }
+
+    private void updateCaps(ServerLevel serverLevel) {
+        CapEffects effects = CapEffects.NONE;
+
+        StructurePattern pattern = structure == null ? null : StructureManager.INSTANCE.get(structure.value().structureId());
+        if (pattern != null) {
+            CompiledStructure compiled = COMPILED.computeIfAbsent(pattern, StructurePattern::compile);
+            BlockPos origin = getBlockPos();
+
+            for (Vec3i cap : compiled.caps()) {
+                if (serverLevel.getBlockState(origin.offset(cap)).getBlock() instanceof CapBlock capBlock) {
+                    effects = effects.with(capBlock.getCapType(), capBlock.getLevel());
+                }
+            }
+        }
+
+        if (!effects.equals(capEffects)) {
+            capEffects = effects;
+            miningTool = buildMiningTool(serverLevel, effects);
+        }
+    }
+
+    private static ItemStack buildMiningTool(ServerLevel serverLevel, CapEffects effects) {
+        ItemStack tool = new ItemStack(Items.DIAMOND_PICKAXE);
+        HolderLookup.RegistryLookup<Enchantment> enchantments = serverLevel.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+
+        if (effects.fortune() > 0) tool.enchant(enchantments.getOrThrow(Enchantments.FORTUNE), effects.fortune());
+        if (effects.silkTouch()) tool.enchant(enchantments.getOrThrow(Enchantments.SILK_TOUCH), 1);
+        return tool;
     }
 
     private boolean matches(RecipeHolder<MinerStructureRecipe> holder) {
