@@ -18,10 +18,10 @@ class StructurePatternTest {
     private static final String COBBLE_MINER = """
             {
               "pattern": [
+                ["   ", " @ ", "   "],
                 ["CCC", "CCC", "CCC"],
                 ["CCC", "CCC", "CCC"],
-                ["CCC", "CCC", "CCC"],
-                ["   ", " @ ", "   "]
+                ["CCC", "CCC", "CCC"]
               ],
               "keys": { "C": "minecraft:cobblestone" }
             }
@@ -74,6 +74,20 @@ class StructurePatternTest {
 
         assertTrue(cobbleMiner().matches(10, 64, 20, (x, y, z, b) ->
                 b.id().toString().equals(world.get(x + "," + y + "," + z))));
+    }
+
+    @Test
+    void theFirstLayerIsTheTop() {
+        StructurePattern pattern = parse("""
+                { "pattern": [["@"], ["A"], ["B"]],
+                  "keys": { "A": "minecraft:stone", "B": "minecraft:dirt" } }
+                """).getOrThrow();
+
+        CompiledStructure.Entry first = pattern.compile().entries().getFirst();
+        assertEquals(-1, first.dy());
+        assertEquals(block("minecraft:stone"), first.block());
+        assertEquals(-2, pattern.compile().entries().get(1).dy());
+        assertEquals(block("minecraft:dirt"), pattern.compile().entries().get(1).block());
     }
 
     @Test

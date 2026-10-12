@@ -12,10 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Builds a {@link StructurePattern} layer by layer, bottom to top. Each layer is a list of rows (north to south),
- * and each row is a string of keys (west to east). '@' is the controller and a space matches anything.
- */
 public class StructurePatternBuilder {
 
     private final List<List<String>> layers = new ArrayList<>();

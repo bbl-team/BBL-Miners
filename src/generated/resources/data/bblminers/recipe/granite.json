@@ -1,0 +1,9 @@
+{
+  "type": "bblminers:structure",
+  "base_duration": 200,
+  "energy_per_tick": 40,
+  "loot_tables": [
+    "minecraft:blocks/granite"
+  ],
+  "structure_id": "bblminers:granite_miner"
+}

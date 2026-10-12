@@ -40,36 +40,43 @@ public class MinersBlocks {
     public static final DeferredBlock<Block> WOODEN_SUPPORT_FRAME = registerBlock("wooden_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.WOOD)));
 
     public static final DeferredBlock<Block> STONE_SUPPORT_FRAME = registerBlock("stone_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.STONE)));
 
     public static final DeferredBlock<Block> COPPER_SUPPORT_FRAME = registerBlock("copper_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.METAL)));
 
     public static final DeferredBlock<Block> IRON_SUPPORT_FRAME = registerBlock("iron_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.METAL)));
 
     public static final DeferredBlock<Block> GOLD_SUPPORT_FRAME = registerBlock("gold_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.METAL)));
 
     public static final DeferredBlock<Block> DIAMOND_SUPPORT_FRAME = registerBlock("diamond_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.METAL)));
 
     public static final DeferredBlock<Block> NETHERITE_SUPPORT_FRAME = registerBlock("netherite_support_frame",
             properties -> new Block(properties
                     .strength(2.0F)
+                    .noOcclusion()
                     .sound(SoundType.METAL)));
 
     private static DeferredBlock<CapBlock> registerCap(CapType type, int level) {

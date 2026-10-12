@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Adapted from FramedBlocks' BlockRenderFakeLevel.
- * Source: https://github.com/XFactHD/FramedBlocks/blob/26.1/src/main/java/io/github/xfacthd/framedblocks/api/render/fakelevel/BlockRenderFakeLevel.java
+ * Source: <a href="https://github.com/XFactHD/FramedBlocks/blob/26.1/src/main/java/io/github/xfacthd/framedblocks/api/render/fakelevel/BlockRenderFakeLevel.java">...</a>
  */
 public interface BlockRenderFakeLevel extends BlockAndTintGetter {
 

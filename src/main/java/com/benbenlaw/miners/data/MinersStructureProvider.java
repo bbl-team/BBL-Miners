@@ -31,20 +31,34 @@ public class MinersStructureProvider implements DataProvider {
 
     private void addStructures(Map<Identifier, StructurePattern> structures) {
 
-        structures.put(Miners.identifier("cobble_miner"), pattern()
-                .layer("CCC", "CCC", "CCC")
-                .layer("CCC", "CCC", "CCC")
-                .layer("CCC", "CCC", "CCC")
-                .layer("DDD", "DDD", "DDD")
-                .layer("   ", " @ ", "   ")
-                .key('C', "minecraft:cobblestone")
-                .key('D', "minecraft:stone")
-                .cap(1, 0, 0)
-                .cap(-1, 0, 0)
-                .cap(0, 0, 1)
-                .cap(0, 0, -1)
+        addSimpleMiner(structures, "cobblestone_miner", "minecraft:cobblestone", "bblminers:tier_1_frame");
+        addSimpleMiner(structures, "stone_miner", "minecraft:stone", "bblminers:tier_2_frame");
+        addSimpleMiner(structures, "granite_miner", "minecraft:granite", "bblminers:tier_2_frame");
+        addSimpleMiner(structures, "diorite_miner", "minecraft:diorite", "bblminers:tier_2_frame");
+        addSimpleMiner(structures, "andesite_miner", "minecraft:andesite", "bblminers:tier_2_frame");
+
+
+    }
+
+
+    private void addSimpleMiner(Map<Identifier, StructurePattern> structures, String name, String block, String frameTag) {
+        structures.put(Miners.identifier(name), pattern()
+                .layer("F   F", "     ", "  @  ", "     ", "F   F")
+                .layer("FFFFF", "FCCCF", "FCCCF", "FCCCF", "FFFFF")
+                .layer("F   F", " CCC ", " CCC ", " CCC ", "F   F")
+                .layer("F   F", " CCC ", " CCC ", " CCC ", "F   F")
+                .layer("F   F", " CCC ", " CCC ", " CCC ", "F   F")
+
+                .key('C', block)
+                .keyTag('F', frameTag)
+
+                .cap(2, 1, 2)
+                .cap(2, 1, -2)
+                .cap(-2, 1, 2)
+                .cap(-2, 1, -2)
                 .build());
     }
+
 
     @Override
     public @NotNull String getName() {

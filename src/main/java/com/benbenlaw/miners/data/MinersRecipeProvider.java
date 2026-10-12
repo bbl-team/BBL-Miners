@@ -37,12 +37,15 @@ public class MinersRecipeProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes() {
+        addSimpleMinerRecipe("cobblestone", 200, 20);
+        addSimpleMinerRecipe("stone", 200, 30);
+        addSimpleMinerRecipe("granite", 200, 40);
+        addSimpleMinerRecipe("andesite", 200, 40);
+        addSimpleMinerRecipe("diorite", 200, 40);
+    }
 
-        minerStructure(Miners.identifier("cobble_miner"), List.of(Identifier.parse("minecraft:blocks/cobblestone")), 100, 1, 20)
-                .save(output, "cobble_miner");
-
-        minerStructure(Miners.identifier("cobble_miner"), List.of(Identifier.parse("minecraft:blocks/stone")), 100, 1, 20)
-                .save(output, "stone_miner");
-
+    private void addSimpleMinerRecipe(String name, int baseDuration, int energyPerTick) {
+        minerStructure(Miners.identifier(name + "_miner"), List.of(Identifier.parse("minecraft:blocks/" + name)), baseDuration, 1, energyPerTick)
+                .save(output, name);
     }
 }

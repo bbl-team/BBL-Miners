@@ -11,7 +11,6 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 import java.util.List;
 
-/** Sent to a player who asked a controller to show its cap positions. Receiving it again for the same controller hides them. */
 public record CapOutlinesPacket(BlockPos controller, List<BlockPos> positions) implements CustomPacketPayload {
 
     public static final Type<CapOutlinesPacket> TYPE = new Type<>(Miners.identifier("cap_outlines"));

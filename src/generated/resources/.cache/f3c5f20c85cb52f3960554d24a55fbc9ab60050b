@@ -1,2 +1,6 @@
-// 26.1.2	2026-10-11T11:50:55.4560337	bblminers Structures
-7fb78fe7bde5744e5815af5c37b3fdc25df278e5 data/bblminers/bblminers/structure/cobble_miner.json
+// 26.1.2	2026-10-12T10:52:38.5064294	bblminers Structures
+f20069f7f3b6d29778fa4a9a0a163ecbffa93de0 data/bblminers/bblminers/structure/andesite_miner.json
+6bf62ac4d5077a049354a7eafec6c8b8ca6b4537 data/bblminers/bblminers/structure/cobblestone_miner.json
+17bda6bd5960322bbcfa01fc4480c1600333d479 data/bblminers/bblminers/structure/diorite_miner.json
+a7efdc19636b18741aeaf8a5706ce42cf57e491d data/bblminers/bblminers/structure/granite_miner.json
+4b7b53595b0268c338db7ac94f322a263ddc5201 data/bblminers/bblminers/structure/stone_miner.json

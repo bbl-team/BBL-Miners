@@ -2,7 +2,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "bblminers:stone_miner"
+        "recipe": "bblminers:andesite"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -14,7 +14,7 @@
   ],
   "rewards": {
     "recipes": [
-      "bblminers:stone_miner"
+      "bblminers:andesite"
     ]
   },
   "sends_telemetry_event": true

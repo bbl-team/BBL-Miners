@@ -2,7 +2,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "bblminers:cobble_miner"
+        "recipe": "bblminers:cobblestone"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -14,7 +14,7 @@
   ],
   "rewards": {
     "recipes": [
-      "bblminers:cobble_miner"
+      "bblminers:cobblestone"
     ]
   },
   "sends_telemetry_event": true

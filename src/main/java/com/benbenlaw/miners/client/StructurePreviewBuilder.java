@@ -1,6 +1,8 @@
 package com.benbenlaw.miners.client;
 
 import com.benbenlaw.miners.block.MinersBlocks;
+import com.benbenlaw.miners.block.custom.CapBlock;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import com.benbenlaw.miners.structure.CompiledStructure;
 import com.benbenlaw.miners.structure.StructurePattern;
 import net.minecraft.core.BlockPos;
@@ -57,13 +59,22 @@ public class StructurePreviewBuilder {
                     new BlockPos(entry.dx() - minX, entry.dy() - minY, entry.dz() - minZ), state));
         }
 
-        for (Vec3i cap : pattern.caps()) {
+        List<Vec3i> caps = pattern.caps();
+        for (int i = 0; i < caps.size(); i++) {
+            Vec3i cap = caps.get(i);
             blocks.add(new StructurePreviewRenderState.PreviewBlock(
                     new BlockPos(cap.getX() - minX, cap.getY() - minY, cap.getZ() - minZ),
-                    Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState()));
+                    capState(cycle + i)));
         }
 
         return new Result(blocks, new Vec3i(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1));
+    }
+
+    /** Cycles through every registered cap block; slots are offset so neighbouring slots show different caps. */
+    private static BlockState capState(int cycle) {
+        List<DeferredBlock<CapBlock>> caps = MinersBlocks.CAPS;
+        if (caps.isEmpty()) return Blocks.AIR.defaultBlockState();
+        return caps.get(cycle % caps.size()).get().defaultBlockState();
     }
 
     private static BlockState stateFor(ExtraCodecs.TagOrElementLocation location, int cycle) {

@@ -15,8 +15,6 @@ import java.util.Set;
 
 public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCodecs.TagOrElementLocation> keys, List<Vec3i> caps) {
 
-    /** Upgrade slots. Each is a position relative to the controller where any cap block can go. */
-
     public static final char CONTROLLER = '@';
     public static final char ANY = ' ';
 
@@ -84,7 +82,7 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
             for (int z = 0; z < layers.get(y).size(); z++) {
                 String row = layers.get(y).get(z);
                 for (int x = 0; x < row.length(); x++) {
-                    if (row.charAt(x) != ANY) occupied.add(new Vec3i(x - cx, y - cy, z - cz));
+                    if (row.charAt(x) != ANY) occupied.add(new Vec3i(x - cx, cy - y, z - cz));
                 }
             }
         }
@@ -124,7 +122,7 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
                 for (int x = 0; x < row.length(); x++) {
                     char c = row.charAt(x);
                     if (c == CONTROLLER || c == ANY) continue;
-                    entries.add(new CompiledStructure.Entry(x - cx, y - cy, z - cz, keys.get(c)));
+                    entries.add(new CompiledStructure.Entry(x - cx, cy - y, z - cz, keys.get(c)));
                 }
             }
         }
