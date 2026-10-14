@@ -6,14 +6,19 @@ import com.benbenlaw.core.util.MouseUtil;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.entity.CraftingControllerBlockEntity;
 import com.benbenlaw.multiblocks.config.MultiblocksConfig;
+import com.benbenlaw.multiblocks.structure.StructureNames;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -27,6 +32,15 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
 
     private static final int ARROW_X = 87;
     private static final int ARROW_Y = 31;
+    private static final Identifier LOCK_LOCKED = Multiblocks.identifier("lock_locked");
+    private static final Identifier LOCK_UNLOCKED = Multiblocks.identifier("lock_unlocked");
+
+    /** The title stops before the icons in the top right. */
+    private static final int TITLE_MAX_WIDTH = 125;
+
+    private static final int LOCK_X = 137;
+    private static final int LOCK_Y = 5;
+
     private static final int STATUS_X = 149;
     private static final int STATUS_Y = 5;
 
@@ -61,9 +75,18 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
         }
     }
 
+    /** The block name, or the name of the structure the controller is built as. */
+    private void drawTitles(GuiGraphicsExtractor graphics) {
+        Identifier structure = menu.blockEntity.getActiveStructureId();
+        Component name = structure == null ? title : StructureNames.of(structure);
+
+        graphics.text(font, Component.literal(font.plainSubstrByWidth(name.getString(), TITLE_MAX_WIDTH)), titleLabelX, titleLabelY, 0xFF404040, false);
+        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFF404040, false);
+    }
+
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractLabels(graphics, mouseX, mouseY);
+        drawTitles(graphics);
         graphics.text(font, Component.translatable("gui.bblmultiblocks.optional_items"), CraftingControllerMenu.RESEARCH_X, CraftingControllerMenu.RESEARCH_Y - 10, 0xFF404040, false);
     }
 
@@ -75,6 +98,9 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
         int y = topPos;
 
         DurationTooltip.renderDurationTooltip(graphics, mouseX, mouseY, x, y, 161, 5, menu.data.get(0), menu.data.get(1));
+
+        renderLockGhosts(graphics, x, y);
+        renderLockButton(graphics, mouseX, mouseY, x, y);
 
         int structureState = menu.getStructureState();
         if (structureState != CraftingControllerBlockEntity.STRUCTURE_NOT_REQUIRED) {
@@ -88,6 +114,48 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
                         : "gui.bblmultiblocks.structure_invalid"), mouseX, mouseY);
             }
         }
+    }
+
+    /** Empty locked slots show the item they will accept, faded; locked slots that accept nothing are darkened. */
+    private void renderLockGhosts(GuiGraphicsExtractor graphics, int x, int y) {
+        if (!menu.isLocked()) return;
+
+        for (int index = 0; index < menu.lockableSlots.length; index++) {
+            Slot slot = menu.lockableSlots[index];
+            if (slot == null || slot.hasItem()) continue;
+
+            ItemStack filter = menu.blockEntity.getLockFilter(index);
+            int slotX = x + slot.x;
+            int slotY = y + slot.y;
+
+            if (filter.isEmpty()) {
+                graphics.fill(slotX, slotY, slotX + 16, slotY + 16, 0x66000000);
+            } else {
+                graphics.item(filter, slotX, slotY, slotX + slotY * imageWidth);
+                graphics.fill(slotX, slotY, slotX + 16, slotY + 16, 0x908B8B8B);
+            }
+        }
+    }
+
+    private void renderLockButton(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y) {
+        boolean locked = menu.isLocked();
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, locked ? LOCK_LOCKED : LOCK_UNLOCKED, 10, 10, 0, 0, x + LOCK_X, y + LOCK_Y, 10, 10);
+
+        if (MouseUtil.isMouseAboveArea(mouseX, mouseY, x, y, LOCK_X, LOCK_Y, 10, 10)) {
+            graphics.setComponentTooltipForNextFrame(font, List.of(
+                    Component.translatable(locked ? "gui.bblmultiblocks.lock_locked" : "gui.bblmultiblocks.lock_unlocked"),
+                    Component.translatable(locked ? "gui.bblmultiblocks.lock_locked_hint" : "gui.bblmultiblocks.lock_unlocked_hint").withStyle(ChatFormatting.GRAY)
+            ), mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0 && MouseUtil.isMouseAboveArea((int) event.x(), (int) event.y(), leftPos, topPos, LOCK_X, LOCK_Y, 10, 10)) {
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, CraftingControllerMenu.BUTTON_TOGGLE_LOCK);
+            return true;
+        }
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override

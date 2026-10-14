@@ -6,6 +6,7 @@ import com.benbenlaw.core.util.MouseUtil;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.cap.CapEffects;
 import com.benbenlaw.multiblocks.config.MultiblocksConfig;
+import com.benbenlaw.multiblocks.structure.StructureNames;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -30,6 +31,9 @@ public class MinerControllerScreen extends AbstractContainerScreen<MinerControll
     private static final Identifier STATUS_NOT_BUILT = Multiblocks.identifier("status_not_built");
 
 private static final Identifier CAP_INFO = Multiblocks.identifier("cap_info");
+
+/** The title stops before the icons in the top right. */
+private static final int TITLE_MAX_WIDTH = 125;
 
 private static final int CAP_X = 137;
 private static final int CAP_Y = 5;
@@ -68,6 +72,20 @@ private static final int STATUS_X = 149;
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, ENERGY_BAR, 16, 52, 0, topOffset,
                     x + 8, y + topOffset + 16, 16, energyHeight);
         }
+    }
+
+    /** The block name, or the name of the structure the controller is built as. */
+    private void drawTitles(GuiGraphicsExtractor graphics) {
+        Identifier structure = menu.blockEntity.getActiveStructureId();
+        Component name = structure == null ? title : StructureNames.of(structure);
+
+        graphics.text(font, Component.literal(font.plainSubstrByWidth(name.getString(), TITLE_MAX_WIDTH)), titleLabelX, titleLabelY, 0xFF404040, false);
+        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFF404040, false);
+    }
+
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        drawTitles(graphics);
     }
 
     @Override

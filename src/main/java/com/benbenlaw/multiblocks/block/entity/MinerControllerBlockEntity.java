@@ -82,6 +82,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
 
     private RecipeHolder<MinerStructureRecipe> structure;
     private boolean structureDirty = true;
+    private @Nullable Identifier activeStructureId;
 
     private ItemStack miningTool = new ItemStack(Items.DIAMOND_PICKAXE);
     private CapEffects capEffects = CapEffects.NONE;
@@ -201,7 +202,20 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
             }
         }
 
+        setActiveStructure(structure == null ? null : structure.value().structureId());
         updateCaps(serverLevel);
+    }
+
+    /** The structure this controller is currently built as, which the GUI shows as its title. Synced to clients. */
+    public @Nullable Identifier getActiveStructureId() {
+        return activeStructureId;
+    }
+
+    private void setActiveStructure(@Nullable Identifier id) {
+        if (java.util.Objects.equals(id, activeStructureId)) return;
+        activeStructureId = id;
+        setChanged();
+        sync();
     }
 
     public void toggleCapOutlines(Player player) {
@@ -343,6 +357,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
         inventory.serialize(output.child("inventory"));
         energy.serialize(output.child("energy"));
         output.putInt("progress", progress);
+        if (activeStructureId != null) output.putString("structureId", activeStructureId.toString());
         super.saveAdditional(output);
     }
 
@@ -352,6 +367,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
         energy.deserialize(input.childOrEmpty("energy"));
         progress = input.getIntOr("progress", 0);
         structureDirty = true;
+        activeStructureId = Identifier.tryParse(input.getStringOr("structureId", ""));
         super.loadAdditional(input);
     }
 

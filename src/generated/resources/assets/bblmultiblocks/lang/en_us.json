@@ -21,6 +21,10 @@
   "gui.bblmultiblocks.cap_hint": "Shift + right-click to toggle cap outlines",
   "gui.bblmultiblocks.cap_none": "No caps installed",
   "gui.bblmultiblocks.cap_silk_touch": "Silk Touch",
+  "gui.bblmultiblocks.lock_locked": "Slots locked",
+  "gui.bblmultiblocks.lock_locked_hint": "Automation only puts each slot's own item back into it. Click to unlock.",
+  "gui.bblmultiblocks.lock_unlocked": "Slots unlocked",
+  "gui.bblmultiblocks.lock_unlocked_hint": "Click to lock each slot to its item. Empty slots then stay closed to automation.",
   "gui.bblmultiblocks.optional_items": "Optional Items",
   "gui.bblmultiblocks.structure_invalid": "Structure not built",
   "gui.bblmultiblocks.structure_valid": "Structure built",
@@ -79,5 +83,12 @@
   "jei.bblmultiblocks.structure_caps": "%s cap slots (any cap block)",
   "jei.bblmultiblocks.structure_tag": "Any block in %s",
   "jei.bblmultiblocks.summary": "%s rolls, %ss, %s FE/t",
-  "message.bblmultiblocks.build_structure_first": "Build the structure to see its cap positions"
+  "message.bblmultiblocks.build_structure_first": "Build the structure to see its cap positions",
+  "structure.bblmultiblocks.andesite_miner": "Andesite Miner",
+  "structure.bblmultiblocks.cobblestone_miner": "Cobblestone Miner",
+  "structure.bblmultiblocks.crafting_demo": "Crafting Demo",
+  "structure.bblmultiblocks.diorite_miner": "Diorite Miner",
+  "structure.bblmultiblocks.granite_miner": "Granite Miner",
+  "structure.bblmultiblocks.showcase_altar": "Showcase Altar",
+  "structure.bblmultiblocks.stone_miner": "Stone Miner"
 }

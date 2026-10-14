@@ -10,6 +10,7 @@ import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
 import com.benbenlaw.multiblocks.recipe.OptionalEffect;
 import com.benbenlaw.multiblocks.recipe.OptionalItem;
 import com.benbenlaw.multiblocks.recipe.SizedShapedPattern;
+import com.benbenlaw.multiblocks.structure.StructureNames;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -181,6 +182,12 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
 
         Component summary = Component.translatable("jei.bblmultiblocks.crafting_summary", recipe.baseDuration() / 20.0, recipe.energyPerTick());
         guiGraphics.text(font, summary, (WIDTH - font.width(summary)) / 2, FOOTER_Y, 0xFF404040, false);
+
+        if (recipe.structureId().isPresent()) {
+            Component name = StructureNames.of(recipe.structureId().get());
+            String text = font.plainSubstrByWidth(name.getString(), VIEW_WIDTH);
+            guiGraphics.text(font, Component.literal(text), VIEW_X + (VIEW_WIDTH - font.width(text)) / 2, VIEW_HEIGHT + 3, 0xFF404040, false);
+        }
 
         if (preview.pattern().isEmpty()) return;
 

@@ -25,12 +25,17 @@ public class MinersStructureProvider implements DataProvider {
 
     @Override
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cache) {
-        Map<Identifier, StructurePattern> structures = new LinkedHashMap<>();
-        addStructures(structures);
-        return DataProvider.saveAll(cache, StructurePattern.CODEC, pathProvider, structures);
+        return DataProvider.saveAll(cache, StructurePattern.CODEC, pathProvider, definitions());
     }
 
-    private void addStructures(Map<Identifier, StructurePattern> structures) {
+    /** Every structure the mod ships, by id. */
+    public static Map<Identifier, StructurePattern> definitions() {
+        Map<Identifier, StructurePattern> structures = new LinkedHashMap<>();
+        addStructures(structures);
+        return structures;
+    }
+
+    private static void addStructures(Map<Identifier, StructurePattern> structures) {
 
         addSimpleMiner(structures, "cobblestone_miner", "minecraft:cobblestone", "bblmultiblocks:tier_1_frame");
         addSimpleMiner(structures, "stone_miner", "minecraft:stone", "bblmultiblocks:tier_2_frame");
@@ -71,7 +76,7 @@ public class MinersStructureProvider implements DataProvider {
     }
 
 
-    private void addSimpleMiner(Map<Identifier, StructurePattern> structures, String name, String block, String frameTag) {
+    private static void addSimpleMiner(Map<Identifier, StructurePattern> structures, String name, String block, String frameTag) {
         structures.put(Multiblocks.identifier(name), pattern()
                 .layer("F   F", "     ", "  @  ", "     ", "F   F")
                 .layer("FFFFF", "FCCCF", "FCCCF", "FCCCF", "FFFFF")

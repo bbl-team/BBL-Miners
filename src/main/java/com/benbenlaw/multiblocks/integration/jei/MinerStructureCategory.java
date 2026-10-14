@@ -6,6 +6,7 @@ import com.benbenlaw.multiblocks.client.StructurePreviewBuilder;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderState;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderer;
 import com.benbenlaw.multiblocks.network.MinerPreviewPacket;
+import com.benbenlaw.multiblocks.structure.StructureNames;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -122,7 +123,7 @@ public class MinerStructureCategory implements IRecipeCategory<MinerStructureCat
         Minecraft mc = Minecraft.getInstance();
         var font = mc.font;
 
-        Component name = Component.literal(prettyName(preview.structureId()));
+        Component name = StructureNames.of(preview.structureId());
         guiGraphics.text(font, name, (VIEW_WIDTH - font.width(name)) / 2, NAME_Y, 0xFF404040, false);
 
         Component summary = Component.translatable("jei.bblmultiblocks.summary",
@@ -158,16 +159,6 @@ public class MinerStructureCategory implements IRecipeCategory<MinerStructureCat
         renderers.values().forEach(StructurePreviewRenderer::close);
         renderers.clear();
     }
-
-private static String prettyName(Identifier id) {
-    StringBuilder out = new StringBuilder();
-    for (String word : id.getPath().split("[_/]")) {
-        if (word.isEmpty()) continue;
-        if (!out.isEmpty()) out.append(' ');
-        out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
-    }
-    return out.toString();
-}
 
 private static String formatChance(float chance) {
         float percent = chance * 100f;

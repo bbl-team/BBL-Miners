@@ -3,6 +3,7 @@ package com.benbenlaw.multiblocks.data;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.MultiblocksBlocks;
 import com.benbenlaw.multiblocks.block.custom.CapBlock;
+import com.benbenlaw.multiblocks.structure.StructureNames;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -41,6 +42,9 @@ public class MinersLangProvider extends LanguageProvider {
         addBlock(MultiblocksBlocks.MINER_CONTROLLER, "Miner Controller");
         addBlock(MultiblocksBlocks.CRAFTING_CONTROLLER, "Crafting Controller");
 
+        //Structure names
+        MinersStructureProvider.definitions().keySet().forEach(id -> add(StructureNames.translationKey(id), StructureNames.prettyName(id)));
+
         //Caps
         MultiblocksBlocks.CAPS.forEach(cap -> addBlock(cap, capName(cap.get())));
 
@@ -51,6 +55,10 @@ public class MinersLangProvider extends LanguageProvider {
         add("gui.bblmultiblocks.structure_valid", "Structure built");
         add("gui.bblmultiblocks.structure_invalid", "Structure not built");
         add("gui.bblmultiblocks.optional_items", "Optional Items");
+        add("gui.bblmultiblocks.lock_locked", "Slots locked");
+        add("gui.bblmultiblocks.lock_locked_hint", "Automation only puts each slot's own item back into it. Click to unlock.");
+        add("gui.bblmultiblocks.lock_unlocked", "Slots unlocked");
+        add("gui.bblmultiblocks.lock_unlocked_hint", "Click to lock each slot to its item. Empty slots then stay closed to automation.");
         add("gui.bblmultiblocks.cap_effects", "Cap Effects");
         add("gui.bblmultiblocks.cap_none", "No caps installed");
         add("gui.bblmultiblocks.cap_efficiency", "Efficiency: %s levels (x%s speed)");

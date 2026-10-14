@@ -13,6 +13,7 @@ import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
 import com.benbenlaw.multiblocks.screen.CraftingControllerMenu;
 import com.benbenlaw.multiblocks.structure.StructureMatching;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
@@ -55,8 +56,15 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
     public static final int STRUCTURE_BUILT = 1;
     public static final int STRUCTURE_MISSING = 2;
 
+    /** The grid and research slots, the ones that can be locked for automation. */
+    public static final int LOCKABLE_SLOTS = OUTPUT_START;
+
+    private final SlotLock<ItemStack> slotLock = new SlotLock<>(LOCKABLE_SLOTS, ItemStack.EMPTY, ItemStack::isSameItemSameComponents, ItemStack::isEmpty);
+
     private final SyncableItemHandler inventory = new SyncableItemHandler(this, SLOT_COUNT,
-            (slot, stack) -> slot < OUTPUT_START || (slot == FUEL_SLOT && MultiblocksConfig.CRAFTING_FUEL_SLOT.get() && isFuel(stack)),
+            (slot, stack) -> slot < OUTPUT_START
+                    ? slotLock.allows(slot, stack)
+                    : (slot == FUEL_SLOT && MultiblocksConfig.CRAFTING_FUEL_SLOT.get() && isFuel(stack)),
             slot -> slot >= OUTPUT_START && slot < OUTPUT_START + OUTPUT_SIZE);
 
     private final MinerEnergyHandler energy = new MinerEnergyHandler(ENERGY_CAPACITY, 1000, this);
@@ -66,6 +74,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
     private @Nullable RecipeHolder<ControllerCraftingRecipe> recipe;
     private int structureState = STRUCTURE_NOT_REQUIRED;
+    private @Nullable Identifier activeStructureId;
     private CapEffects capEffects = CapEffects.NONE;
 
     private final ContainerData data = new ContainerData() {
@@ -78,6 +87,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
                 case 3 -> energy.getCapacityAsInt();
                 case 4 -> structureState;
                 case 5 -> capEffects.efficiency();
+                case 6 -> slotLock.isLocked() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -92,7 +102,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
         @Override
         public int getCount() {
-            return 6;
+            return 7;
         }
     };
 
@@ -114,6 +124,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         if (recipe != null && !recipe.value().matches(input, serverLevel)) {
             recipe = null;
             progress = 0;
+            setActiveStructure(null);
         }
 
         if (recipe == null || serverLevel.getGameTime() % REFRESH_INTERVAL == 0) {
@@ -197,6 +208,20 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
                 ? StructureMatching.capEffects(serverLevel, getBlockPos(), structureId.get())
                 : CapEffects.NONE;
         capEffects = effects;
+
+        setActiveStructure(structureId.orElse(null));
+    }
+
+    /** The structure this controller is currently built as, which the GUI shows as its title. Synced to clients. */
+    public @Nullable Identifier getActiveStructureId() {
+        return activeStructureId;
+    }
+
+    private void setActiveStructure(@Nullable Identifier id) {
+        if (java.util.Objects.equals(id, activeStructureId)) return;
+        activeStructureId = id;
+        setChanged();
+        sync();
     }
 
     private void resetProgress() {
@@ -281,6 +306,26 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         if (amount > 0 && !stack.isEmpty()) inventory.extract(slot, ItemResource.of(stack), amount, tx);
     }
 
+    /** Locks the grid and research slots to what they hold now, or unlocks them if they were locked. */
+    public void toggleLock() {
+        if (slotLock.isLocked()) {
+            slotLock.unlock();
+        } else {
+            slotLock.lock(slot -> ItemUtil.getStack(inventory, slot).copyWithCount(1));
+        }
+        setChanged();
+        sync();
+    }
+
+    public boolean isLocked() {
+        return slotLock.isLocked();
+    }
+
+    /** What a locked slot is set to accept, or an empty stack. */
+    public ItemStack getLockFilter(int slot) {
+        return slotLock.filter(slot);
+    }
+
     public ItemStacksResourceHandler getItemHandler() {
         return inventory;
     }
@@ -304,6 +349,11 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         inventory.serialize(output.child("inventory"));
         energy.serialize(output.child("energy"));
         output.putInt("progress", progress);
+        if (activeStructureId != null) output.putString("structureId", activeStructureId.toString());
+        output.putBoolean("slotsLocked", slotLock.isLocked());
+        for (int slot = 0; slot < LOCKABLE_SLOTS; slot++) {
+            output.store("lockFilter" + slot, ItemStack.OPTIONAL_CODEC, slotLock.filter(slot));
+        }
         super.saveAdditional(output);
     }
 
@@ -312,6 +362,9 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         inventory.deserialize(input.childOrEmpty("inventory"));
         energy.deserialize(input.childOrEmpty("energy"));
         progress = input.getIntOr("progress", 0);
+        activeStructureId = Identifier.tryParse(input.getStringOr("structureId", ""));
+        slotLock.load(input.getBooleanOr("slotsLocked", false),
+                slot -> input.read("lockFilter" + slot, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         super.loadAdditional(input);
     }
 
