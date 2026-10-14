@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "bblmultiblocks:block/efficiency_cap_1"
+  }
+}

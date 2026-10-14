@@ -1,0 +1,9 @@
+{
+  "type": "bblmultiblocks:miner_structure",
+  "base_duration": 200,
+  "energy_per_tick": 40,
+  "loot_tables": [
+    "minecraft:blocks/andesite"
+  ],
+  "structure_id": "bblmultiblocks:andesite_miner"
+}

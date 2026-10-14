@@ -1,0 +1,130 @@
+{
+  "type": "bblmultiblocks:controller_crafting",
+  "base_duration": 1200,
+  "energy_per_tick": 200,
+  "extras": [
+    {
+      "count": 4,
+      "ingredient": "minecraft:ender_eye"
+    },
+    {
+      "count": 16,
+      "ingredient": "minecraft:blaze_powder"
+    },
+    {
+      "count": 8,
+      "ingredient": "minecraft:amethyst_shard"
+    },
+    {
+      "count": 32,
+      "ingredient": [
+        "minecraft:coal",
+        "minecraft:charcoal"
+      ]
+    }
+  ],
+  "key": {
+    "D": {
+      "count": 2,
+      "ingredient": "minecraft:diamond_block"
+    },
+    "G": {
+      "count": 4,
+      "ingredient": "minecraft:gold_block"
+    },
+    "N": {
+      "count": 1,
+      "ingredient": "minecraft:nether_star"
+    },
+    "O": {
+      "count": 20,
+      "ingredient": "minecraft:obsidian"
+    }
+  },
+  "optional_items": [
+    {
+      "count": 16,
+      "effects": [
+        {
+          "type": "duration",
+          "multiplier": 0.5
+        },
+        {
+          "type": "energy",
+          "multiplier": 1.5
+        }
+      ],
+      "ingredient": "minecraft:glowstone_dust"
+    },
+    {
+      "consume": false,
+      "count": 4,
+      "effects": [
+        {
+          "type": "output_count",
+          "multiplier": 2.0
+        }
+      ],
+      "ingredient": "minecraft:echo_shard"
+    },
+    {
+      "consume_chance": 0.5,
+      "count": 2,
+      "effects": [
+        {
+          "type": "bonus_output",
+          "chance": 0.75,
+          "item": {
+            "count": 8,
+            "id": "minecraft:diamond"
+          }
+        },
+        {
+          "type": "bonus_output",
+          "chance": 0.25,
+          "item": {
+            "count": 4,
+            "id": "minecraft:emerald"
+          }
+        }
+      ],
+      "ingredient": "minecraft:emerald_block"
+    },
+    {
+      "consume": false,
+      "effects": [
+        {
+          "type": "energy",
+          "multiplier": 0.5
+        }
+      ],
+      "ingredient": "minecraft:heart_of_the_sea"
+    },
+    {
+      "count": 4,
+      "effects": [
+        {
+          "type": "replace_result",
+          "item": {
+            "count": 4,
+            "id": "minecraft:end_crystal"
+          }
+        },
+        {
+          "type": "output_count",
+          "add": 2
+        }
+      ],
+      "ingredient": "minecraft:dragon_breath"
+    }
+  ],
+  "pattern": [
+    "OOO",
+    "GNG",
+    "DDD"
+  ],
+  "result": {
+    "id": "minecraft:beacon"
+  },
+  "structure_id": "bblmultiblocks:showcase_altar"
+}

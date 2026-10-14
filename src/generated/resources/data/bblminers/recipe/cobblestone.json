@@ -1,8 +1,0 @@
-{
-  "type": "bblminers:structure",
-  "base_duration": 200,
-  "loot_tables": [
-    "minecraft:blocks/cobblestone"
-  ],
-  "structure_id": "bblminers:cobblestone_miner"
-}

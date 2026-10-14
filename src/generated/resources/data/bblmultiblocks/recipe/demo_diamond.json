@@ -1,0 +1,34 @@
+{
+  "type": "bblmultiblocks:controller_crafting",
+  "base_duration": 200,
+  "energy_per_tick": 40,
+  "key": {
+    "C": {
+      "count": 1,
+      "ingredient": "minecraft:coal_block"
+    }
+  },
+  "optional_items": [
+    {
+      "consume_chance": 0.25,
+      "effects": [
+        {
+          "type": "bonus_output",
+          "chance": 0.5,
+          "item": {
+            "id": "minecraft:diamond"
+          }
+        }
+      ],
+      "ingredient": "minecraft:emerald"
+    }
+  ],
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "result": {
+    "id": "minecraft:diamond"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "bblmultiblocks:block/crafting_controller_front",
+    "side": "bblmultiblocks:block/machine_side_idle",
+    "top": "bblmultiblocks:block/machine_top"
+  }
+}

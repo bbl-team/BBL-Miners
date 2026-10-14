@@ -1,9 +1,0 @@
-{
-  "type": "bblminers:structure",
-  "base_duration": 200,
-  "energy_per_tick": 30,
-  "loot_tables": [
-    "minecraft:blocks/stone"
-  ],
-  "structure_id": "bblminers:stone_miner"
-}

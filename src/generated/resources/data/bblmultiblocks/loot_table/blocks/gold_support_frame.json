@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "bblmultiblocks:gold_support_frame"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "bblmultiblocks:blocks/gold_support_frame"
+}

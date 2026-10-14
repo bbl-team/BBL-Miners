@@ -1,0 +1,81 @@
+{
+  "caps": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      -1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      -1
+    ],
+    [
+      2,
+      0,
+      0
+    ],
+    [
+      -2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      -2
+    ]
+  ],
+  "keys": {
+    "D": "minecraft:diamond_block",
+    "F": "#bblmultiblocks:tier_3_frame",
+    "G": "minecraft:gold_block",
+    "O": "minecraft:obsidian",
+    "S": "minecraft:polished_blackstone_bricks"
+  },
+  "pattern": [
+    [
+      "F   F",
+      "     ",
+      "  @  ",
+      "     ",
+      "F   F"
+    ],
+    [
+      "FSSSF",
+      "SGGGS",
+      "SGGGS",
+      "SGGGS",
+      "FSSSF"
+    ],
+    [
+      "F   F",
+      " OOO ",
+      " ODO ",
+      " OOO ",
+      "F   F"
+    ],
+    [
+      "FFFFF",
+      "FOOOF",
+      "FOOOF",
+      "FOOOF",
+      "FFFFF"
+    ]
+  ]
+}

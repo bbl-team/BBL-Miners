@@ -1,18 +1,19 @@
 {
   "values": [
-    "bblminers:miner_controller",
-    "bblminers:silk_touch_cap_1",
-    "bblminers:fortune_cap_1",
-    "bblminers:fortune_cap_2",
-    "bblminers:fortune_cap_3",
-    "bblminers:efficiency_cap_1",
-    "bblminers:efficiency_cap_2",
-    "bblminers:efficiency_cap_3",
-    "bblminers:stone_support_frame",
-    "bblminers:copper_support_frame",
-    "bblminers:iron_support_frame",
-    "bblminers:gold_support_frame",
-    "bblminers:diamond_support_frame",
-    "bblminers:netherite_support_frame"
+    "bblmultiblocks:miner_controller",
+    "bblmultiblocks:crafting_controller",
+    "bblmultiblocks:silk_touch_cap_1",
+    "bblmultiblocks:fortune_cap_1",
+    "bblmultiblocks:fortune_cap_2",
+    "bblmultiblocks:fortune_cap_3",
+    "bblmultiblocks:efficiency_cap_1",
+    "bblmultiblocks:efficiency_cap_2",
+    "bblmultiblocks:efficiency_cap_3",
+    "bblmultiblocks:stone_support_frame",
+    "bblmultiblocks:copper_support_frame",
+    "bblmultiblocks:iron_support_frame",
+    "bblmultiblocks:gold_support_frame",
+    "bblmultiblocks:diamond_support_frame",
+    "bblmultiblocks:netherite_support_frame"
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "type": "bblmultiblocks:controller_crafting",
+  "base_duration": 300,
+  "energy_per_tick": 40,
+  "key": {
+    "F": {
+      "count": 10,
+      "ingredient": "minecraft:furnace"
+    }
+  },
+  "pattern": [
+    "F"
+  ],
+  "result": {
+    "id": "minecraft:blast_furnace"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "bblmultiblocks:miner_structure",
+  "base_duration": 200,
+  "loot_tables": [
+    "minecraft:blocks/cobblestone"
+  ],
+  "structure_id": "bblmultiblocks:cobblestone_miner"
+}
