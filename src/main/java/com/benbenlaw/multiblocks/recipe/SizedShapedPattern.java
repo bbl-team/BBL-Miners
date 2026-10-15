@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * A shaped pattern for the 3x3 grid where every key is a sized ingredient, so one slot can ask for
- * several items (for example 10 furnaces). Like vanilla it can sit anywhere in the grid and be mirrored.
- */
 public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredient> key) {
 
     public static final int GRID_WIDTH = 3;
@@ -30,7 +26,6 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
                     : DataResult.error(() -> "Key must be a single character other than a space: '" + s + "'"),
             String::valueOf);
 
-    /** Accepts either {"ingredient": ..., "count": n} or a plain ingredient meaning a count of 1. */
     public static final Codec<SizedIngredient> SIZED = Codec.withAlternative(
             SizedIngredient.NESTED_CODEC,
             net.minecraft.world.item.crafting.Ingredient.CODEC,
@@ -43,7 +38,6 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
 
     public static final Codec<SizedShapedPattern> CODEC = MAP_CODEC.codec();
 
-    /** What a layout check needs to know about the grid. */
     public interface SlotCheck {
         boolean isEmpty(int slot);
 
@@ -85,10 +79,6 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
         return DataResult.error(() -> "Invalid controller crafting pattern: " + message);
     }
 
-    /**
-     * The key expected in each of the 9 grid slots (row by row, a space meaning the slot must be empty),
-     * or null if the pattern doesn't fit the grid.
-     */
     public static char @Nullable [] layout(List<String> rows, SlotCheck check) {
         char[] normal = tryLayout(rows, check);
         if (normal != null) return normal;
@@ -132,7 +122,6 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
         return expected;
     }
 
-    /** How many items to take from each of the 9 grid slots, or null if the grid doesn't hold this pattern. */
     public int @Nullable [] amounts(List<ItemStack> grid) {
         char[] layout = layout(rows, new SlotCheck() {
             @Override

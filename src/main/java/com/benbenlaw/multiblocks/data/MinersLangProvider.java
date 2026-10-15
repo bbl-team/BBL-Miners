@@ -3,6 +3,7 @@ package com.benbenlaw.multiblocks.data;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.MultiblocksBlocks;
 import com.benbenlaw.multiblocks.block.custom.CapBlock;
+import com.benbenlaw.multiblocks.item.MultiblocksItems;
 import com.benbenlaw.multiblocks.structure.StructureNames;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -35,6 +36,36 @@ public class MinersLangProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
 
+        //Items
+        addItem(MultiblocksItems.PATTERN_MAKER, "Pattern Maker");
+
+        //Pattern Maker
+        add("gui.bblmultiblocks.pattern.title", "Create Structure");
+        add("gui.bblmultiblocks.pattern.name", "Structure name");
+        add("gui.bblmultiblocks.pattern.size", "Selection: %s x %s x %s");
+        add("gui.bblmultiblocks.pattern.too_large", "Too large (max %s per side)");
+        add("gui.bblmultiblocks.pattern.frame_tags_on", "Frame blocks use tier tags: ON");
+        add("gui.bblmultiblocks.pattern.frame_tags_off", "Frame blocks use tier tags: OFF");
+        add("gui.bblmultiblocks.pattern.states_on", "Save block states (facing, shape): ON");
+        add("gui.bblmultiblocks.pattern.states_off", "Save block states (facing, shape): OFF");
+        add("gui.bblmultiblocks.pattern.create", "Create");
+        add("gui.bblmultiblocks.pattern.cancel", "Cancel");
+        add("gui.bblmultiblocks.pattern.hint", "Cap blocks in the box become cap slots");
+        add("message.bblmultiblocks.pattern.creative_only", "The Pattern Maker only works in creative mode");
+        add("message.bblmultiblocks.pattern.first_corner", "First corner set at %s. Right-click the opposite corner (a block or the air).");
+        add("message.bblmultiblocks.pattern.cancelled", "Selection cancelled");
+        add("message.bblmultiblocks.pattern.created", "Saved structure %s");
+        add("message.bblmultiblocks.pattern.saved_to", "Saved to %s. Copy it into a datapack's bblmultiblocks/structures folder to ship it.");
+        add("message.bblmultiblocks.pattern.error.no_controller", "The selection needs a Miner or Crafting Controller");
+        add("message.bblmultiblocks.pattern.error.multiple_controllers", "The selection has more than one controller");
+        add("message.bblmultiblocks.pattern.error.empty", "There are no blocks to record");
+        add("message.bblmultiblocks.pattern.error.too_large", "The selection is too large (max %s blocks per side)");
+        add("message.bblmultiblocks.pattern.error.too_many_block_types", "Too many different blocks in the selection (max 62)");
+        add("message.bblmultiblocks.pattern.error.invalid_name", "Enter a name using letters or numbers");
+        add("message.bblmultiblocks.pattern.error.not_loaded", "Part of the selection isn't loaded");
+        add("message.bblmultiblocks.pattern.error.write_failed", "Couldn't write the file, see the log");
+        add("message.bblmultiblocks.pattern.error.invalid", "The recorded structure isn't valid");
+
         //Creative tab
         add("itemGroup." + Multiblocks.MOD_ID, "BBL Multiblocks");
 
@@ -54,7 +85,7 @@ public class MinersLangProvider extends LanguageProvider {
         //GUI
         add("gui.bblmultiblocks.structure_valid", "Structure built");
         add("gui.bblmultiblocks.structure_invalid", "Structure not built");
-        add("gui.bblmultiblocks.optional_items", "Optional Items");
+        add("gui.bblmultiblocks.extra_items", "Extra Items");
         add("gui.bblmultiblocks.lock_locked", "Slots locked");
         add("gui.bblmultiblocks.lock_locked_hint", "Automation only puts each slot's own item back into it. Click to unlock.");
         add("gui.bblmultiblocks.lock_unlocked", "Slots unlocked");
@@ -79,6 +110,7 @@ public class MinersLangProvider extends LanguageProvider {
         add("jei.bblmultiblocks.optional_items", "Optional Items");
         add("jei.bblmultiblocks.extra_outputs", "Possible Extra Outputs");
         add("jei.bblmultiblocks.optional_item", "Optional item");
+        add("jei.bblmultiblocks.required_item", "Required item");
         add("jei.bblmultiblocks.consumed", "Consumed when crafting");
         add("jei.bblmultiblocks.not_consumed", "Not consumed");
         add("jei.bblmultiblocks.consume_chance", "%s chance to be consumed");

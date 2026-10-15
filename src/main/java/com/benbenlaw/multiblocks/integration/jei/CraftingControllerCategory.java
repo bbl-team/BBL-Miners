@@ -1,14 +1,14 @@
 package com.benbenlaw.multiblocks.integration.jei;
 
 import com.benbenlaw.multiblocks.Multiblocks;
-import com.benbenlaw.multiblocks.block.MultiblocksBlocks;
+import com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock;
 import com.benbenlaw.multiblocks.client.StructurePreviewBuilder;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderState;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderer;
 import com.benbenlaw.multiblocks.network.CraftingPreviewPacket;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
-import com.benbenlaw.multiblocks.recipe.OptionalEffect;
-import com.benbenlaw.multiblocks.recipe.OptionalItem;
+import com.benbenlaw.multiblocks.recipe.ItemEffect;
+import com.benbenlaw.multiblocks.recipe.ExtraItem;
 import com.benbenlaw.multiblocks.recipe.SizedShapedPattern;
 import com.benbenlaw.multiblocks.structure.StructureNames;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -41,7 +41,12 @@ import java.util.Map;
 
 public class CraftingControllerCategory implements IRecipeCategory<CraftingControllerCategory.Entry> {
 
-    public static final IRecipeType<Entry> TYPE = IRecipeType.create(Multiblocks.MOD_ID, "crafting_controller", Entry.class);
+    private static final Map<Identifier, IRecipeType<Entry>> TYPES = new HashMap<>();
+
+    /** The built-in Crafting Controller keeps bblmultiblocks:crafting_controller, any other controller uses its own block id. */
+    public static IRecipeType<Entry> typeFor(Identifier controller) {
+        return TYPES.computeIfAbsent(controller, id -> IRecipeType.create(id, Entry.class));
+    }
 
     private static final int WIDTH = 176;
     private static final int HEIGHT = 152;
@@ -66,21 +71,36 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
     public record Entry(CraftingPreviewPacket.Preview preview) {
     }
 
+    private final Identifier controller;
+    private final CraftingControllerBlock block;
     private final IDrawable icon;
     private final Map<Identifier, StructurePreviewRenderer> renderers = new HashMap<>();
 
-    public CraftingControllerCategory(IGuiHelper guiHelper) {
-        this.icon = guiHelper.createDrawableItemLike(MultiblocksBlocks.CRAFTING_CONTROLLER.get());
+    public CraftingControllerCategory(IGuiHelper guiHelper, Identifier controller, CraftingControllerBlock block) {
+        this.controller = controller;
+        this.block = block;
+        this.icon = guiHelper.createDrawableItemLike(block.jeiIcon() != null ? block.jeiIcon() : block);
+    }
+
+    public Identifier controller() {
+        return controller;
+    }
+
+    public CraftingControllerBlock block() {
+        return block;
     }
 
     @Override
     public IRecipeType<Entry> getRecipeType() {
-        return TYPE;
+        return typeFor(controller);
     }
 
     @Override
     public Component getTitle() {
-        return Component.translatable("jei.bblmultiblocks.crafting_controller");
+        if (block.jeiTitle() != null) return block.jeiTitle();
+        return controller.equals(ControllerCraftingRecipe.DEFAULT_CONTROLLER)
+                ? Component.translatable("jei.bblmultiblocks.crafting_controller")
+                : block.getName();
     }
 
     @Override
@@ -119,29 +139,17 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         // the result
         builder.addOutputSlot(RESULT_X, RESULT_Y).setStandardSlotBackground().add(recipe.result().create());
 
-        // required research items
-        List<SizedIngredient> extras = recipe.extras();
-        for (int i = 0; i < extras.size(); i++) {
-            IRecipeSlotBuilder slot = builder.addInputSlot(i * 18, REQUIRED_Y).setStandardSlotBackground();
-            addStacks(slot, extras.get(i).ingredient(), extras.get(i).count());
-        }
+        // extra items are inputs whether or not they get used up; the tooltip says which
+        addExtraRow(builder, recipe, true, REQUIRED_Y);
+        addExtraRow(builder, recipe, false, OPTIONAL_Y);
 
-        // optional items are inputs whether or not they get used up; the tooltip says which
-        List<OptionalItem> optionalItems = recipe.optionalItems();
-        for (int i = 0; i < optionalItems.size(); i++) {
-            OptionalItem optional = optionalItems.get(i);
-            IRecipeSlotBuilder slot = builder.addInputSlot(i * 18, OPTIONAL_Y).setStandardSlotBackground();
-            addStacks(slot, optional.ingredient(), optional.count());
-            slot.addRichTooltipCallback((view, tooltip) -> describe(optional).forEach(tooltip::add));
-        }
-
-        // items an optional item can add to the output, so they can be looked up too
+        // items an extra item can add to the output, so they can be looked up too
         int outputIndex = 0;
-        for (OptionalItem optional : optionalItems) {
-            for (OptionalEffect effect : optional.effects()) {
+        for (ExtraItem extra : recipe.extraItems()) {
+            for (ItemEffect effect : extra.effects()) {
                 ItemStack extraOutput = switch (effect) {
-                    case OptionalEffect.BonusOutput bonus -> bonus.item().create();
-                    case OptionalEffect.ReplaceResult replace -> replace.item().create();
+                    case ItemEffect.BonusOutput bonus -> bonus.item().create();
+                    case ItemEffect.ReplaceResult replace -> replace.item().create();
                     default -> null;
                 };
                 if (extraOutput == null) continue;
@@ -151,6 +159,24 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
                 slot.addRichTooltipCallback((view, tooltip) -> tooltip.add(describeEffect(effect).withStyle(ChatFormatting.DARK_AQUA)));
             }
         }
+    }
+
+    private static void addExtraRow(IRecipeLayoutBuilder builder, ControllerCraftingRecipe recipe, boolean required, int y) {
+        int column = 0;
+        for (ExtraItem extra : recipe.extraItems()) {
+            if (extra.required() != required) continue;
+
+            IRecipeSlotBuilder slot = builder.addInputSlot(column++ * 18, y).setStandardSlotBackground();
+            addStacks(slot, extra.ingredient(), extra.count());
+            slot.addRichTooltipCallback((view, tooltip) -> describe(extra).forEach(tooltip::add));
+        }
+    }
+
+    private static boolean hasExtras(ControllerCraftingRecipe recipe, boolean required) {
+        for (ExtraItem extra : recipe.extraItems()) {
+            if (extra.required() == required) return true;
+        }
+        return false;
     }
 
     private static void addStacks(IRecipeSlotBuilder slot, Ingredient ingredient, int count) {
@@ -170,10 +196,10 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         Minecraft mc = Minecraft.getInstance();
         var font = mc.font;
 
-        if (!recipe.extras().isEmpty()) {
+        if (hasExtras(recipe, true)) {
             guiGraphics.text(font, Component.translatable("jei.bblmultiblocks.required_items"), 0, REQUIRED_LABEL_Y, 0xFF404040, false);
         }
-        if (!recipe.optionalItems().isEmpty()) {
+        if (hasExtras(recipe, false)) {
             guiGraphics.text(font, Component.translatable("jei.bblmultiblocks.optional_items"), 0, OPTIONAL_LABEL_Y, 0xFF404040, false);
         }
         if (hasExtraOutputs(recipe)) {
@@ -214,13 +240,13 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         if (entry.preview().pattern().isEmpty()) return;
         if (mouseX < VIEW_X || mouseX > VIEW_X + VIEW_WIDTH || mouseY < 0 || mouseY > VIEW_HEIGHT) return;
 
-        tooltip.addAll(StructureTooltip.lines(entry.preview().pattern().get(), MultiblocksBlocks.CRAFTING_CONTROLLER.get().getName()));
+        tooltip.addAll(StructureTooltip.lines(entry.preview().pattern().get(), block.getName()));
     }
 
     private static boolean hasExtraOutputs(ControllerCraftingRecipe recipe) {
-        for (OptionalItem optional : recipe.optionalItems()) {
-            for (OptionalEffect effect : optional.effects()) {
-                if (effect instanceof OptionalEffect.BonusOutput || effect instanceof OptionalEffect.ReplaceResult) return true;
+        for (ExtraItem extra : recipe.extraItems()) {
+            for (ItemEffect effect : extra.effects()) {
+                if (effect instanceof ItemEffect.BonusOutput || effect instanceof ItemEffect.ReplaceResult) return true;
             }
         }
         return false;
@@ -231,9 +257,9 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         renderers.clear();
     }
 
-    private static List<Component> describe(OptionalItem optional) {
+    private static List<Component> describe(ExtraItem optional) {
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.translatable("jei.bblmultiblocks.optional_item").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable(optional.required() ? "jei.bblmultiblocks.required_item" : "jei.bblmultiblocks.optional_item").withStyle(ChatFormatting.GRAY));
 
         if (!optional.consume()) {
             lines.add(Component.translatable("jei.bblmultiblocks.not_consumed").withStyle(ChatFormatting.GREEN));
@@ -243,17 +269,17 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
             lines.add(Component.translatable("jei.bblmultiblocks.consumed").withStyle(ChatFormatting.YELLOW));
         }
 
-        for (OptionalEffect effect : optional.effects()) {
+        for (ItemEffect effect : optional.effects()) {
             lines.add(describeEffect(effect).withStyle(ChatFormatting.DARK_AQUA));
         }
         return lines;
     }
 
-    private static net.minecraft.network.chat.MutableComponent describeEffect(OptionalEffect effect) {
+    private static net.minecraft.network.chat.MutableComponent describeEffect(ItemEffect effect) {
         return switch (effect) {
-            case OptionalEffect.Duration duration -> Component.translatable("jei.bblmultiblocks.effect.duration", number(duration.multiplier()));
-            case OptionalEffect.Energy energy -> Component.translatable("jei.bblmultiblocks.effect.energy", number(energy.multiplier()));
-            case OptionalEffect.OutputCount count -> {
+            case ItemEffect.Duration duration -> Component.translatable("jei.bblmultiblocks.effect.duration", number(duration.multiplier()));
+            case ItemEffect.Energy energy -> Component.translatable("jei.bblmultiblocks.effect.energy", number(energy.multiplier()));
+            case ItemEffect.OutputCount count -> {
                 if (count.add() != 0 && count.multiplier() != 1.0) {
                     yield Component.translatable("jei.bblmultiblocks.effect.output_both", number(count.multiplier()), count.add());
                 }
@@ -261,9 +287,9 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
                         ? Component.translatable("jei.bblmultiblocks.effect.output_add", count.add())
                         : Component.translatable("jei.bblmultiblocks.effect.output_multiplier", number(count.multiplier()));
             }
-            case OptionalEffect.BonusOutput bonus -> Component.translatable("jei.bblmultiblocks.effect.bonus_output",
+            case ItemEffect.BonusOutput bonus -> Component.translatable("jei.bblmultiblocks.effect.bonus_output",
                     bonus.item().create().getHoverName(), percent(bonus.chance()));
-            case OptionalEffect.ReplaceResult replace -> Component.translatable("jei.bblmultiblocks.effect.replace_result",
+            case ItemEffect.ReplaceResult replace -> Component.translatable("jei.bblmultiblocks.effect.replace_result",
                     replace.item().create().getHoverName());
         };
     }

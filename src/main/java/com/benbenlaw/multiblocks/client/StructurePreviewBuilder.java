@@ -1,5 +1,6 @@
 package com.benbenlaw.multiblocks.client;
 
+import com.benbenlaw.multiblocks.structure.BlockMatcher;
 import com.benbenlaw.multiblocks.block.MultiblocksBlocks;
 import com.benbenlaw.multiblocks.block.custom.CapBlock;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -77,15 +78,15 @@ public class StructurePreviewBuilder {
         return caps.get(cycle % caps.size()).get().defaultBlockState();
     }
 
-    private static BlockState stateFor(ExtraCodecs.TagOrElementLocation location, int cycle) {
+    private static BlockState stateFor(BlockMatcher location, int cycle) {
         if (!location.tag()) {
-            return BuiltInRegistries.BLOCK.getValue(location.id()).defaultBlockState();
+            return location.toState();
         }
 
         List<Holder<Block>> members = new ArrayList<>();
         BuiltInRegistries.BLOCK.getTagOrEmpty(TagKey.create(Registries.BLOCK, location.id())).forEach(members::add);
         if (members.isEmpty()) return null;
 
-        return members.get(cycle % members.size()).value().defaultBlockState();
+        return location.applyProperties(members.get(cycle % members.size()).value().defaultBlockState());
     }
 }

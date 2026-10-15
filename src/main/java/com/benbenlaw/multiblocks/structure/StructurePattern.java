@@ -5,7 +5,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.ExtraCodecs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCodecs.TagOrElementLocation> keys, List<Vec3i> caps) {
+public record StructurePattern(List<List<String>> layers, Map<Character, BlockMatcher> keys, List<Vec3i> caps) {
 
     public static final char CONTROLLER = '@';
     public static final char ANY = ' ';
@@ -26,7 +25,7 @@ public record StructurePattern(List<List<String>> layers, Map<Character, ExtraCo
 
     public static final MapCodec<StructurePattern> MAP_CODEC = RecordCodecBuilder.<StructurePattern>mapCodec(instance -> instance.group(
             Codec.STRING.listOf().listOf().fieldOf("pattern").forGetter(StructurePattern::layers),
-            Codec.unboundedMap(KEY_CHAR, ExtraCodecs.TAG_OR_ELEMENT_ID).fieldOf("keys").forGetter(StructurePattern::keys),
+            Codec.unboundedMap(KEY_CHAR, BlockMatcher.CODEC).fieldOf("keys").forGetter(StructurePattern::keys),
             Vec3i.CODEC.listOf().optionalFieldOf("caps", List.of()).forGetter(StructurePattern::caps)
     ).apply(instance, StructurePattern::new)).validate(StructurePattern::validate);
 

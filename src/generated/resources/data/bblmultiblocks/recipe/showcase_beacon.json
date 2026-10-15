@@ -2,7 +2,7 @@
   "type": "bblmultiblocks:controller_crafting",
   "base_duration": 1200,
   "energy_per_tick": 200,
-  "extras": [
+  "extra_items": [
     {
       "count": 4,
       "ingredient": "minecraft:ender_eye"
@@ -12,7 +12,14 @@
       "ingredient": "minecraft:blaze_powder"
     },
     {
+      "consume": false,
       "count": 8,
+      "effects": [
+        {
+          "type": "duration",
+          "multiplier": 0.9
+        }
+      ],
       "ingredient": "minecraft:amethyst_shard"
     },
     {
@@ -21,27 +28,7 @@
         "minecraft:coal",
         "minecraft:charcoal"
       ]
-    }
-  ],
-  "key": {
-    "D": {
-      "count": 2,
-      "ingredient": "minecraft:diamond_block"
     },
-    "G": {
-      "count": 4,
-      "ingredient": "minecraft:gold_block"
-    },
-    "N": {
-      "count": 1,
-      "ingredient": "minecraft:nether_star"
-    },
-    "O": {
-      "count": 20,
-      "ingredient": "minecraft:obsidian"
-    }
-  },
-  "optional_items": [
     {
       "count": 16,
       "effects": [
@@ -54,7 +41,8 @@
           "multiplier": 1.5
         }
       ],
-      "ingredient": "minecraft:glowstone_dust"
+      "ingredient": "minecraft:glowstone_dust",
+      "required": false
     },
     {
       "consume": false,
@@ -65,7 +53,8 @@
           "multiplier": 2.0
         }
       ],
-      "ingredient": "minecraft:echo_shard"
+      "ingredient": "minecraft:echo_shard",
+      "required": false
     },
     {
       "consume_chance": 0.5,
@@ -88,7 +77,8 @@
           }
         }
       ],
-      "ingredient": "minecraft:emerald_block"
+      "ingredient": "minecraft:emerald_block",
+      "required": false
     },
     {
       "consume": false,
@@ -98,7 +88,8 @@
           "multiplier": 0.5
         }
       ],
-      "ingredient": "minecraft:heart_of_the_sea"
+      "ingredient": "minecraft:heart_of_the_sea",
+      "required": false
     },
     {
       "count": 4,
@@ -115,9 +106,28 @@
           "add": 2
         }
       ],
-      "ingredient": "minecraft:dragon_breath"
+      "ingredient": "minecraft:dragon_breath",
+      "required": false
     }
   ],
+  "key": {
+    "D": {
+      "count": 2,
+      "ingredient": "minecraft:diamond_block"
+    },
+    "G": {
+      "count": 4,
+      "ingredient": "minecraft:gold_block"
+    },
+    "N": {
+      "count": 1,
+      "ingredient": "minecraft:nether_star"
+    },
+    "O": {
+      "count": 20,
+      "ingredient": "minecraft:obsidian"
+    }
+  },
   "pattern": [
     "OOO",
     "GNG",

@@ -1,4 +1,4 @@
-// 26.1.2	2026-10-14T08:23:05.7872546	bblmultiblocks Recipes
+// 26.1.2	2026-10-14T10:15:02.0146791	bblmultiblocks Recipes
 6d67a54eb250bb50ad0495ce04be3d7b2d1e3eba data/bblmultiblocks/advancement/recipes/controller_crafting/demo_blast_furnace.json
 0d9ffa15e7c4ad458f480af309e721bafb33b077 data/bblmultiblocks/advancement/recipes/controller_crafting/demo_diamond.json
 0db31f8b3d810f45e04d3a8e5fbcc3ad4f416b54 data/bblmultiblocks/advancement/recipes/controller_crafting/demo_emerald.json
@@ -11,9 +11,9 @@ d62ffa0100b34ef9bd0bfb2ed2e2217a71bc18a2 data/bblmultiblocks/advancement/recipes
 96d924744331a7277900eb1303872bca010c2af8 data/bblmultiblocks/recipe/andesite.json
 58592e96c5ac5daf796bf34f5d1e15c8ab0cd6b2 data/bblmultiblocks/recipe/cobblestone.json
 6958340b9fd7926cc889a982e42a04645d03f3c6 data/bblmultiblocks/recipe/demo_blast_furnace.json
-2c580d7cd2f37c26c3b54925c2d4da839356d164 data/bblmultiblocks/recipe/demo_diamond.json
-2a5d1d8309e93ce760f21a52a1cf56fa172c4084 data/bblmultiblocks/recipe/demo_emerald.json
+6333c0a0622d419dec947bf7f71d0dc9608b0ab6 data/bblmultiblocks/recipe/demo_diamond.json
+41146949d6b5c7799660d00b7c284bb9500006d7 data/bblmultiblocks/recipe/demo_emerald.json
 fc488fe6e886c3869cb67b7369958eaf1808e6b1 data/bblmultiblocks/recipe/diorite.json
 7bfb0df9354037298df272a6222494a4ae6f64da data/bblmultiblocks/recipe/granite.json
-427fbe34717e537f7aa07443282a167a63e3f145 data/bblmultiblocks/recipe/showcase_beacon.json
+c0ed5f870a6325ac00d34d6ccf6337596b852e04 data/bblmultiblocks/recipe/showcase_beacon.json
 5309ed95b25cfd75de1ab104ffdf361266efc5b4 data/bblmultiblocks/recipe/stone.json

@@ -99,7 +99,7 @@ public class MinersRecipeProvider extends RecipeProvider {
                 // required research items, each in its own slot
                 .extra(Items.ENDER_EYE, 4)
                 .extra(Items.BLAZE_POWDER, 16)
-                .extra(Items.AMETHYST_SHARD, 8)
+                .extra(Items.AMETHYST_SHARD, e -> e.count(8).keep().duration(0.9)) // required, but not used up
                 .extra(Ingredient.of(Items.COAL, Items.CHARCOAL), 32)
                 // optional items
                 .optional(Items.GLOWSTONE_DUST, o -> o.count(16).duration(0.5).energy(1.5))

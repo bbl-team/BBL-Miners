@@ -1,5 +1,6 @@
 package com.benbenlaw.multiblocks.data.custom;
 
+import com.benbenlaw.multiblocks.structure.BlockMatcher;
 import com.benbenlaw.multiblocks.structure.StructurePattern;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class StructurePatternBuilder {
 
     private final List<List<String>> layers = new ArrayList<>();
-    private final Map<Character, ExtraCodecs.TagOrElementLocation> keys = new LinkedHashMap<>();
+    private final Map<Character, BlockMatcher> keys = new LinkedHashMap<>();
     private final List<Vec3i> caps = new ArrayList<>();
 
     public static StructurePatternBuilder pattern() {
@@ -28,12 +29,12 @@ public class StructurePatternBuilder {
     }
 
     public StructurePatternBuilder key(char key, String block) {
-        keys.put(key, new ExtraCodecs.TagOrElementLocation(Identifier.parse(block), false));
+        keys.put(key, BlockMatcher.parse(block).getOrThrow());
         return this;
     }
 
     public StructurePatternBuilder keyTag(char key, String tag) {
-        keys.put(key, new ExtraCodecs.TagOrElementLocation(Identifier.parse(tag), true));
+        keys.put(key, BlockMatcher.tag(Identifier.parse(tag)));
         return this;
     }
 

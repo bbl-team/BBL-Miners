@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public record CompiledStructure(List<Entry> entries, List<Vec3i> caps) {
 
-    public record Entry(int dx, int dy, int dz, ExtraCodecs.TagOrElementLocation block) {
+    public record Entry(int dx, int dy, int dz, BlockMatcher block) {
     }
 
     public interface BlockAccess {
-        boolean is(int x, int y, int z, ExtraCodecs.TagOrElementLocation block);
+        boolean is(int x, int y, int z, BlockMatcher block);
     }
 
     public Optional<Entry> firstMismatch(int originX, int originY, int originZ, BlockAccess access) {

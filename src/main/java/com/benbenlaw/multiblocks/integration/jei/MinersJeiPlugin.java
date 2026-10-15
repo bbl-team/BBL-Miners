@@ -2,6 +2,7 @@ package com.benbenlaw.multiblocks.integration.jei;
 
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.MultiblocksBlocks;
+import com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock;
 import com.benbenlaw.multiblocks.client.ClientCraftingPreviewCache;
 import com.benbenlaw.multiblocks.client.ClientPreviewCache;
 import mezz.jei.api.IModPlugin;
@@ -11,18 +12,23 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @JeiPlugin
 public class MinersJeiPlugin implements IModPlugin {
 
     private MinerStructureCategory category;
-    private CraftingControllerCategory craftingCategory;
+    private final Map<Identifier, CraftingControllerCategory> craftingCategories = new LinkedHashMap<>();
     private IRecipeManager recipeManager;
     private List<MinerStructureCategory.Entry> registeredEntries = List.of();
-    private List<CraftingControllerCategory.Entry> registeredCraftingEntries = List.of();
+    private final Map<Identifier, List<CraftingControllerCategory.Entry>> registeredCraftingEntries = new HashMap<>();
 
     @Override
     public Identifier getPluginUid() {
@@ -34,8 +40,16 @@ public class MinersJeiPlugin implements IModPlugin {
         category = new MinerStructureCategory(registration.getJeiHelpers().getGuiHelper());
         registration.addRecipeCategories(category);
 
-        craftingCategory = new CraftingControllerCategory(registration.getJeiHelpers().getGuiHelper());
-        registration.addRecipeCategories(craftingCategory);
+        // one category per crafting controller block, so a custom controller gets its own tab
+        craftingCategories.clear();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            if (!(block instanceof CraftingControllerBlock controllerBlock)) continue;
+
+            Identifier id = BuiltInRegistries.BLOCK.getKey(block);
+            CraftingControllerCategory craftingCategory = new CraftingControllerCategory(registration.getJeiHelpers().getGuiHelper(), id, controllerBlock);
+            craftingCategories.put(id, craftingCategory);
+            registration.addRecipeCategories(craftingCategory);
+        }
     }
 
     @Override
@@ -43,14 +57,18 @@ public class MinersJeiPlugin implements IModPlugin {
         registeredEntries = buildEntries();
         registration.addRecipes(MinerStructureCategory.TYPE, registeredEntries);
 
-        registeredCraftingEntries = buildCraftingEntries();
-        registration.addRecipes(CraftingControllerCategory.TYPE, registeredCraftingEntries);
+        craftingCategories.forEach((id, craftingCategory) -> {
+            List<CraftingControllerCategory.Entry> entries = buildCraftingEntries(id);
+            registeredCraftingEntries.put(id, entries);
+            registration.addRecipes(CraftingControllerCategory.typeFor(id), entries);
+        });
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(MinerStructureCategory.TYPE, MultiblocksBlocks.MINER_CONTROLLER.get());
-        registration.addCraftingStation(CraftingControllerCategory.TYPE, MultiblocksBlocks.CRAFTING_CONTROLLER.get());
+        craftingCategories.forEach((id, craftingCategory) ->
+                registration.addCraftingStation(CraftingControllerCategory.typeFor(id), craftingCategory.block()));
     }
 
     @Override
@@ -67,7 +85,7 @@ public class MinersJeiPlugin implements IModPlugin {
         ClientPreviewCache.setListener(() -> {});
         ClientCraftingPreviewCache.setListener(() -> {});
         if (category != null) category.closeRenderers();
-        if (craftingCategory != null) craftingCategory.closeRenderers();
+        craftingCategories.values().forEach(CraftingControllerCategory::closeRenderers);
     }
 
     private void refreshEntries() {
@@ -82,14 +100,18 @@ public class MinersJeiPlugin implements IModPlugin {
     private void refreshCraftingEntries() {
         if (recipeManager == null) return;
 
-        List<CraftingControllerCategory.Entry> newEntries = buildCraftingEntries();
-        recipeManager.hideRecipes(CraftingControllerCategory.TYPE, registeredCraftingEntries);
-        recipeManager.addRecipes(CraftingControllerCategory.TYPE, newEntries);
-        registeredCraftingEntries = newEntries;
+        craftingCategories.keySet().forEach(id -> {
+            List<CraftingControllerCategory.Entry> newEntries = buildCraftingEntries(id);
+            recipeManager.hideRecipes(CraftingControllerCategory.typeFor(id), registeredCraftingEntries.getOrDefault(id, List.of()));
+            recipeManager.addRecipes(CraftingControllerCategory.typeFor(id), newEntries);
+            registeredCraftingEntries.put(id, newEntries);
+        });
     }
 
-    private static List<CraftingControllerCategory.Entry> buildCraftingEntries() {
-        return ClientCraftingPreviewCache.all().stream().map(CraftingControllerCategory.Entry::new).toList();
+    private static List<CraftingControllerCategory.Entry> buildCraftingEntries(Identifier controller) {
+        return ClientCraftingPreviewCache.all().stream()
+                .filter(preview -> preview.recipe().controller().equals(controller))
+                .map(CraftingControllerCategory.Entry::new).toList();
     }
 
     private static List<MinerStructureCategory.Entry> buildEntries() {

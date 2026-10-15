@@ -1,5 +1,6 @@
 package com.benbenlaw.multiblocks.recipe;
 
+import com.benbenlaw.multiblocks.Multiblocks;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -26,34 +27,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * A shaped 3x3 recipe for the Crafting Controller. Every ingredient is sized, so one slot can ask for several items.
- * Each extra ingredient must be found in a different research slot,
- * and the recipe can also require a structure to be built around the controller.
- */
-public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<SizedIngredient> extras, List<OptionalItem> optionalItems, ItemStackTemplate result,
-                                       Optional<Identifier> structureId, int baseDuration, int energyPerTick) implements Recipe<ControllerCraftingInput> {
+
+public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraItem> extraItems, ItemStackTemplate result,
+                                       Optional<Identifier> structureId, int baseDuration, int energyPerTick,
+                                       Identifier controller) implements Recipe<ControllerCraftingInput> {
 
     public static final int MAX_EXTRAS = 9;
 
+    /** The controller a recipe is for when it doesn't name one: the block id of the built-in Crafting Controller. */
+    public static final Identifier DEFAULT_CONTROLLER = Multiblocks.identifier("crafting_controller");
+
     public static final MapCodec<ControllerCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             SizedShapedPattern.MAP_CODEC.forGetter(ControllerCraftingRecipe::pattern),
-            SizedShapedPattern.SIZED.listOf(0, MAX_EXTRAS).optionalFieldOf("extras", List.of()).forGetter(ControllerCraftingRecipe::extras),
-            OptionalItem.CODEC.listOf(0, MAX_EXTRAS).optionalFieldOf("optional_items", List.of()).forGetter(ControllerCraftingRecipe::optionalItems),
+            ExtraItem.CODEC.listOf(0, MAX_EXTRAS).optionalFieldOf("extra_items", List.of()).forGetter(ControllerCraftingRecipe::extraItems),
             ItemStackTemplate.CODEC.fieldOf("result").forGetter(ControllerCraftingRecipe::result),
             Identifier.CODEC.optionalFieldOf("structure_id").forGetter(ControllerCraftingRecipe::structureId),
             Codec.INT.optionalFieldOf("base_duration", 100).forGetter(ControllerCraftingRecipe::baseDuration),
-            Codec.INT.optionalFieldOf("energy_per_tick", 20).forGetter(ControllerCraftingRecipe::energyPerTick)
+            Codec.INT.optionalFieldOf("energy_per_tick", 20).forGetter(ControllerCraftingRecipe::energyPerTick),
+            Identifier.CODEC.optionalFieldOf("controller", DEFAULT_CONTROLLER).forGetter(ControllerCraftingRecipe::controller)
     ).apply(instance, ControllerCraftingRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ControllerCraftingRecipe> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.fromCodecWithRegistries(SizedShapedPattern.CODEC), ControllerCraftingRecipe::pattern,
-            SizedIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), ControllerCraftingRecipe::extras,
-            OptionalItem.LIST_STREAM_CODEC, ControllerCraftingRecipe::optionalItems,
+            ExtraItem.LIST_STREAM_CODEC, ControllerCraftingRecipe::extraItems,
             ItemStackTemplate.STREAM_CODEC, ControllerCraftingRecipe::result,
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), ControllerCraftingRecipe::structureId,
             ByteBufCodecs.VAR_INT, ControllerCraftingRecipe::baseDuration,
             ByteBufCodecs.VAR_INT, ControllerCraftingRecipe::energyPerTick,
+            Identifier.STREAM_CODEC, ControllerCraftingRecipe::controller,
             ControllerCraftingRecipe::new
     );
 
@@ -63,61 +64,62 @@ public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<SizedIng
 
     @Override
     public boolean matches(@NotNull ControllerCraftingInput input, @NotNull Level level) {
-        return gridAmounts(input.grid()) != null && extraSlots(input.extras()) != null;
+        return gridAmounts(input.grid()) != null && assignExtras(input.extras()) != null;
     }
 
-    /** How many items each of the 9 grid slots gives up, or null if the grid doesn't hold this recipe. */
     public int @Nullable [] gridAmounts(List<ItemStack> grid) {
         return pattern.amounts(grid);
     }
 
-    /** The research slot used for each extra ingredient, or null if they can't all be found. */
-    public int @Nullable [] extraSlots(List<ItemStack> researchSlots) {
-        return ExtraAssignment.assign(extras.size(), researchSlots.size(), (needed, slot) -> {
-            ItemStack stack = researchSlots.get(slot);
-            return !stack.isEmpty() && extras.get(needed).test(stack);
+    public int @Nullable [] assignExtras(List<ItemStack> extraSlots) {
+        List<Integer> required = new ArrayList<>();
+        for (int i = 0; i < extraItems.size(); i++) {
+            if (extraItems.get(i).required()) required.add(i);
+        }
+
+        int[] requiredSlots = ExtraAssignment.assign(required.size(), extraSlots.size(), (needed, slot) -> {
+            ItemStack stack = extraSlots.get(slot);
+            return !stack.isEmpty() && extraItems.get(required.get(needed)).test(stack);
         });
-    }
+        if (requiredSlots == null) return null;
 
-    /**
-     * The research slot holding each optional item (in order), or -1 when it isn't there. Slots already used by a required
-     * extra, or by an earlier optional item, are skipped.
-     */
-    public int[] optionalSlots(List<ItemStack> researchSlots, int[] extraSlots) {
-        boolean[] used = new boolean[researchSlots.size()];
-        for (int slot : extraSlots) used[slot] = true;
+        int[] slots = new int[extraItems.size()];
+        java.util.Arrays.fill(slots, -1);
+        boolean[] used = new boolean[extraSlots.size()];
+        for (int i = 0; i < requiredSlots.length; i++) {
+            slots[required.get(i)] = requiredSlots[i];
+            used[requiredSlots[i]] = true;
+        }
 
-        int[] found = new int[optionalItems.size()];
-        for (int i = 0; i < found.length; i++) {
-            found[i] = -1;
+        for (int i = 0; i < extraItems.size(); i++) {
+            if (extraItems.get(i).required()) continue;
+
             for (int slot = 0; slot < used.length; slot++) {
-                if (!used[slot] && optionalItems.get(i).test(researchSlots.get(slot))) {
+                if (!used[slot] && extraItems.get(i).test(extraSlots.get(slot))) {
                     used[slot] = true;
-                    found[i] = slot;
+                    slots[i] = slot;
                     break;
                 }
             }
         }
-        return found;
+        return slots;
     }
 
-    /** The effects of every optional item that is actually present, added together. */
-    public EffectTotals totals(int[] optionalSlots) {
+    public EffectTotals totals(int[] slots) {
         EffectTotals totals = EffectTotals.NONE;
-        for (int i = 0; i < optionalSlots.length; i++) {
-            if (optionalSlots[i] < 0) continue;
-            for (OptionalEffect effect : optionalItems.get(i).effects()) totals = totals.with(effect);
+        for (int i = 0; i < slots.length; i++) {
+            if (slots[i] < 0) continue;
+            for (ItemEffect effect : extraItems.get(i).effects()) totals = totals.with(effect);
         }
         return totals;
     }
 
-    /** What one craft produces: the result (or the last replacement), with the output count effects applied. */
-    public ItemStack resultStack(EffectTotals totals, int[] optionalSlots) {
+    public ItemStack resultStack(EffectTotals totals, int[] slots) {
         ItemStackTemplate template = result;
-        for (int i = 0; i < optionalSlots.length; i++) {
-            if (optionalSlots[i] < 0) continue;
-            for (OptionalEffect effect : optionalItems.get(i).effects()) {
-                if (effect instanceof OptionalEffect.ReplaceResult replace) template = replace.item();
+        for (int i = 0; i < slots.length; i++) {
+            if (slots[i] < 0) continue;
+            for (ItemEffect effect : extraItems.get(i).effects()) {
+                if (effect instanceof ItemEffect.ReplaceResult replace) template = replace.item();
             }
         }
 
@@ -126,13 +128,12 @@ public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<SizedIng
         return stack;
     }
 
-    /** The extra items this craft produces, after rolling each bonus output's chance. */
-    public List<ItemStack> bonusOutputs(int[] optionalSlots, RandomSource random) {
+    public List<ItemStack> bonusOutputs(int[] slots, RandomSource random) {
         List<ItemStack> bonuses = new ArrayList<>();
-        for (int i = 0; i < optionalSlots.length; i++) {
-            if (optionalSlots[i] < 0) continue;
-            for (OptionalEffect effect : optionalItems.get(i).effects()) {
-                if (effect instanceof OptionalEffect.BonusOutput bonus && (bonus.chance() >= 1 || random.nextDouble() < bonus.chance())) {
+        for (int i = 0; i < slots.length; i++) {
+            if (slots[i] < 0) continue;
+            for (ItemEffect effect : extraItems.get(i).effects()) {
+                if (effect instanceof ItemEffect.BonusOutput bonus && (bonus.chance() >= 1 || random.nextDouble() < bonus.chance())) {
                     bonuses.add(bonus.item().create());
                 }
             }

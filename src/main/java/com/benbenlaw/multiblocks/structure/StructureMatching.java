@@ -33,12 +33,8 @@ public final class StructureMatching {
         if (pattern == null) return false;
 
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        return compile(pattern).matches(origin.getX(), origin.getY(), origin.getZ(), (x, y, z, location) -> {
-            BlockState state = level.getBlockState(cursor.set(x, y, z));
-            return location.tag()
-                    ? state.is(TagKey.create(Registries.BLOCK, location.id()))
-                    : state.is(BuiltInRegistries.BLOCK.getValue(location.id()));
-        });
+        return compile(pattern).matches(origin.getX(), origin.getY(), origin.getZ(),
+                (x, y, z, matcher) -> matcher.matches(level.getBlockState(cursor.set(x, y, z))));
     }
 
     /** The combined effect of every cap block sitting in one of the structure's cap slots. */

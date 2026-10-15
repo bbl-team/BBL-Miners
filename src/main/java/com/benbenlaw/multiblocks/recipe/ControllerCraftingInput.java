@@ -5,7 +5,6 @@ import net.minecraft.world.item.crafting.RecipeInput;
 
 import java.util.List;
 
-/** The 3x3 crafting grid followed by the research slots. */
 public record ControllerCraftingInput(List<ItemStack> grid, List<ItemStack> extras) implements RecipeInput {
 
     @Override

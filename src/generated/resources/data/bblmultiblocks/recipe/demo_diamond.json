@@ -2,13 +2,7 @@
   "type": "bblmultiblocks:controller_crafting",
   "base_duration": 200,
   "energy_per_tick": 40,
-  "key": {
-    "C": {
-      "count": 1,
-      "ingredient": "minecraft:coal_block"
-    }
-  },
-  "optional_items": [
+  "extra_items": [
     {
       "consume_chance": 0.25,
       "effects": [
@@ -20,9 +14,16 @@
           }
         }
       ],
-      "ingredient": "minecraft:emerald"
+      "ingredient": "minecraft:emerald",
+      "required": false
     }
   ],
+  "key": {
+    "C": {
+      "count": 1,
+      "ingredient": "minecraft:coal_block"
+    }
+  },
   "pattern": [
     "CCC",
     "CCC",

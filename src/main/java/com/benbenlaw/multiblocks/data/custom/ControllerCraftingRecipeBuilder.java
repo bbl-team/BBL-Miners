@@ -21,7 +21,7 @@ import com.mojang.serialization.JsonOps;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import java.util.Collections;
 import java.util.function.Consumer;
-import com.benbenlaw.multiblocks.recipe.OptionalItem;
+import com.benbenlaw.multiblocks.recipe.ExtraItem;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,9 +38,9 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
     private final int count;
     private final List<String> rows = new ArrayList<>();
     private final Map<Character, SizedIngredient> key = new LinkedHashMap<>();
-    private final List<SizedIngredient> extras = new ArrayList<>();
-    private final List<OptionalItem> optionalItems = new ArrayList<>();
+    private final List<ExtraItem> extraItems = new ArrayList<>();
     private @Nullable Identifier structureId;
+    private Identifier controller = ControllerCraftingRecipe.DEFAULT_CONTROLLER;
     private int duration = 100;
     private int energyPerTick = 20;
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
@@ -77,7 +77,7 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    /** An item that must be present in a research slot. It is used up by the craft. */
+    /** A required extra item that is used up by the craft. */
     public ControllerCraftingRecipeBuilder extra(ItemLike item) {
         return extra(Ingredient.of(item), 1);
     }
@@ -87,24 +87,42 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
     }
 
     public ControllerCraftingRecipeBuilder extra(Ingredient ingredient, int count) {
-        extras.add(new SizedIngredient(ingredient, count));
-        return this;
+        return extra(ingredient, item -> item.count(count));
     }
 
-    /** An item that is never required. While it sits in a research slot its effects apply to the craft. */
-    public ControllerCraftingRecipeBuilder optional(ItemLike item, Consumer<OptionalItemBuilder> configure) {
+    /** An extra item you describe yourself. It is required unless you call optional(). */
+    public ControllerCraftingRecipeBuilder extra(ItemLike item, Consumer<ExtraItemBuilder> configure) {
+        return extra(Ingredient.of(item), configure);
+    }
+
+    public ControllerCraftingRecipeBuilder extra(Ingredient ingredient, Consumer<ExtraItemBuilder> configure) {
+        return add(ingredient, true, configure);
+    }
+
+    /** An extra item that is never required. While it sits in an extra slot its effects apply to the craft. */
+    public ControllerCraftingRecipeBuilder optional(ItemLike item, Consumer<ExtraItemBuilder> configure) {
         return optional(Ingredient.of(item), configure);
     }
 
-    public ControllerCraftingRecipeBuilder optional(Ingredient ingredient, Consumer<OptionalItemBuilder> configure) {
-        OptionalItemBuilder optional = new OptionalItemBuilder(ingredient);
-        configure.accept(optional);
-        optionalItems.add(optional.build());
+    public ControllerCraftingRecipeBuilder optional(Ingredient ingredient, Consumer<ExtraItemBuilder> configure) {
+        return add(ingredient, false, configure);
+    }
+
+    private ControllerCraftingRecipeBuilder add(Ingredient ingredient, boolean required, Consumer<ExtraItemBuilder> configure) {
+        ExtraItemBuilder extra = new ExtraItemBuilder(ingredient, required);
+        configure.accept(extra);
+        extraItems.add(extra.build());
         return this;
     }
 
     public ControllerCraftingRecipeBuilder structure(Identifier structureId) {
         this.structureId = structureId;
+        return this;
+    }
+
+    /** The controller block this recipe is for, such as a custom controller made in KubeJS. Defaults to the Crafting Controller. */
+    public ControllerCraftingRecipeBuilder controller(Identifier controller) {
+        this.controller = controller;
         return this;
     }
 
@@ -153,8 +171,8 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(builder::addCriterion);
 
-        ControllerCraftingRecipe recipe = new ControllerCraftingRecipe(pattern(), List.copyOf(extras), List.copyOf(optionalItems),
-                new ItemStackTemplate(result.asItem(), count), Optional.ofNullable(structureId), duration, energyPerTick);
+        ControllerCraftingRecipe recipe = new ControllerCraftingRecipe(pattern(), List.copyOf(extraItems),
+                new ItemStackTemplate(result.asItem(), count), Optional.ofNullable(structureId), duration, energyPerTick, controller);
 
         recipeOutput.accept(resourceKey, recipe, builder.build(resourceKey.identifier().withPrefix("recipes/controller_crafting/")));
     }

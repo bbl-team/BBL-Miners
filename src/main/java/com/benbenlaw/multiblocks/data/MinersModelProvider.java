@@ -46,6 +46,8 @@ public class MinersModelProvider extends ModelProvider {
         createMachineBlock(MultiblocksBlocks.MINER_CONTROLLER.get(), blockModels.blockStateOutput, blockModels.modelOutput);
         createMachineBlock(MultiblocksBlocks.CRAFTING_CONTROLLER.get(), blockModels.blockStateOutput, blockModels.modelOutput);
 
+        itemModels.generateFlatItem(MultiblocksItems.PATTERN_MAKER.get(), ModelTemplates.FLAT_ITEM);
+
         MultiblocksBlocks.CAPS.forEach(cap -> blockModels.createTrivialCube(cap.get()));
 
         SupportFrames.ALL.forEach(frame -> blockModels.createTrivialCube(frame.get()));

@@ -1,5 +1,6 @@
 package com.benbenlaw.multiblocks.integration.jei;
 
+import com.benbenlaw.multiblocks.structure.BlockMatcher;
 import com.benbenlaw.multiblocks.structure.CompiledStructure;
 import com.benbenlaw.multiblocks.structure.StructureMatching;
 import com.benbenlaw.multiblocks.structure.StructurePattern;
@@ -22,12 +23,12 @@ final class StructureTooltip {
     static List<Component> lines(StructurePattern pattern, Component controllerName) {
         CompiledStructure compiled = StructureMatching.compile(pattern);
 
-        Map<ExtraCodecs.TagOrElementLocation, Integer> counts = new LinkedHashMap<>();
+        Map<BlockMatcher, Integer> counts = new LinkedHashMap<>();
         for (CompiledStructure.Entry entry : compiled.entries()) {
-            counts.merge(entry.block(), 1, Integer::sum);
+            counts.merge(entry.block().withoutProperties(), 1, Integer::sum);
         }
 
-        List<Map.Entry<ExtraCodecs.TagOrElementLocation, Integer>> sorted = new ArrayList<>(counts.entrySet());
+        List<Map.Entry<BlockMatcher, Integer>> sorted = new ArrayList<>(counts.entrySet());
         sorted.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
 
         List<Component> lines = new ArrayList<>();
@@ -35,8 +36,8 @@ final class StructureTooltip {
 
         lines.add(Component.translatable("jei.bblmultiblocks.structure_block_line", 1, controllerName).withStyle(ChatFormatting.GRAY));
 
-        for (Map.Entry<ExtraCodecs.TagOrElementLocation, Integer> entry : sorted) {
-            ExtraCodecs.TagOrElementLocation block = entry.getKey();
+        for (Map.Entry<BlockMatcher, Integer> entry : sorted) {
+            BlockMatcher block = entry.getKey();
 
             Component name = block.tag()
                     ? Component.translatable("jei.bblmultiblocks.structure_tag", "#" + block.id()).withStyle(ChatFormatting.AQUA)

@@ -87,7 +87,7 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         drawTitles(graphics);
-        graphics.text(font, Component.translatable("gui.bblmultiblocks.optional_items"), CraftingControllerMenu.RESEARCH_X, CraftingControllerMenu.RESEARCH_Y - 10, 0xFF404040, false);
+        graphics.text(font, Component.translatable("gui.bblmultiblocks.extra_items"), CraftingControllerMenu.RESEARCH_X, CraftingControllerMenu.RESEARCH_Y - 10, 0xFF404040, false);
     }
 
     @Override

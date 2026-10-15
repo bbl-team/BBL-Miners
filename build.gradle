@@ -27,6 +27,14 @@ repositories {
         url = "https://maven.blamejared.com/"
     }
     maven {
+        name = "Latvian maven"
+        url = "https://maven.latvian.dev/releases"
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.latvian.apps")
+        }
+    }
+    maven {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
@@ -90,6 +98,9 @@ dependencies {
 
     //JEI
     implementation("mezz.jei:jei-${jei_mc_version}-neoforge:${jei_version}")
+    //KubeJS, only needed to compile the custom controller builder. It is not required to run the mod
+    compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}") { transitive = false }
+    compileOnly("dev.latvian.mods:rhino:${rhino_version}") { transitive = false }
     //BBL Core
     implementation("curse.maven:bblcore-1135181:${core_version}")
 

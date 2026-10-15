@@ -8,7 +8,7 @@ import com.benbenlaw.multiblocks.cap.CapEffects;
 import com.benbenlaw.multiblocks.config.MultiblocksConfig;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingInput;
 import com.benbenlaw.multiblocks.recipe.EffectTotals;
-import com.benbenlaw.multiblocks.recipe.OptionalItem;
+import com.benbenlaw.multiblocks.recipe.ExtraItem;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
 import com.benbenlaw.multiblocks.screen.CraftingControllerMenu;
 import com.benbenlaw.multiblocks.structure.StructureMatching;
@@ -50,6 +50,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
     public static final int ENERGY_CAPACITY = 100_000;
     public static final int ENERGY_PER_BURN_TICK = 10;
     private static final int REFRESH_INTERVAL = 10;
+    private static final int STRUCTURE_SCAN_INTERVAL = 20;
 
     /** Values for the structure status shown in the GUI. */
     public static final int STRUCTURE_NOT_REQUIRED = 0;
@@ -110,6 +111,11 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         super(MultiblocksBlockEntities.CRAFTING_CONTROLLER_BLOCK_ENTITY.get(), pos, state);
     }
 
+    /** The registry id of this controller's block. Only recipes that name it (the Crafting Controller's own by default) are used. */
+    public Identifier controllerId() {
+        return net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock());
+    }
+
     private boolean isFuel(ItemStack stack) {
         return level != null && level.fuelValues().isFuel(stack);
     }
@@ -124,7 +130,6 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         if (recipe != null && !recipe.value().matches(input, serverLevel)) {
             recipe = null;
             progress = 0;
-            setActiveStructure(null);
         }
 
         if (recipe == null || serverLevel.getGameTime() % REFRESH_INTERVAL == 0) {
@@ -139,19 +144,18 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         ControllerCraftingRecipe active = recipe.value();
 
         List<ItemStack> research = stacks(EXTRA_START, EXTRA_SIZE);
-        int[] extraSlots = active.extraSlots(research);
+        int[] extraSlots = active.assignExtras(research);
         if (extraSlots == null) {
             resetProgress();
             return;
         }
 
-        int[] optionalSlots = active.optionalSlots(research, extraSlots);
-        EffectTotals totals = active.totals(optionalSlots);
+        EffectTotals totals = active.totals(extraSlots);
 
         maxProgress = capEffects.duration(totals.duration(active.baseDuration()));
         int cost = totals.energyPerTick(active.energyPerTick());
 
-        if (!canOutput(active.resultStack(totals, optionalSlots)) || energy.getAmountAsInt() < cost) return;
+        if (!canOutput(active.resultStack(totals, extraSlots)) || energy.getAmountAsInt() < cost) return;
 
         energy.set(energy.getAmountAsInt() - cost);
         progress++;
@@ -183,7 +187,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
         for (RecipeHolder<ControllerCraftingRecipe> holder : serverLevel.getServer().getRecipeManager()
                 .recipeMap().byType(ControllerCraftingRecipe.TYPE)) {
-            if (!holder.value().matches(input, serverLevel)) continue;
+            if (!holder.value().controller().equals(controllerId()) || !holder.value().matches(input, serverLevel)) continue;
 
             var structureId = holder.value().structureId();
             if (structureId.isEmpty() || StructureMatching.matches(serverLevel, getBlockPos(), structureId.get())) {
@@ -209,7 +213,26 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
                 : CapEffects.NONE;
         capEffects = effects;
 
-        setActiveStructure(structureId.orElse(null));
+        // The title follows whichever structure is built, not only the one an active recipe needs
+        if (structureId.isPresent()) {
+            setActiveStructure(structureId.get());
+        } else if (serverLevel.getGameTime() % STRUCTURE_SCAN_INTERVAL == 0) {
+            setActiveStructure(findBuiltStructure(serverLevel));
+        }
+    }
+
+    /** The first structure used by any Crafting Controller recipe that is built around this controller, or null. */
+    private @Nullable Identifier findBuiltStructure(ServerLevel serverLevel) {
+        java.util.Set<Identifier> candidates = new java.util.LinkedHashSet<>();
+        for (RecipeHolder<ControllerCraftingRecipe> holder : serverLevel.getServer().getRecipeManager()
+                .recipeMap().byType(ControllerCraftingRecipe.TYPE)) {
+            if (holder.value().controller().equals(controllerId())) holder.value().structureId().ifPresent(candidates::add);
+        }
+
+        for (Identifier candidate : candidates) {
+            if (StructureMatching.matches(serverLevel, getBlockPos(), candidate)) return candidate;
+        }
+        return null;
     }
 
     /** The structure this controller is currently built as, which the GUI shows as its title. Synced to clients. */
@@ -265,22 +288,20 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
     private void craft(ControllerCraftingRecipe active) {
         int[] gridAmounts = active.gridAmounts(stacks(GRID_START, GRID_SIZE));
-        int[] extraSlots = active.extraSlots(stacks(EXTRA_START, EXTRA_SIZE));
+        int[] extraSlots = active.assignExtras(stacks(EXTRA_START, EXTRA_SIZE));
         if (gridAmounts == null || extraSlots == null) return;
-        int[] optionalSlots = active.optionalSlots(stacks(EXTRA_START, EXTRA_SIZE), extraSlots);
 
-        ItemStack result = active.resultStack(active.totals(optionalSlots), optionalSlots);
-        List<ItemStack> bonuses = active.bonusOutputs(optionalSlots, level.getRandom());
+        ItemStack result = active.resultStack(active.totals(extraSlots), extraSlots);
+        List<ItemStack> bonuses = active.bonusOutputs(extraSlots, level.getRandom());
 
         inventory.runInternal(() -> {
             try (Transaction tx = Transaction.open(null)) {
                 for (int slot = 0; slot < GRID_SIZE; slot++) take(GRID_START + slot, gridAmounts[slot], tx);
-                for (int i = 0; i < extraSlots.length; i++) take(EXTRA_START + extraSlots[i], active.extras().get(i).count(), tx);
-                for (int i = 0; i < optionalSlots.length; i++) {
-                    OptionalItem optional = active.optionalItems().get(i);
-                    if (optionalSlots[i] < 0 || !optional.consume()) continue;
-                    if (optional.consumeChance() >= 1 || level.getRandom().nextDouble() < optional.consumeChance()) {
-                        take(EXTRA_START + optionalSlots[i], optional.count(), tx);
+                for (int i = 0; i < extraSlots.length; i++) {
+                    ExtraItem extra = active.extraItems().get(i);
+                    if (extraSlots[i] < 0 || !extra.consume()) continue;
+                    if (extra.consumeChance() >= 1 || level.getRandom().nextDouble() < extra.consumeChance()) {
+                        take(EXTRA_START + extraSlots[i], extra.count(), tx);
                     }
                 }
 
@@ -341,7 +362,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
     @Override
     public @NotNull Component getDisplayName() {
-        return Component.translatable("block.bblmultiblocks.crafting_controller");
+        return getBlockState().getBlock().getName();
     }
 
     @Override

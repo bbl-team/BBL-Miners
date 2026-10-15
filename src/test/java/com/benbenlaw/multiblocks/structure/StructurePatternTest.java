@@ -32,8 +32,8 @@ class StructurePatternTest {
         return StructurePattern.CODEC.parse(JsonOps.INSTANCE, element);
     }
 
-    private static ExtraCodecs.TagOrElementLocation block(String id) {
-        return new ExtraCodecs.TagOrElementLocation(Identifier.parse(id), false);
+    private static BlockMatcher block(String id) {
+        return BlockMatcher.block(Identifier.parse(id));
     }
 
     private static CompiledStructure cobbleMiner() {
@@ -59,7 +59,7 @@ class StructurePatternTest {
                 { "pattern": [["L@"]], "keys": { "L": "#minecraft:logs" } }
                 """).getOrThrow();
 
-        ExtraCodecs.TagOrElementLocation log = pattern.keys().get('L');
+        BlockMatcher log = pattern.keys().get('L');
         assertTrue(log.tag());
         assertEquals(Identifier.parse("minecraft:logs"), log.id());
         assertEquals(-1, pattern.compile().entries().getFirst().dx());
@@ -152,5 +152,26 @@ class StructurePatternTest {
         assertTrue(parse("""
                 { "pattern": [["@"]], "keys": { "CC": "minecraft:stone" } }
                 """).error().isPresent());
+    }
+
+    @Test
+    void keysCanRequireBlockStates() {
+        StructurePattern pattern = parse("""
+                { "pattern": [["S@"]], "keys": { "S": "minecraft:oak_stairs[facing=north,half=bottom]" } }
+                """).getOrThrow();
+
+        BlockMatcher stairs = pattern.keys().get('S');
+        assertEquals("north", stairs.properties().get("facing"));
+        assertEquals("bottom", stairs.properties().get("half"));
+        assertEquals(stairs, pattern.compile().entries().getFirst().block());
+    }
+
+    @Test
+    void plainKeysStillWorkWithoutStates() {
+        StructurePattern pattern = parse("""
+                { "pattern": [["S@"]], "keys": { "S": "minecraft:stone" } }
+                """).getOrThrow();
+
+        assertTrue(pattern.keys().get('S').properties().isEmpty());
     }
 }
