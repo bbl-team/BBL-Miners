@@ -43,7 +43,6 @@ public class MinersModelProvider extends ModelProvider {
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        createMachineBlock(MultiblocksBlocks.MINER_CONTROLLER.get(), blockModels.blockStateOutput, blockModels.modelOutput);
         createMachineBlock(MultiblocksBlocks.CRAFTING_CONTROLLER.get(), blockModels.blockStateOutput, blockModels.modelOutput);
 
         itemModels.generateFlatItem(MultiblocksItems.PATTERN_MAKER.get(), ModelTemplates.FLAT_ITEM);

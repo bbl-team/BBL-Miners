@@ -22,7 +22,6 @@ public class MinersLootTableProvider extends VanillaBlockLoot {
     @Override
     protected void generate() {
 
-        this.dropSelf(MultiblocksBlocks.MINER_CONTROLLER.get());
         this.dropSelf(MultiblocksBlocks.CRAFTING_CONTROLLER.get());
 
         MultiblocksBlocks.CAPS.forEach(cap -> this.dropSelf(cap.get()));

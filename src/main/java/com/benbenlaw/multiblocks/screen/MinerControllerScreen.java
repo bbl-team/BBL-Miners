@@ -57,7 +57,7 @@ private static final int STATUS_X = 149;
 
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 256, 256);
 
-        if (MultiblocksConfig.MINER_FUEL_SLOT.get()) {
+        if (menu.blockEntity.hasFuelSlot()) {
             FuelSlotRenderer.draw(guiGraphics, x + MinerControllerMenu.FUEL_X, y + MinerControllerMenu.FUEL_Y);
         }
 
@@ -76,10 +76,7 @@ private static final int STATUS_X = 149;
 
     /** The block name, or the name of the structure the controller is built as. */
     private void drawTitles(GuiGraphicsExtractor graphics) {
-        Identifier structure = menu.blockEntity.getActiveStructureId();
-        Component name = structure == null ? title : StructureNames.of(structure);
-
-        graphics.text(font, Component.literal(font.plainSubstrByWidth(name.getString(), TITLE_MAX_WIDTH)), titleLabelX, titleLabelY, 0xFF404040, false);
+        graphics.text(font, Component.literal(font.plainSubstrByWidth(title.getString(), TITLE_MAX_WIDTH)), titleLabelX, titleLabelY, 0xFF404040, false);
         graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFF404040, false);
     }
 
@@ -102,9 +99,7 @@ private static final int STATUS_X = 149;
                 x + STATUS_X, y + STATUS_Y, 10, 10);
 
         if (MouseUtil.isMouseAboveArea(mouseX, mouseY, x, y, STATUS_X, STATUS_Y, 10, 10)) {
-            guiGraphics.setTooltipForNextFrame(font, Component.translatable(built
-                    ? "gui.bblmultiblocks.structure_valid"
-                    : "gui.bblmultiblocks.structure_invalid"), mouseX, mouseY);
+            guiGraphics.setComponentTooltipForNextFrame(font, structureTooltip(built), mouseX, mouseY);
         }
 
         guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, CAP_INFO, 10, 10, 0, 0, x + CAP_X, y + CAP_Y, 10, 10);
@@ -112,6 +107,15 @@ private static final int STATUS_X = 149;
         if (MouseUtil.isMouseAboveArea(mouseX, mouseY, x, y, CAP_X, CAP_Y, 10, 10)) {
             guiGraphics.setComponentTooltipForNextFrame(font, capTooltip(), mouseX, mouseY);
         }
+    }
+
+    private List<Component> structureTooltip(boolean built) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable(built ? "gui.bblmultiblocks.structure_valid" : "gui.bblmultiblocks.structure_invalid"));
+
+        Identifier structure = menu.blockEntity.getActiveStructureId();
+        if (built && structure != null) lines.add(StructureNames.of(structure).copy().withStyle(ChatFormatting.GRAY));
+        return lines;
     }
 
     private List<Component> capTooltip() {

@@ -65,7 +65,6 @@ public class MinersBlockTagsProvider extends BlockTagsProvider {
         
         
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(MultiblocksBlocks.MINER_CONTROLLER.get())
                 .add(MultiblocksBlocks.CRAFTING_CONTROLLER.get())
         ;
 

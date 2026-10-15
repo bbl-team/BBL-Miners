@@ -15,7 +15,7 @@ public class MultiblocksBlockEntities {
 
     public static final Supplier<BlockEntityType<MinerControllerBlockEntity>> MINER_CONTROLLER_BLOCK_ENTITY =
             BLOCK_ENTITIES.register("miner_controller_block_entity", () ->
-                    new BlockEntityType<>(MinerControllerBlockEntity::new, MultiblocksBlocks.MINER_CONTROLLER.get()));
+                    new BlockEntityType<>(MinerControllerBlockEntity::new, java.util.Set.of()));
 
     public static final Supplier<BlockEntityType<CraftingControllerBlockEntity>> CRAFTING_CONTROLLER_BLOCK_ENTITY =
             BLOCK_ENTITIES.register("crafting_controller_block_entity", () ->

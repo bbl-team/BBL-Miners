@@ -9,7 +9,9 @@ public class MultiblocksKubeJSPlugin implements KubeJSPlugin {
 
     @Override
     public void registerBuilderTypes(BuilderTypeRegistry registry) {
-        registry.of(Registries.BLOCK, callback ->
-                callback.add(Multiblocks.identifier("crafting_controller"), CraftingControllerBuilder.class, CraftingControllerBuilder::new));
+        registry.of(Registries.BLOCK, callback -> {
+            callback.add(Multiblocks.identifier("crafting_controller"), CraftingControllerBuilder.class, CraftingControllerBuilder::new);
+            callback.add(Multiblocks.identifier("miner_controller"), MinerControllerBuilder.class, MinerControllerBuilder::new);
+        });
     }
 }

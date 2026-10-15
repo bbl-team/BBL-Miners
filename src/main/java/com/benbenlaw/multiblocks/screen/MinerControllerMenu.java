@@ -4,7 +4,6 @@ import com.benbenlaw.core.screen.SimpleAbstractContainerMenu;
 import com.benbenlaw.core.screen.util.slot.InputSlot;
 import com.benbenlaw.core.screen.util.slot.ResultSlot;
 import com.benbenlaw.multiblocks.block.entity.MinerControllerBlockEntity;
-import com.benbenlaw.multiblocks.config.MultiblocksConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +27,7 @@ public class MinerControllerMenu extends SimpleAbstractContainerMenu {
 
     public MinerControllerMenu(int containerId, Inventory inventory, BlockPos pos, ContainerData data) {
         super(MultiblocksMenuTypes.MINER_CONTROLLER_MENU.get(), containerId, inventory, pos,
-                MinerControllerBlockEntity.LAST_OUTPUT_SLOT + (MultiblocksConfig.MINER_FUEL_SLOT.get() ? 1 : 0));
+                MinerControllerBlockEntity.LAST_OUTPUT_SLOT + (hasFuelSlot(inventory, pos) ? 1 : 0));
 
         Level level = inventory.player.level();
         this.blockEntity = (MinerControllerBlockEntity) level.getBlockEntity(pos);
@@ -36,7 +35,7 @@ public class MinerControllerMenu extends SimpleAbstractContainerMenu {
 
         assert blockEntity != null;
 
-        if (MultiblocksConfig.MINER_FUEL_SLOT.get()) {
+        if (blockEntity.hasFuelSlot()) {
             this.addSlot(new InputSlot(blockEntity.getItemHandler(), blockEntity.getItemHandler()::set,
                     MinerControllerBlockEntity.FUEL_SLOT, FUEL_X, FUEL_Y) {
                 @Override
@@ -52,6 +51,10 @@ public class MinerControllerMenu extends SimpleAbstractContainerMenu {
         }
 
         addDataSlots(data);
+    }
+
+    private static boolean hasFuelSlot(Inventory inventory, BlockPos pos) {
+        return !(inventory.player.level().getBlockState(pos).getBlock() instanceof com.benbenlaw.multiblocks.block.custom.MinerControllerBlock block) || block.hasFuelSlot();
     }
 
     public static final int BUTTON_SHOW_CAPS = 0;

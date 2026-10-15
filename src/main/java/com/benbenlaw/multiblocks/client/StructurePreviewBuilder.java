@@ -25,7 +25,7 @@ public class StructurePreviewBuilder {
     public record Result(List<StructurePreviewRenderState.PreviewBlock> blocks, Vec3i size) {
     }
 
-    public static Result build(StructurePattern pattern, long timeMillis) {
+    public static Result build(StructurePattern pattern, Block controller, long timeMillis) {
         List<CompiledStructure.Entry> entries = pattern.compile().entries();
 
         int minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
@@ -51,7 +51,7 @@ public class StructurePreviewBuilder {
         List<StructurePreviewRenderState.PreviewBlock> blocks = new ArrayList<>();
 
         blocks.add(new StructurePreviewRenderState.PreviewBlock(new BlockPos(-minX, -minY, -minZ),
-                MultiblocksBlocks.MINER_CONTROLLER.get().defaultBlockState()));
+                controller.defaultBlockState()));
 
         for (CompiledStructure.Entry entry : entries) {
             BlockState state = stateFor(entry.block(), cycle);

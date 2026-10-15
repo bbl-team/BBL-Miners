@@ -27,6 +27,7 @@ public class MinerStructureRecipeBuilder implements RecipeBuilder {
     private final int baseDuration;
     private final int baseRolls;
     private final int energyPerTick;
+    private Identifier controller = MinerStructureRecipe.DEFAULT_CONTROLLER;
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
     public MinerStructureRecipeBuilder(Identifier structureId, List<Identifier> lootTables, int baseDuration, int baseRolls, int energyPerTick) {
@@ -35,6 +36,12 @@ public class MinerStructureRecipeBuilder implements RecipeBuilder {
         this.baseDuration = baseDuration;
         this.baseRolls = baseRolls;
         this.energyPerTick = energyPerTick;
+    }
+
+    /** The miner controller block this recipe is for. */
+    public MinerStructureRecipeBuilder controller(Identifier controller) {
+        this.controller = controller;
+        return this;
     }
 
     public static MinerStructureRecipeBuilder minerStructure(Identifier structureId, List<Identifier> lootTables, int baseDuration, int baseRolls, int energyPerTick) {
@@ -70,7 +77,7 @@ public class MinerStructureRecipeBuilder implements RecipeBuilder {
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(builder::addCriterion);
 
-        MinerStructureRecipe recipe = new MinerStructureRecipe(structureId, lootTables, baseDuration, baseRolls, energyPerTick);
+        MinerStructureRecipe recipe = new MinerStructureRecipe(structureId, lootTables, baseDuration, baseRolls, energyPerTick, controller);
         recipeOutput.accept(resourceKey, recipe, builder.build(resourceKey.identifier().withPrefix("recipes/miner_structures/")));
     }
 }

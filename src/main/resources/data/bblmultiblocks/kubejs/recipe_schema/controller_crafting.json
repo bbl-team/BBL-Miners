@@ -1,0 +1,101 @@
+{
+	"keys": [
+		{
+			"name": "result",
+			"role": "output",
+			"type": "item_stack"
+		},
+		{
+			"name": "pattern",
+			"role": "other",
+			"type": {
+				"type": "list",
+				"component": "string"
+			}
+		},
+		{
+			"name": "key",
+			"role": "input",
+			"type": {
+				"type": "pattern",
+				"component": "sized_ingredient"
+			}
+		},
+		{
+			"name": "extra_items",
+			"role": "input",
+			"type": {
+				"type": "list",
+				"component": {
+					"type": "custom_object",
+					"keys": [
+						{ "name": "ingredient", "component": "ingredient" },
+						{ "name": "count", "component": "positive_int", "optional": true },
+						{ "name": "required", "component": "boolean", "optional": true },
+						{ "name": "consume", "component": "boolean", "optional": true },
+						{ "name": "consume_chance", "component": "non_negative_double", "optional": true },
+						{
+							"name": "effects",
+							"component": {
+								"type": "list",
+								"component": {
+									"type": "custom_object",
+									"keys": [
+										{ "name": "type", "component": "string" },
+										{ "name": "multiplier", "component": "non_negative_double", "optional": true },
+										{ "name": "add", "component": "int", "optional": true },
+										{ "name": "chance", "component": "non_negative_double", "optional": true },
+										{ "name": "item", "component": "item_stack", "optional": true }
+									]
+								}
+							},
+							"optional": true
+						}
+					]
+				}
+			},
+			"default_optional": true
+		},
+		{
+			"name": "controller",
+			"role": "other",
+			"type": "string",
+			"default_optional": true
+		},
+		{
+			"name": "structure_id",
+			"role": "other",
+			"type": "string",
+			"default_optional": true
+		},
+		{
+			"name": "base_duration",
+			"role": "other",
+			"type": "positive_int",
+			"optional": 100
+		},
+		{
+			"name": "energy_per_tick",
+			"role": "other",
+			"type": "non_negative_int",
+			"optional": 20
+		}
+	],
+	"unique": ["result"],
+	"constructors": [
+		{
+			"keys": ["result", "pattern", "key"]
+		}
+	],
+	"functions": {
+		"extra": {
+			"type": "add_to_list",
+			"key": "extra_items"
+		}
+	},
+	"post_processors": [
+		{
+			"type": "kubejs:key_pattern_cleanup"
+		}
+	]
+}

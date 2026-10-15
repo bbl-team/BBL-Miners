@@ -40,13 +40,17 @@ public class CraftingControllerMenu extends SimpleAbstractContainerMenu {
     public final CraftingControllerBlockEntity blockEntity;
     public final ContainerData data;
 
+    private static boolean hasFuelSlot(Inventory inventory, BlockPos pos) {
+        return !(inventory.player.level().getBlockState(pos).getBlock() instanceof com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock block) || block.hasFuelSlot();
+    }
+
     public CraftingControllerMenu(int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(containerId, inventory, extraData.readBlockPos(), new SimpleContainerData(7));
     }
 
     public CraftingControllerMenu(int containerId, Inventory inventory, BlockPos pos, ContainerData data) {
         super(MultiblocksMenuTypes.CRAFTING_CONTROLLER_MENU.get(), containerId, inventory, pos,
-                CraftingControllerBlockEntity.SLOT_COUNT - (MultiblocksConfig.CRAFTING_FUEL_SLOT.get() ? 0 : 1));
+                CraftingControllerBlockEntity.SLOT_COUNT - (hasFuelSlot(inventory, pos) ? 0 : 1));
 
         Level level = inventory.player.level();
         this.blockEntity = (CraftingControllerBlockEntity) level.getBlockEntity(pos);
@@ -75,7 +79,7 @@ public class CraftingControllerMenu extends SimpleAbstractContainerMenu {
             }
         }
 
-        if (MultiblocksConfig.CRAFTING_FUEL_SLOT.get()) {
+        if (blockEntity.hasFuelSlot()) {
             this.addSlot(new InputSlot(blockEntity.getItemHandler(), blockEntity.getItemHandler()::set,
                     CraftingControllerBlockEntity.FUEL_SLOT, FUEL_X, FUEL_Y) {
                 @Override

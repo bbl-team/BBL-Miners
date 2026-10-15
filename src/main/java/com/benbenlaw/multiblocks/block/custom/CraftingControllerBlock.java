@@ -28,6 +28,11 @@ public class CraftingControllerBlock extends SyncableBlock {
         super(properties);
     }
 
+    /** Whether the GUI has a fuel slot that turns burnable items into energy. The built-in controller follows the config. */
+    public boolean hasFuelSlot() {
+        return com.benbenlaw.multiblocks.config.MultiblocksConfig.CRAFTING_FUEL_SLOT.get();
+    }
+
     /** The name of this controller's JEI category, or null to use the block's name. */
     public @Nullable Component jeiTitle() {
         return null;

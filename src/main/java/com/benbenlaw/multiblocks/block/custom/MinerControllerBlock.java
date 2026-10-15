@@ -5,7 +5,9 @@ import com.benbenlaw.multiblocks.block.MultiblocksBlockEntities;
 import com.benbenlaw.multiblocks.block.entity.MinerControllerBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -24,6 +26,21 @@ public class MinerControllerBlock extends SyncableBlock {
 
     public MinerControllerBlock(Properties properties) {
         super(properties);
+    }
+
+    /** The name of this controller's JEI category, or null to use the block's name. */
+    public @Nullable Component jeiTitle() {
+        return null;
+    }
+
+    /** What the JEI category shows as its icon, or null to use this block. */
+    public @Nullable ItemLike jeiIcon() {
+        return null;
+    }
+
+    /** Whether the GUI has a fuel slot that turns burnable items into energy. */
+    public boolean hasFuelSlot() {
+        return true;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class MultiblocksCreativeTab {
 
     public static final Supplier<CreativeModeTab> MINERS_TAB = CREATIVE_MODE_TABS.register(Multiblocks.MOD_ID, () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> MultiblocksBlocks.MINER_CONTROLLER.get().asItem().getDefaultInstance())
+            .icon(() -> MultiblocksBlocks.CRAFTING_CONTROLLER.get().asItem().getDefaultInstance())
             .title(Component.translatable("itemGroup." + Multiblocks.MOD_ID))
             .displayItems(MultiblocksItems.ITEMS.getEntries()).build());
 }

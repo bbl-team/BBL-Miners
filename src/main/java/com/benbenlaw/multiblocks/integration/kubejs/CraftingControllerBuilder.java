@@ -16,6 +16,7 @@ public class CraftingControllerBuilder extends BlockBuilder {
 
     private @Nullable Component jeiTitle;
     private @Nullable Identifier jeiIcon;
+    private boolean fuelSlot = true;
 
     public CraftingControllerBuilder(Identifier id) {
         super(id);
@@ -33,20 +34,33 @@ public class CraftingControllerBuilder extends BlockBuilder {
         return this;
     }
 
+    @Info("Whether the GUI has a fuel slot that turns burnable items into energy, default true")
+    public CraftingControllerBuilder fuelSlot(boolean fuelSlot) {
+        this.fuelSlot = fuelSlot;
+        return this;
+    }
+
     @Override
     public Block createObject() {
-        return new KubeCraftingControllerBlock(createProperties(), jeiTitle, jeiIcon);
+        return new KubeCraftingControllerBlock(createProperties(), jeiTitle, jeiIcon, fuelSlot);
     }
 
     private static class KubeCraftingControllerBlock extends CraftingControllerBlock {
 
         private final @Nullable Component jeiTitle;
         private final @Nullable Identifier jeiIcon;
+        private final boolean fuelSlot;
 
-        KubeCraftingControllerBlock(Properties properties, @Nullable Component jeiTitle, @Nullable Identifier jeiIcon) {
+        KubeCraftingControllerBlock(Properties properties, @Nullable Component jeiTitle, @Nullable Identifier jeiIcon, boolean fuelSlot) {
             super(properties);
+            this.fuelSlot = fuelSlot;
             this.jeiTitle = jeiTitle;
             this.jeiIcon = jeiIcon;
+        }
+
+        @Override
+        public boolean hasFuelSlot() {
+            return fuelSlot;
         }
 
         @Override

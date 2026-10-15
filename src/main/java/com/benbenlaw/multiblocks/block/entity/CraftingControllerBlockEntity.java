@@ -65,7 +65,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
     private final SyncableItemHandler inventory = new SyncableItemHandler(this, SLOT_COUNT,
             (slot, stack) -> slot < OUTPUT_START
                     ? slotLock.allows(slot, stack)
-                    : (slot == FUEL_SLOT && MultiblocksConfig.CRAFTING_FUEL_SLOT.get() && isFuel(stack)),
+                    : (slot == FUEL_SLOT && hasFuelSlot() && isFuel(stack)),
             slot -> slot >= OUTPUT_START && slot < OUTPUT_START + OUTPUT_SIZE);
 
     private final MinerEnergyHandler energy = new MinerEnergyHandler(ENERGY_CAPACITY, 1000, this);
@@ -114,6 +114,10 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
     /** The registry id of this controller's block. Only recipes that name it (the Crafting Controller's own by default) are used. */
     public Identifier controllerId() {
         return net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock());
+    }
+
+    public boolean hasFuelSlot() {
+        return !(getBlockState().getBlock() instanceof com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock block) || block.hasFuelSlot();
     }
 
     private boolean isFuel(ItemStack stack) {
@@ -255,7 +259,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
     }
 
     private void burnFuel(ServerLevel serverLevel) {
-        if (!MultiblocksConfig.CRAFTING_FUEL_SLOT.get()) return;
+        if (!hasFuelSlot()) return;
 
         ItemStack fuel = ItemUtil.getStack(inventory, FUEL_SLOT);
         if (fuel.isEmpty()) return;

@@ -70,7 +70,6 @@ public class MinersLangProvider extends LanguageProvider {
         add("itemGroup." + Multiblocks.MOD_ID, "BBL Multiblocks");
 
         //Blocks
-        addBlock(MultiblocksBlocks.MINER_CONTROLLER, "Miner Controller");
         addBlock(MultiblocksBlocks.CRAFTING_CONTROLLER, "Crafting Controller");
 
         //Structure names

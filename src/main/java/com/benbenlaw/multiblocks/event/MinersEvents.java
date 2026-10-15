@@ -51,6 +51,12 @@ public class MinersEvents {
                 .filter(block -> block != com.benbenlaw.multiblocks.block.MultiblocksBlocks.CRAFTING_CONTROLLER.get())
                 .toArray(net.minecraft.world.level.block.Block[]::new);
         event.modify(MultiblocksBlockEntities.CRAFTING_CONTROLLER_BLOCK_ENTITY.get(), extra);
+
+        // Miner controllers only exist as custom blocks, so every one of them is added
+        var miners = net.minecraft.core.registries.BuiltInRegistries.BLOCK.stream()
+                .filter(block -> block instanceof com.benbenlaw.multiblocks.block.custom.MinerControllerBlock)
+                .toArray(net.minecraft.world.level.block.Block[]::new);
+        event.modify(MultiblocksBlockEntities.MINER_CONTROLLER_BLOCK_ENTITY.get(), miners);
     }
 
     @SubscribeEvent
@@ -132,7 +138,7 @@ public class MinersEvents {
             if (pattern == null) continue;
 
             Identifier recipeId = holder.id().identifier();
-            previews.add(new MinerPreviewPacket.Preview(recipeId, recipe.structureId(), pattern,
+            previews.add(new MinerPreviewPacket.Preview(recipeId, recipe.controller(), recipe.structureId(), pattern,
                     recipe.baseDuration(), recipe.baseRolls(), recipe.energyPerTick(),
                     drops.getOrDefault(recipeId, List.of())));
         }

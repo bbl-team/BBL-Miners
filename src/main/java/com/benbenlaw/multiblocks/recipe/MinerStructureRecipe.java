@@ -22,14 +22,18 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 public record MinerStructureRecipe(Identifier structureId, List<Identifier> lootTables,
-                                   int baseDuration, int baseRolls, int energyPerTick) implements Recipe<NoInventoryRecipe> {
+                                   int baseDuration, int baseRolls, int energyPerTick, Identifier controller) implements Recipe<NoInventoryRecipe> {
+
+    /** The controller a recipe is for when it doesn't name one. There is no built-in miner block, so this is only a placeholder id. */
+    public static final Identifier DEFAULT_CONTROLLER = com.benbenlaw.multiblocks.Multiblocks.identifier("miner_controller");
 
     public static final MapCodec<MinerStructureRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Identifier.CODEC.fieldOf("structure_id").forGetter(MinerStructureRecipe::structureId),
             Identifier.CODEC.listOf().fieldOf("loot_tables").forGetter(MinerStructureRecipe::lootTables),
             Codec.INT.optionalFieldOf("base_duration", 100).forGetter(MinerStructureRecipe::baseDuration),
             Codec.INT.optionalFieldOf("base_rolls", 1).forGetter(MinerStructureRecipe::baseRolls),
-            Codec.INT.optionalFieldOf("energy_per_tick", 20).forGetter(MinerStructureRecipe::energyPerTick)
+            Codec.INT.optionalFieldOf("energy_per_tick", 20).forGetter(MinerStructureRecipe::energyPerTick),
+            Identifier.CODEC.optionalFieldOf("controller", DEFAULT_CONTROLLER).forGetter(MinerStructureRecipe::controller)
     ).apply(instance, MinerStructureRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MinerStructureRecipe> STREAM_CODEC =

@@ -32,11 +32,12 @@ public record MinerPreviewPacket(int index, int total, Preview preview) implemen
         );
     }
 
-    public record Preview(Identifier recipeId, Identifier structureId, StructurePattern pattern,
+    public record Preview(Identifier recipeId, Identifier controller, Identifier structureId, StructurePattern pattern,
                           int baseDuration, int baseRolls, int energyPerTick, List<Drop> drops) {
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Preview> STREAM_CODEC = StreamCodec.composite(
                 Identifier.STREAM_CODEC, Preview::recipeId,
+                Identifier.STREAM_CODEC, Preview::controller,
                 Identifier.STREAM_CODEC, Preview::structureId,
                 ByteBufCodecs.fromCodecWithRegistries(StructurePattern.CODEC), Preview::pattern,
                 ByteBufCodecs.VAR_INT, Preview::baseDuration,

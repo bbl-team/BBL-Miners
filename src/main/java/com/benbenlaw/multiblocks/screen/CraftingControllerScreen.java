@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CraftingControllerScreen extends AbstractContainerScreen<CraftingControllerMenu> {
@@ -58,7 +59,7 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
 
         graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 256, 256);
 
-        if (MultiblocksConfig.CRAFTING_FUEL_SLOT.get()) {
+        if (menu.blockEntity.hasFuelSlot()) {
             FuelSlotRenderer.draw(graphics, x + CraftingControllerMenu.FUEL_X, y + CraftingControllerMenu.FUEL_Y);
         }
 
@@ -77,10 +78,7 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
 
     /** The block name, or the name of the structure the controller is built as. */
     private void drawTitles(GuiGraphicsExtractor graphics) {
-        Identifier structure = menu.blockEntity.getActiveStructureId();
-        Component name = structure == null ? title : StructureNames.of(structure);
-
-        graphics.text(font, Component.literal(font.plainSubstrByWidth(name.getString(), TITLE_MAX_WIDTH)), titleLabelX, titleLabelY, 0xFF404040, false);
+        graphics.text(font, Component.literal(font.plainSubstrByWidth(title.getString(), TITLE_MAX_WIDTH)), titleLabelX, titleLabelY, 0xFF404040, false);
         graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFF404040, false);
     }
 
@@ -109,9 +107,12 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
                     x + STATUS_X, y + STATUS_Y, 10, 10);
 
             if (MouseUtil.isMouseAboveArea(mouseX, mouseY, x, y, STATUS_X, STATUS_Y, 10, 10)) {
-                graphics.setTooltipForNextFrame(font, Component.translatable(built
-                        ? "gui.bblmultiblocks.structure_valid"
-                        : "gui.bblmultiblocks.structure_invalid"), mouseX, mouseY);
+                List<Component> lines = new ArrayList<>();
+                lines.add(Component.translatable(built ? "gui.bblmultiblocks.structure_valid" : "gui.bblmultiblocks.structure_invalid"));
+
+                Identifier structure = menu.blockEntity.getActiveStructureId();
+                if (built && structure != null) lines.add(StructureNames.of(structure).copy().withStyle(ChatFormatting.GRAY));
+                graphics.setComponentTooltipForNextFrame(font, lines, mouseX, mouseY);
             }
         }
     }

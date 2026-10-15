@@ -1,4 +1,4 @@
-// 26.1.2	2026-10-13T12:28:10.709921	Loot Tables
+// 26.1.2	2026-10-15T14:16:55.2522322	Loot Tables
 f82eeb47fa3b8336656c3452114fc08eb5dbf0bb data/bblmultiblocks/loot_table/blocks/copper_support_frame.json
 fbce6cd542261361cfea69e9895a4869a18a357e data/bblmultiblocks/loot_table/blocks/crafting_controller.json
 57a7aae447e45ab74fda3771de33f14fa6a9dfcf data/bblmultiblocks/loot_table/blocks/diamond_support_frame.json
@@ -10,7 +10,6 @@ a0cbf9429c33fd94db6160273996ace6f6a9aa38 data/bblmultiblocks/loot_table/blocks/f
 0e29858fe86262da0bd899637919aac96a8971a8 data/bblmultiblocks/loot_table/blocks/fortune_cap_3.json
 998e659dbba48dbc061a7d1da72f59d8df5c1108 data/bblmultiblocks/loot_table/blocks/gold_support_frame.json
 6c2023e4b88d913bd43177710de3266f799b214b data/bblmultiblocks/loot_table/blocks/iron_support_frame.json
-d255d941e0e036b33f049bad2f320a6d88373e0b data/bblmultiblocks/loot_table/blocks/miner_controller.json
 ee70a243be03b0b82cc2bb2a7aba6e33185645c8 data/bblmultiblocks/loot_table/blocks/netherite_support_frame.json
 89e41cf8ccd5ad7dc503daae4b88eb747b108c16 data/bblmultiblocks/loot_table/blocks/silk_touch_cap_1.json
 cf6863eb1e83f0f243212b43b51550c9d9652728 data/bblmultiblocks/loot_table/blocks/stone_support_frame.json

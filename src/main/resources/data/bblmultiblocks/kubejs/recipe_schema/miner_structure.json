@@ -1,0 +1,47 @@
+{
+	"keys": [
+		{
+			"name": "structure_id",
+			"role": "other",
+			"type": "string"
+		},
+		{
+			"name": "loot_tables",
+			"role": "output",
+			"type": {
+				"type": "list",
+				"component": "string"
+			}
+		},
+		{
+			"name": "controller",
+			"role": "other",
+			"type": "string",
+			"default_optional": true
+		},
+		{
+			"name": "base_duration",
+			"role": "other",
+			"type": "positive_int",
+			"optional": 100
+		},
+		{
+			"name": "base_rolls",
+			"role": "other",
+			"type": "positive_int",
+			"optional": 1
+		},
+		{
+			"name": "energy_per_tick",
+			"role": "other",
+			"type": "non_negative_int",
+			"optional": 20
+		}
+	],
+	"unique": ["structure_id"],
+	"constructors": [
+		{
+			"keys": ["structure_id", "loot_tables"]
+		}
+	]
+}

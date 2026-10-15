@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/orientable_vertical",
-  "textures": {
-    "front": "bblmultiblocks:block/miner_controller_front",
-    "side": "bblmultiblocks:block/machine_side_working"
-  }
-}

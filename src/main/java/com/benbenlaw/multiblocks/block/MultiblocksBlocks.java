@@ -3,7 +3,6 @@ package com.benbenlaw.multiblocks.block;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.custom.CapBlock;
 import com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock;
-import com.benbenlaw.multiblocks.block.custom.MinerControllerBlock;
 import com.benbenlaw.multiblocks.cap.CapType;
 import com.benbenlaw.multiblocks.item.MultiblocksItems;
 import net.minecraft.core.registries.Registries;
@@ -21,11 +20,6 @@ import java.util.function.Function;
 
 public class MultiblocksBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Multiblocks.MOD_ID);
-
-    public static final DeferredBlock<Block> MINER_CONTROLLER = registerBlock("miner_controller",
-            properties -> new MinerControllerBlock(properties
-                    .strength(3.5F)
-                    .requiresCorrectToolForDrops()));
 
     public static final DeferredBlock<Block> CRAFTING_CONTROLLER = registerBlock("crafting_controller",
             properties -> new CraftingControllerBlock(properties

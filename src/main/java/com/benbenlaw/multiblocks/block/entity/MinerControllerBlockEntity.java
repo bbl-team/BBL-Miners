@@ -72,7 +72,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
     private static final Map<StructurePattern, CompiledStructure> COMPILED = Collections.synchronizedMap(new WeakHashMap<>());
 
     private final SyncableItemHandler inventory = new SyncableItemHandler(this, LAST_OUTPUT_SLOT + 1,
-            (slot, stack) -> slot == FUEL_SLOT && MultiblocksConfig.MINER_FUEL_SLOT.get() && isFuel(stack),
+            (slot, stack) -> slot == FUEL_SLOT && hasFuelSlot() && isFuel(stack),
             slot -> slot >= FIRST_OUTPUT_SLOT);
 
     private final MinerEnergyHandler energy = new MinerEnergyHandler(ENERGY_CAPACITY, 1000, this);
@@ -163,7 +163,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
     }
 
     private void burnFuel(ServerLevel serverLevel) {
-        if (!MultiblocksConfig.MINER_FUEL_SLOT.get()) return;
+        if (!hasFuelSlot()) return;
 
         ItemStack fuel = ItemUtil.getStack(inventory, FUEL_SLOT);
         if (fuel.isEmpty()) return;
@@ -190,7 +190,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
         } else {
             for (RecipeHolder<MinerStructureRecipe> holder : serverLevel.getServer().getRecipeManager()
                     .recipeMap().byType(MinerStructureRecipe.TYPE)) {
-                if (matches(holder)) {
+                if (holder.value().controller().equals(controllerId()) && matches(holder)) {
                     structure = holder;
                     break;
                 }
@@ -338,6 +338,15 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
         return inventory;
     }
 
+    /** The registry id of this controller's block. Only recipes that name it are used. */
+    public Identifier controllerId() {
+        return BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock());
+    }
+
+    public boolean hasFuelSlot() {
+        return !(getBlockState().getBlock() instanceof com.benbenlaw.multiblocks.block.custom.MinerControllerBlock block) || block.hasFuelSlot();
+    }
+
     public MinerEnergyHandler getEnergyHandler() {
         return energy;
     }
@@ -349,7 +358,7 @@ public class MinerControllerBlockEntity extends SyncableBlockEntity implements M
 
     @Override
     public @NotNull Component getDisplayName() {
-        return Component.translatable("block.bblmultiblocks.miner_controller");
+        return getBlockState().getBlock().getName();
     }
 
     @Override

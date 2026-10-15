@@ -224,7 +224,7 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         int y0 = Math.round(origin.y);
 
         long now = System.currentTimeMillis();
-        StructurePreviewBuilder.Result result = StructurePreviewBuilder.build(preview.pattern().get(), now);
+        StructurePreviewBuilder.Result result = StructurePreviewBuilder.build(preview.pattern().get(), block, now);
 
         StructurePreviewRenderState state = new StructurePreviewRenderState(
                 result.blocks(), result.size(), (now % 36000L) / 20f,

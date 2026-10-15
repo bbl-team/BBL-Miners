@@ -1,7 +1,7 @@
 package com.benbenlaw.multiblocks.integration.jei;
 
 import com.benbenlaw.multiblocks.Multiblocks;
-import com.benbenlaw.multiblocks.block.MultiblocksBlocks;
+import com.benbenlaw.multiblocks.block.custom.MinerControllerBlock;
 import com.benbenlaw.multiblocks.client.StructurePreviewBuilder;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderState;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderer;
@@ -37,7 +37,12 @@ import java.util.Map;
 
 public class MinerStructureCategory implements IRecipeCategory<MinerStructureCategory.Entry> {
 
-    public static final IRecipeType<Entry> TYPE = IRecipeType.create(Multiblocks.MOD_ID, "miner_structure", Entry.class);
+    private static final Map<Identifier, IRecipeType<Entry>> TYPES = new HashMap<>();
+
+    /** Every miner controller block has its own category, named after its block id. */
+    public static IRecipeType<Entry> typeFor(Identifier controller) {
+        return TYPES.computeIfAbsent(controller, id -> IRecipeType.create(id, Entry.class));
+    }
 
     private static final int WIDTH = 180;
     private static final int HEIGHT = 108;
@@ -53,21 +58,33 @@ public class MinerStructureCategory implements IRecipeCategory<MinerStructureCat
     public record Entry(MinerPreviewPacket.Preview preview) {
     }
 
+    private final Identifier controller;
+    private final MinerControllerBlock block;
     private final IDrawable icon;
     private final Map<Identifier, StructurePreviewRenderer> renderers = new HashMap<>();
 
-    public MinerStructureCategory(IGuiHelper guiHelper) {
-        this.icon = guiHelper.createDrawableItemLike(MultiblocksBlocks.MINER_CONTROLLER.get());
+    public MinerStructureCategory(IGuiHelper guiHelper, Identifier controller, MinerControllerBlock block) {
+        this.controller = controller;
+        this.block = block;
+        this.icon = guiHelper.createDrawableItemLike(block.jeiIcon() != null ? block.jeiIcon() : block);
+    }
+
+    public Identifier controller() {
+        return controller;
+    }
+
+    public MinerControllerBlock block() {
+        return block;
     }
 
     @Override
     public IRecipeType<Entry> getRecipeType() {
-        return TYPE;
+        return typeFor(controller);
     }
 
     @Override
     public Component getTitle() {
-        return Component.translatable("jei.bblmultiblocks.miner_structure");
+        return block.jeiTitle() != null ? block.jeiTitle() : block.getName();
     }
 
     @Override
@@ -88,7 +105,7 @@ public class MinerStructureCategory implements IRecipeCategory<MinerStructureCat
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, Entry entry, IFocusGroup focuses) {
         builder.addInputSlot()
-                .add(new ItemStack(MultiblocksBlocks.MINER_CONTROLLER.get()))
+                .add(new ItemStack(block))
                 .setStandardSlotBackground();
 
         for (MinerPreviewPacket.Drop drop : entry.preview().drops()) {
@@ -137,7 +154,7 @@ public class MinerStructureCategory implements IRecipeCategory<MinerStructureCat
         int y0 = Math.round(origin.y);
 
         long now = System.currentTimeMillis();
-        StructurePreviewBuilder.Result result = StructurePreviewBuilder.build(preview.pattern(), now);
+        StructurePreviewBuilder.Result result = StructurePreviewBuilder.build(preview.pattern(), block, now);
 
         StructurePreviewRenderState state = new StructurePreviewRenderState(
                 result.blocks(), result.size(), (now % 36000L) / 20f,
@@ -152,7 +169,7 @@ public class MinerStructureCategory implements IRecipeCategory<MinerStructureCat
     public void getTooltip(ITooltipBuilder tooltip, Entry entry, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
         if (mouseX < 0 || mouseX > VIEW_WIDTH || mouseY < 0 || mouseY > VIEW_HEIGHT) return;
 
-        tooltip.addAll(StructureTooltip.lines(entry.preview().pattern(), MultiblocksBlocks.MINER_CONTROLLER.get().getName()));
+        tooltip.addAll(StructureTooltip.lines(entry.preview().pattern(), block.getName()));
     }
 
     public void closeRenderers() {
