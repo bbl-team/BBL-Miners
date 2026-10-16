@@ -1,7 +1,8 @@
 package com.benbenlaw.multiblocks.loot;
 
-import com.benbenlaw.multiblocks.network.MinerPreviewPacket;
-import com.benbenlaw.multiblocks.recipe.MinerStructureRecipe;
+import com.benbenlaw.multiblocks.network.LootDrop;
+import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
+import com.benbenlaw.multiblocks.recipe.CraftingResult;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -45,12 +46,15 @@ public class LootPreviewBuilder {
         this.ops = server.registryAccess().createSerializationContext(JsonOps.INSTANCE);
     }
 
-    public static Map<Identifier, List<MinerPreviewPacket.Drop>> build(MinecraftServer server) {
+    /** The possible drops of every Controller Crafting recipe that has a loot table result, by recipe id. */
+    public static Map<Identifier, List<LootDrop>> build(MinecraftServer server) {
         LootPreviewBuilder builder = new LootPreviewBuilder(server);
-        Map<Identifier, List<MinerPreviewPacket.Drop>> result = new HashMap<>();
+        Map<Identifier, List<LootDrop>> result = new HashMap<>();
 
-        for (RecipeHolder<MinerStructureRecipe> holder : server.getRecipeManager().recipeMap().byType(MinerStructureRecipe.TYPE)) {
-            result.put(holder.id().identifier(), builder.analyzeRecipe(holder.value()));
+        for (RecipeHolder<ControllerCraftingRecipe> holder : server.getRecipeManager().recipeMap().byType(ControllerCraftingRecipe.TYPE)) {
+            if (holder.value().result() instanceof CraftingResult.Loot loot) {
+                result.put(holder.id().identifier(), builder.analyzeRecipe(loot.tables()));
+            }
         }
         return result;
     }
@@ -94,12 +98,12 @@ public class LootPreviewBuilder {
 
     // -------------------------------------------------------------- recipes
 
-    private List<MinerPreviewPacket.Drop> analyzeRecipe(MinerStructureRecipe recipe) {
+    private List<LootDrop> analyzeRecipe(List<Identifier> lootTables) {
         Map<String, Merged> result = new LinkedHashMap<>();
-        int tableCount = Math.max(1, recipe.lootTables().size());
+        int tableCount = Math.max(1, lootTables.size());
         Map<String, Double> chances = new HashMap<>();
 
-        for (Identifier rollTable : recipe.lootTables()) {
+        for (Identifier rollTable : lootTables) {
             JsonObject table = tableJson(rollTable);
             if (table == null) continue;
 
@@ -145,7 +149,7 @@ public class LootPreviewBuilder {
         return result.entrySet().stream()
                 .filter(e -> e.getValue().max > 0)
                 .sorted((a, b) -> Double.compare(chances.getOrDefault(b.getKey(), 0.0), chances.getOrDefault(a.getKey(), 0.0)))
-                .map(e -> new MinerPreviewPacket.Drop(e.getValue().stack, e.getValue().variants, e.getValue().min, e.getValue().max,
+                .map(e -> new LootDrop(e.getValue().stack, e.getValue().variants, e.getValue().min, e.getValue().max,
                         chances.getOrDefault(e.getKey(), 0.0).floatValue(), e.getValue().notes))
                 .toList();
     }

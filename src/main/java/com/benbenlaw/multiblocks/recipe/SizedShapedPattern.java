@@ -32,8 +32,8 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
             ingredient -> new SizedIngredient(ingredient, 1));
 
     public static final MapCodec<SizedShapedPattern> MAP_CODEC = RecordCodecBuilder.<SizedShapedPattern>mapCodec(instance -> instance.group(
-            Codec.STRING.listOf().fieldOf("pattern").forGetter(SizedShapedPattern::rows),
-            Codec.unboundedMap(KEY_CHAR, SIZED).fieldOf("key").forGetter(SizedShapedPattern::key)
+            Codec.STRING.listOf().optionalFieldOf("pattern", List.of()).forGetter(SizedShapedPattern::rows),
+            Codec.unboundedMap(KEY_CHAR, SIZED).optionalFieldOf("key", Map.of()).forGetter(SizedShapedPattern::key)
     ).apply(instance, SizedShapedPattern::new)).validate(SizedShapedPattern::validate);
 
     public static final Codec<SizedShapedPattern> CODEC = MAP_CODEC.codec();
@@ -44,7 +44,16 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
         boolean accepts(char key, int slot);
     }
 
+    /** A recipe with no grid at all, like a loot table recipe that needs no input. */
+    public static final SizedShapedPattern NONE = new SizedShapedPattern(List.of(), Map.of());
+
+    public boolean isEmpty() {
+        return rows.isEmpty();
+    }
+
     private DataResult<SizedShapedPattern> validate() {
+        if (rows.isEmpty() && key.isEmpty()) return DataResult.success(this);
+        if (rows.isEmpty()) return error("key is given but there is no pattern");
         if (rows.isEmpty() || rows.size() > GRID_HEIGHT) return error("pattern must have 1 to " + GRID_HEIGHT + " rows");
 
         int width = rows.getFirst().length();
@@ -123,6 +132,8 @@ public record SizedShapedPattern(List<String> rows, Map<Character, SizedIngredie
     }
 
     public int @Nullable [] amounts(List<ItemStack> grid) {
+        if (rows.isEmpty()) return new int[GRID_WIDTH * GRID_HEIGHT];
+
         char[] layout = layout(rows, new SlotCheck() {
             @Override
             public boolean isEmpty(int slot) {

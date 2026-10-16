@@ -37,7 +37,12 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
     private static final Identifier LOCK_UNLOCKED = Multiblocks.identifier("lock_unlocked");
 
     /** The title stops before the icons in the top right. */
-    private static final int TITLE_MAX_WIDTH = 125;
+    private static final int TITLE_MAX_WIDTH = 113;
+
+    private static final Identifier CAP_INFO = Multiblocks.identifier("cap_info");
+
+    private static final int CAP_X = 125;
+    private static final int CAP_Y = 5;
 
     private static final int LOCK_X = 137;
     private static final int LOCK_Y = 5;
@@ -100,6 +105,11 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
         renderLockGhosts(graphics, x, y);
         renderLockButton(graphics, mouseX, mouseY, x, y);
 
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CAP_INFO, 10, 10, 0, 0, x + CAP_X, y + CAP_Y, 10, 10);
+        if (MouseUtil.isMouseAboveArea(mouseX, mouseY, x, y, CAP_X, CAP_Y, 10, 10)) {
+            graphics.setComponentTooltipForNextFrame(font, capTooltip(), mouseX, mouseY);
+        }
+
         int structureState = menu.getStructureState();
         if (structureState != CraftingControllerBlockEntity.STRUCTURE_NOT_REQUIRED) {
             boolean built = structureState == CraftingControllerBlockEntity.STRUCTURE_BUILT;
@@ -115,6 +125,33 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
                 graphics.setComponentTooltipForNextFrame(font, lines, mouseX, mouseY);
             }
         }
+    }
+
+    private List<Component> capTooltip() {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable("gui.bblmultiblocks.cap_effects").withStyle(ChatFormatting.WHITE));
+
+        int efficiency = menu.getEfficiencyLevels();
+        int fortune = menu.getFortuneLevels();
+        boolean silkTouch = menu.hasSilkTouch();
+
+        if (efficiency == 0 && fortune == 0 && !silkTouch) {
+            lines.add(Component.translatable("gui.bblmultiblocks.cap_none").withStyle(ChatFormatting.GRAY));
+        } else {
+            if (efficiency > 0) {
+                double speed = 1.0 + com.benbenlaw.multiblocks.cap.CapEffects.SPEED_PER_EFFICIENCY_LEVEL * efficiency;
+                lines.add(Component.translatable("gui.bblmultiblocks.cap_efficiency", efficiency, String.format("%.2f", speed)).withStyle(ChatFormatting.GOLD));
+            }
+            if (fortune > 0) {
+                lines.add(Component.translatable("gui.bblmultiblocks.cap_fortune", fortune).withStyle(ChatFormatting.GREEN));
+            }
+            if (silkTouch) {
+                lines.add(Component.translatable("gui.bblmultiblocks.cap_silk_touch").withStyle(ChatFormatting.LIGHT_PURPLE));
+            }
+        }
+
+        lines.add(Component.translatable("gui.bblmultiblocks.cap_hint").withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
+        return lines;
     }
 
     /** Empty locked slots show the item they will accept, faded; locked slots that accept nothing are darkened. */
@@ -152,6 +189,11 @@ public class CraftingControllerScreen extends AbstractContainerScreen<CraftingCo
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 1 && event.hasShiftDown()
+                && MouseUtil.isMouseAboveArea((int) event.x(), (int) event.y(), leftPos, topPos, CAP_X, CAP_Y, 10, 10)) {
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, CraftingControllerMenu.BUTTON_SHOW_CAPS);
+            return true;
+        }
         if (event.button() == 0 && MouseUtil.isMouseAboveArea((int) event.x(), (int) event.y(), leftPos, topPos, LOCK_X, LOCK_Y, 10, 10)) {
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, CraftingControllerMenu.BUTTON_TOGGLE_LOCK);
             return true;

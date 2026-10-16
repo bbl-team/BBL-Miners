@@ -1,9 +1,11 @@
 {
-  "type": "bblmultiblocks:miner_structure",
+  "type": "bblmultiblocks:controller_crafting",
   "base_duration": 200,
   "energy_per_tick": 30,
-  "loot_tables": [
-    "minecraft:blocks/stone"
-  ],
+  "result": {
+    "loot_tables": [
+      "minecraft:blocks/stone"
+    ]
+  },
   "structure_id": "bblmultiblocks:stone_miner"
 }

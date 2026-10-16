@@ -33,6 +33,7 @@ public class CraftingControllerMenu extends SimpleAbstractContainerMenu {
     public static final int HOTBAR_Y = 172;
 
     public static final int BUTTON_TOGGLE_LOCK = 0;
+    public static final int BUTTON_SHOW_CAPS = 1;
 
     /** The grid and research slots by inventory index, so the screen can show what a locked slot accepts. */
     public final Slot[] lockableSlots = new Slot[CraftingControllerBlockEntity.LOCKABLE_SLOTS];
@@ -45,7 +46,7 @@ public class CraftingControllerMenu extends SimpleAbstractContainerMenu {
     }
 
     public CraftingControllerMenu(int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(containerId, inventory, extraData.readBlockPos(), new SimpleContainerData(7));
+        this(containerId, inventory, extraData.readBlockPos(), new SimpleContainerData(9));
     }
 
     public CraftingControllerMenu(int containerId, Inventory inventory, BlockPos pos, ContainerData data) {
@@ -115,7 +116,23 @@ public class CraftingControllerMenu extends SimpleAbstractContainerMenu {
             blockEntity.toggleLock();
             return true;
         }
+        if (id == BUTTON_SHOW_CAPS) {
+            blockEntity.toggleCapOutlines(player);
+            return true;
+        }
         return super.clickMenuButton(player, id);
+    }
+
+    public int getEfficiencyLevels() {
+        return data.get(5);
+    }
+
+    public int getFortuneLevels() {
+        return data.get(7);
+    }
+
+    public boolean hasSilkTouch() {
+        return data.get(8) == 1;
     }
 
     public boolean isLocked() {
@@ -137,7 +154,4 @@ public class CraftingControllerMenu extends SimpleAbstractContainerMenu {
         return data.get(4);
     }
 
-    public int getEfficiencyLevels() {
-        return data.get(5);
-    }
 }

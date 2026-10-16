@@ -1,9 +1,11 @@
 {
-  "type": "bblmultiblocks:miner_structure",
+  "type": "bblmultiblocks:controller_crafting",
   "base_duration": 200,
   "energy_per_tick": 40,
-  "loot_tables": [
-    "minecraft:blocks/granite"
-  ],
+  "result": {
+    "loot_tables": [
+      "minecraft:blocks/granite"
+    ]
+  },
   "structure_id": "bblmultiblocks:granite_miner"
 }

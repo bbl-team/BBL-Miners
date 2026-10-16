@@ -1,7 +1,7 @@
 package com.benbenlaw.multiblocks.client;
 
 import com.benbenlaw.multiblocks.Multiblocks;
-import com.benbenlaw.multiblocks.block.entity.MinerControllerBlockEntity;
+import com.benbenlaw.multiblocks.block.entity.CraftingControllerBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -29,7 +29,7 @@ public class CapOutlineRenderer {
         BlockPos controller = ClientCapOutlines.controller();
         if (controller == null) return;
 
-        if (mc.level == null || !(mc.level.getBlockEntity(controller) instanceof MinerControllerBlockEntity)) {
+        if (mc.level == null || !(mc.level.getBlockEntity(controller) instanceof CraftingControllerBlockEntity)) {
             ClientCapOutlines.clear();
             return;
         }

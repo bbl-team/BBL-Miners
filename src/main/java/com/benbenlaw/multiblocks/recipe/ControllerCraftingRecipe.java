@@ -1,5 +1,6 @@
 package com.benbenlaw.multiblocks.recipe;
 
+import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraItem> extraItems, ItemStackTemplate result,
+public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraItem> extraItems, CraftingResult result,
                                        Optional<Identifier> structureId, int baseDuration, int energyPerTick,
                                        Identifier controller) implements Recipe<ControllerCraftingInput> {
 
@@ -40,7 +41,7 @@ public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraIte
     public static final MapCodec<ControllerCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             SizedShapedPattern.MAP_CODEC.forGetter(ControllerCraftingRecipe::pattern),
             ExtraItem.CODEC.listOf(0, MAX_EXTRAS).optionalFieldOf("extra_items", List.of()).forGetter(ControllerCraftingRecipe::extraItems),
-            ItemStackTemplate.CODEC.fieldOf("result").forGetter(ControllerCraftingRecipe::result),
+            CraftingResult.CODEC.fieldOf("result").forGetter(ControllerCraftingRecipe::result),
             Identifier.CODEC.optionalFieldOf("structure_id").forGetter(ControllerCraftingRecipe::structureId),
             Codec.INT.optionalFieldOf("base_duration", 100).forGetter(ControllerCraftingRecipe::baseDuration),
             Codec.INT.optionalFieldOf("energy_per_tick", 20).forGetter(ControllerCraftingRecipe::energyPerTick),
@@ -50,7 +51,7 @@ public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraIte
     public static final StreamCodec<RegistryFriendlyByteBuf, ControllerCraftingRecipe> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.fromCodecWithRegistries(SizedShapedPattern.CODEC), ControllerCraftingRecipe::pattern,
             ExtraItem.LIST_STREAM_CODEC, ControllerCraftingRecipe::extraItems,
-            ItemStackTemplate.STREAM_CODEC, ControllerCraftingRecipe::result,
+            CraftingResult.STREAM_CODEC, ControllerCraftingRecipe::result,
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), ControllerCraftingRecipe::structureId,
             ByteBufCodecs.VAR_INT, ControllerCraftingRecipe::baseDuration,
             ByteBufCodecs.VAR_INT, ControllerCraftingRecipe::energyPerTick,
@@ -114,18 +115,39 @@ public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraIte
         return totals;
     }
 
-    public ItemStack resultStack(EffectTotals totals, int[] slots) {
-        ItemStackTemplate template = result;
+    /** The results after extra items have replaced them: a replace_result effect swaps the whole list for that one item. */
+    private List<ChanceResult> effectiveResults(int[] slots) {
+        List<ChanceResult> results = result instanceof CraftingResult.Items items ? items.results() : List.of();
         for (int i = 0; i < slots.length; i++) {
             if (slots[i] < 0) continue;
             for (ItemEffect effect : extraItems.get(i).effects()) {
-                if (effect instanceof ItemEffect.ReplaceResult replace) template = replace.item();
+                if (effect instanceof ItemEffect.ReplaceResult replace) results = List.of(new ChanceResult(replace.item(), 1.0f));
             }
         }
+        return results;
+    }
 
-        ItemStack stack = template.create();
-        stack.setCount(Math.min(stack.getMaxStackSize(), totals.outputCount(template.count())));
+    private static ItemStack scaled(ItemStack stack, EffectTotals totals) {
+        if (stack.isEmpty()) return stack;
+        stack.setCount(Math.min(stack.getMaxStackSize(), totals.outputCount(stack.getCount())));
         return stack;
+    }
+
+    /** The most this craft can produce (every chance succeeding), used to check the output slots have room. Empty for a loot table result. */
+    public List<ItemStack> potentialResults(EffectTotals totals, int[] slots) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (ChanceResult chance : effectiveResults(slots)) stacks.add(scaled(chance.template().create(), totals));
+        return stacks;
+    }
+
+    /** What this craft actually produces, with each result's chance rolled. Empty for a loot table result. */
+    public List<ItemStack> rollResults(EffectTotals totals, int[] slots, RandomSource random) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (ChanceResult chance : effectiveResults(slots)) {
+            ItemStack rolled = scaled(chance.rollOutput(random), totals);
+            if (!rolled.isEmpty()) stacks.add(rolled);
+        }
+        return stacks;
     }
 
     public List<ItemStack> bonusOutputs(int[] slots, RandomSource random) {
@@ -143,7 +165,8 @@ public record ControllerCraftingRecipe(SizedShapedPattern pattern, List<ExtraIte
 
     @Override
     public @NonNull ItemStack assemble(ControllerCraftingInput input) {
-        return result.create();
+        return result instanceof CraftingResult.Items items && !items.results().isEmpty()
+                ? items.results().getFirst().template().create() : ItemStack.EMPTY;
     }
 
     //Boiler Plate

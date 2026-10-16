@@ -15,10 +15,6 @@ public class MultiblocksRecipeTypes {
     public static final DeferredRegister<RecipeType<?>> TYPES =
             DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, Multiblocks.MOD_ID);
 
-    public static final Supplier<RecipeSerializer<MinerStructureRecipe>> MINER_STRUCTURE_SERIALIZER =
-            SERIALIZER.register("miner_structure", () -> MinerStructureRecipe.SERIALIZER);
-    public static final Supplier<RecipeType<MinerStructureRecipe>> MINER_STRUCTURE_TYPE =
-            TYPES.register("miner_structure", () -> MinerStructureRecipe.TYPE);
 
     public static final Supplier<RecipeSerializer<ControllerCraftingRecipe>> CONTROLLER_CRAFTING_SERIALIZER =
             SERIALIZER.register("controller_crafting", () -> ControllerCraftingRecipe.SERIALIZER);

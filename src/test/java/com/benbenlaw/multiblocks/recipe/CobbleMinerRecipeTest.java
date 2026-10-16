@@ -55,11 +55,11 @@ class CobbleMinerRecipeTest {
     }
 
     @Test
-    void everyMinerRecipeParsesAndEveryStructureReferenceExists() throws IOException {
+    void everyRecipeParsesAndEveryStructureReferenceExists() throws IOException {
         List<Path> recipes = jsonFiles(DATA.resolve("recipe"));
         assertFalse(recipes.isEmpty());
 
-        int minerRecipes = 0;
+        int lootRecipes = 0;
         int craftingRecipes = 0;
 
         for (Path file : recipes) {
@@ -67,23 +67,23 @@ class CobbleMinerRecipeTest {
             String type = json.getAsJsonObject().get("type").getAsString();
             Identifier structureId;
 
-            if (type.equals("bblmultiblocks:miner_structure")) {
-                MinerStructureRecipe recipe = MinerStructureRecipe.CODEC.codec().parse(JsonOps.INSTANCE, json).getOrThrow();
-                assertFalse(recipe.lootTables().isEmpty(), file + " has no loot tables");
-                structureId = recipe.structureId();
-                minerRecipes++;
-            } else if (type.equals("bblmultiblocks:controller_crafting")) {
-                // Ingredients need a running registry to parse, so only the structure reference is checked here
-                var structure = json.getAsJsonObject().get("structure_id");
-                if (structure == null) {
-                    craftingRecipes++;
-                    continue;
-                }
-                structureId = Identifier.parse(structure.getAsString());
+            if (!type.equals("bblmultiblocks:controller_crafting")) continue;
+
+            // Ingredients and items need a running registry to parse, so loot results are parsed and the rest only checked for the structure
+            var result = json.getAsJsonObject().get("result");
+            if (result.isJsonObject() && result.getAsJsonObject().has("loot_tables")) {
+                CraftingResult.Loot loot = CraftingResult.Loot.CODEC.parse(JsonOps.INSTANCE, result).getOrThrow();
+                assertFalse(loot.tables().isEmpty(), file + " has no loot tables");
+                lootRecipes++;
+            }
+
+            var structureField = json.getAsJsonObject().get("structure_id");
+            if (structureField == null) {
                 craftingRecipes++;
-            } else {
                 continue;
             }
+            structureId = Identifier.parse(structureField.getAsString());
+            craftingRecipes++;
 
             // The structure loader turns data/<namespace>/bblmultiblocks/structures/<id>.json into <namespace>:<id>
             Path structure = DATA_ROOT.resolve(structureId.getNamespace())
@@ -93,7 +93,7 @@ class CobbleMinerRecipeTest {
                     file.getFileName() + " points at structure " + structureId + " but " + structure + " does not exist");
         }
 
-        assertTrue(minerRecipes > 0);
+        assertTrue(lootRecipes > 0);
         assertTrue(craftingRecipes > 0);
     }
 }

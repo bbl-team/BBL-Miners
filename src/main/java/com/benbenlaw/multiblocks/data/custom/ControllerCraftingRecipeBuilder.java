@@ -1,7 +1,9 @@
 package com.benbenlaw.multiblocks.data.custom;
 
+import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
+import com.benbenlaw.multiblocks.recipe.CraftingResult;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
@@ -34,8 +36,10 @@ import java.util.Optional;
 
 public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
 
-    private final ItemLike result;
+    private final @Nullable ItemLike result;
     private final int count;
+    private @Nullable CraftingResult lootResult;
+    private final List<ChanceResult> extraResults = new ArrayList<>();
     private final List<String> rows = new ArrayList<>();
     private final Map<Character, SizedIngredient> key = new LinkedHashMap<>();
     private final List<ExtraItem> extraItems = new ArrayList<>();
@@ -45,9 +49,16 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
     private int energyPerTick = 20;
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
-    private ControllerCraftingRecipeBuilder(ItemLike result, int count) {
+    private ControllerCraftingRecipeBuilder(@Nullable ItemLike result, int count) {
         this.result = result;
         this.count = count;
+    }
+
+    /** A recipe that rolls loot tables instead of giving a fixed item, like a miner. Needs no grid input. */
+    public static ControllerCraftingRecipeBuilder controllerLoot(List<Identifier> lootTables, int rolls) {
+        ControllerCraftingRecipeBuilder builder = new ControllerCraftingRecipeBuilder(null, 1);
+        builder.lootResult = new CraftingResult.Loot(List.copyOf(lootTables), rolls);
+        return builder;
     }
 
     public static ControllerCraftingRecipeBuilder controllerCrafting(ItemLike result) {
@@ -56,6 +67,12 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
 
     public static ControllerCraftingRecipeBuilder controllerCrafting(ItemLike result, int count) {
         return new ControllerCraftingRecipeBuilder(result, count);
+    }
+
+    /** Another result next to the first one, which drops with the given chance (0 to 1). */
+    public ControllerCraftingRecipeBuilder alsoResult(ItemLike item, int count, float chance) {
+        extraResults.add(new ChanceResult(new ItemStackTemplate(item.asItem(), count), chance));
+        return this;
     }
 
     public ControllerCraftingRecipeBuilder define(char symbol, ItemLike item) {
@@ -136,7 +153,15 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
+    private CraftingResult itemResults() {
+        List<ChanceResult> results = new ArrayList<>();
+        results.add(new ChanceResult(new ItemStackTemplate(result.asItem(), count), 1.0f));
+        results.addAll(extraResults);
+        return new CraftingResult.Items(results);
+    }
+
     private SizedShapedPattern pattern() {
+        if (rows.isEmpty()) return SizedShapedPattern.NONE;
         SizedShapedPattern pattern = new SizedShapedPattern(List.copyOf(rows), Collections.unmodifiableMap(new LinkedHashMap<>(key)));
         SizedShapedPattern.CODEC.encodeStart(JsonOps.INSTANCE, pattern).getOrThrow();
         return pattern;
@@ -155,7 +180,8 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
 
     @Override
     public ResourceKey<Recipe<?>> defaultId() {
-        return ResourceKey.create(Registries.RECIPE, Multiblocks.identifier("controller_crafting/" + BuiltInRegistries.ITEM.getKey(result.asItem()).getPath()));
+        String name = result == null ? "loot" : BuiltInRegistries.ITEM.getKey(result.asItem()).getPath();
+        return ResourceKey.create(Registries.RECIPE, Multiblocks.identifier("controller_crafting/" + name));
     }
 
     @Override
@@ -172,7 +198,8 @@ public class ControllerCraftingRecipeBuilder implements RecipeBuilder {
         this.criteria.forEach(builder::addCriterion);
 
         ControllerCraftingRecipe recipe = new ControllerCraftingRecipe(pattern(), List.copyOf(extraItems),
-                new ItemStackTemplate(result.asItem(), count), Optional.ofNullable(structureId), duration, energyPerTick, controller);
+                lootResult != null ? lootResult : itemResults(),
+                Optional.ofNullable(structureId), duration, energyPerTick, controller);
 
         recipeOutput.accept(resourceKey, recipe, builder.build(resourceKey.identifier().withPrefix("recipes/controller_crafting/")));
     }

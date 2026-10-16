@@ -6,9 +6,8 @@ import com.benbenlaw.multiblocks.loot.LootPreviewBuilder;
 import com.benbenlaw.multiblocks.network.CapOutlinesPacket;
 import com.benbenlaw.multiblocks.network.CraftingPreviewPacket;
 import com.benbenlaw.multiblocks.network.CreatePatternPacket;
-import com.benbenlaw.multiblocks.network.MinerPreviewPacket;
+import com.benbenlaw.multiblocks.network.LootDrop;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
-import com.benbenlaw.multiblocks.recipe.MinerStructureRecipe;
 import com.benbenlaw.multiblocks.structure.StructureManager;
 import com.benbenlaw.multiblocks.structure.StructurePattern;
 import net.minecraft.resources.Identifier;
@@ -35,7 +34,6 @@ public class MinersEvents {
 
     private static Object cachedRecipes;
     private static Object cachedStructures;
-    private static List<MinerPreviewPacket.Preview> cachedPreviews = List.of();
     private static List<CraftingPreviewPacket.Preview> cachedCraftingPreviews = List.of();
 
     @SubscribeEvent
@@ -52,21 +50,10 @@ public class MinersEvents {
                 .toArray(net.minecraft.world.level.block.Block[]::new);
         event.modify(MultiblocksBlockEntities.CRAFTING_CONTROLLER_BLOCK_ENTITY.get(), extra);
 
-        // Miner controllers only exist as custom blocks, so every one of them is added
-        var miners = net.minecraft.core.registries.BuiltInRegistries.BLOCK.stream()
-                .filter(block -> block instanceof com.benbenlaw.multiblocks.block.custom.MinerControllerBlock)
-                .toArray(net.minecraft.world.level.block.Block[]::new);
-        event.modify(MultiblocksBlockEntities.MINER_CONTROLLER_BLOCK_ENTITY.get(), miners);
     }
 
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-
-        event.registerBlockEntity(Capabilities.Item.BLOCK, MultiblocksBlockEntities.MINER_CONTROLLER_BLOCK_ENTITY.get(),
-                (blockEntity, side) -> blockEntity.getItemHandler());
-
-        event.registerBlockEntity(Capabilities.Energy.BLOCK, MultiblocksBlockEntities.MINER_CONTROLLER_BLOCK_ENTITY.get(),
-                (blockEntity, side) -> blockEntity.getEnergyHandler());
 
         event.registerBlockEntity(Capabilities.Item.BLOCK, MultiblocksBlockEntities.CRAFTING_CONTROLLER_BLOCK_ENTITY.get(),
                 (blockEntity, side) -> blockEntity.getItemHandler());
@@ -80,7 +67,6 @@ public class MinersEvents {
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
 
         //Server to Client
-        event.registrar(Multiblocks.MOD_ID).playToClient(MinerPreviewPacket.TYPE, MinerPreviewPacket.STREAM_CODEC, MinerPreviewPacket.HANDLER);
         event.registrar(Multiblocks.MOD_ID).playToClient(CapOutlinesPacket.TYPE, CapOutlinesPacket.STREAM_CODEC, CapOutlinesPacket.HANDLER);
         event.registrar(Multiblocks.MOD_ID).playToClient(CraftingPreviewPacket.TYPE, CraftingPreviewPacket.STREAM_CODEC, CraftingPreviewPacket.HANDLER);
 
@@ -95,20 +81,13 @@ public class MinersEvents {
 
     /** Sends the miner and crafting recipe previews (with their structures) that the JEI categories show. */
     public static void syncPreviews(MinecraftServer server, List<ServerPlayer> players) {
-        Object recipes = server.getRecipeManager();
+        Object recipes = server.getRecipeManager().recipeMap();
         Object structures = StructureManager.INSTANCE.all();
         if (cachedRecipes != recipes || cachedStructures != structures) {
             cachedRecipes = recipes;
             cachedStructures = structures;
-            cachedPreviews = buildPreviews(server);
             cachedCraftingPreviews = buildCraftingPreviews(server);
         }
-
-        List<MinerPreviewPacket> packets = new ArrayList<>();
-        for (int i = 0; i < cachedPreviews.size(); i++) {
-            packets.add(new MinerPreviewPacket(i, cachedPreviews.size(), cachedPreviews.get(i)));
-        }
-        players.forEach(player -> packets.forEach(packet -> PacketDistributor.sendToPlayer(player, packet)));
 
         List<CraftingPreviewPacket> craftingPackets = new ArrayList<>();
         for (int i = 0; i < cachedCraftingPreviews.size(); i++) {
@@ -119,28 +98,13 @@ public class MinersEvents {
 
     private static List<CraftingPreviewPacket.Preview> buildCraftingPreviews(MinecraftServer server) {
         List<CraftingPreviewPacket.Preview> previews = new ArrayList<>();
+        Map<Identifier, List<LootDrop>> drops = LootPreviewBuilder.build(server);
 
         for (RecipeHolder<ControllerCraftingRecipe> holder : server.getRecipeManager().recipeMap().byType(ControllerCraftingRecipe.TYPE)) {
             ControllerCraftingRecipe recipe = holder.value();
             Optional<StructurePattern> pattern = recipe.structureId().map(StructureManager.INSTANCE::get);
-            previews.add(new CraftingPreviewPacket.Preview(holder.id().identifier(), recipe, pattern));
-        }
-        return previews;
-    }
-
-    private static List<MinerPreviewPacket.Preview> buildPreviews(MinecraftServer server) {
-        Map<Identifier, List<MinerPreviewPacket.Drop>> drops = LootPreviewBuilder.build(server);
-        List<MinerPreviewPacket.Preview> previews = new ArrayList<>();
-
-        for (RecipeHolder<MinerStructureRecipe> holder : server.getRecipeManager().recipeMap().byType(MinerStructureRecipe.TYPE)) {
-            MinerStructureRecipe recipe = holder.value();
-            StructurePattern pattern = StructureManager.INSTANCE.get(recipe.structureId());
-            if (pattern == null) continue;
-
-            Identifier recipeId = holder.id().identifier();
-            previews.add(new MinerPreviewPacket.Preview(recipeId, recipe.controller(), recipe.structureId(), pattern,
-                    recipe.baseDuration(), recipe.baseRolls(), recipe.energyPerTick(),
-                    drops.getOrDefault(recipeId, List.of())));
+            previews.add(new CraftingPreviewPacket.Preview(holder.id().identifier(), recipe, pattern,
+                    drops.getOrDefault(holder.id().identifier(), List.of())));
         }
         return previews;
     }

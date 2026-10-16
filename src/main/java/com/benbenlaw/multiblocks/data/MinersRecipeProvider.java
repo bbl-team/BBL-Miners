@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.benbenlaw.multiblocks.data.custom.ControllerCraftingRecipeBuilder.controllerCrafting;
-import static com.benbenlaw.multiblocks.data.custom.MinerStructureRecipeBuilder.minerStructure;
+import static com.benbenlaw.multiblocks.data.custom.ControllerCraftingRecipeBuilder.controllerLoot;
 
 public class MinersRecipeProvider extends RecipeProvider {
 
@@ -116,7 +116,10 @@ public class MinersRecipeProvider extends RecipeProvider {
     }
 
     private void addSimpleMinerRecipe(String name, int baseDuration, int energyPerTick) {
-        minerStructure(Multiblocks.identifier(name + "_miner"), List.of(Identifier.parse("minecraft:blocks/" + name)), baseDuration, 1, energyPerTick)
+        controllerLoot(List.of(Identifier.parse("minecraft:blocks/" + name)), 1)
+                .structure(Multiblocks.identifier(name + "_miner"))
+                .baseDuration(baseDuration)
+                .energyPerTick(energyPerTick)
                 .save(output, name);
     }
 }

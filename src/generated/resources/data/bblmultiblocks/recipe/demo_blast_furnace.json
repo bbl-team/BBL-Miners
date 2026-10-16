@@ -11,7 +11,11 @@
   "pattern": [
     "F"
   ],
-  "result": {
-    "id": "minecraft:blast_furnace"
-  }
+  "result": [
+    {
+      "item": {
+        "id": "minecraft:blast_furnace"
+      }
+    }
+  ]
 }

@@ -56,7 +56,7 @@ public class MinersLangProvider extends LanguageProvider {
         add("message.bblmultiblocks.pattern.cancelled", "Selection cancelled");
         add("message.bblmultiblocks.pattern.created", "Saved structure %s");
         add("message.bblmultiblocks.pattern.saved_to", "Saved to %s. Copy it into a datapack's bblmultiblocks/structures folder to ship it.");
-        add("message.bblmultiblocks.pattern.error.no_controller", "The selection needs a Miner or Crafting Controller");
+        add("message.bblmultiblocks.pattern.error.no_controller", "The selection needs a Crafting Controller");
         add("message.bblmultiblocks.pattern.error.multiple_controllers", "The selection has more than one controller");
         add("message.bblmultiblocks.pattern.error.empty", "There are no blocks to record");
         add("message.bblmultiblocks.pattern.error.too_large", "The selection is too large (max %s blocks per side)");
@@ -98,7 +98,6 @@ public class MinersLangProvider extends LanguageProvider {
         add("message.bblmultiblocks.build_structure_first", "Build the structure to see its cap positions");
 
         //JEI
-        add("jei.bblmultiblocks.miner_structure", "Miner Structure");
         add("jei.bblmultiblocks.crafting_controller", "Crafting Controller");
         add("jei.bblmultiblocks.structure_blocks", "Required Blocks");
         add("jei.bblmultiblocks.structure_block_line", "%sx %s");

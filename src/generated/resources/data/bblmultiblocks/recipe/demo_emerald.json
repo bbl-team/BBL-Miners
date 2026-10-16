@@ -48,8 +48,12 @@
     "GDG",
     "GGG"
   ],
-  "result": {
-    "id": "minecraft:emerald"
-  },
+  "result": [
+    {
+      "item": {
+        "id": "minecraft:emerald"
+      }
+    }
+  ],
   "structure_id": "bblmultiblocks:crafting_demo"
 }

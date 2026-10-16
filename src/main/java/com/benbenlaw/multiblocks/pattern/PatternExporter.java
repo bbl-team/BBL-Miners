@@ -4,7 +4,6 @@ import com.benbenlaw.multiblocks.structure.BlockMatcher;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.custom.CapBlock;
 import com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock;
-import com.benbenlaw.multiblocks.block.custom.MinerControllerBlock;
 import com.benbenlaw.multiblocks.structure.StructureManager;
 import com.benbenlaw.multiblocks.util.MinersTags;
 import com.google.gson.GsonBuilder;
@@ -124,7 +123,7 @@ public final class PatternExporter {
         Block block = state.getBlock();
 
         if (state.isAir() || block instanceof LiquidBlock) return PatternRecorder.Cell.AIR;
-        if (block instanceof MinerControllerBlock || block instanceof CraftingControllerBlock) return PatternRecorder.Cell.CONTROLLER;
+        if (block instanceof CraftingControllerBlock) return PatternRecorder.Cell.CONTROLLER;
         if (block instanceof CapBlock) return PatternRecorder.Cell.CAP;
 
         if (frameTags) {

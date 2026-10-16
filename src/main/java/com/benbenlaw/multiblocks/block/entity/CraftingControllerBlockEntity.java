@@ -7,6 +7,7 @@ import com.benbenlaw.multiblocks.block.MultiblocksBlockEntities;
 import com.benbenlaw.multiblocks.cap.CapEffects;
 import com.benbenlaw.multiblocks.config.MultiblocksConfig;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingInput;
+import com.benbenlaw.multiblocks.recipe.CraftingResult;
 import com.benbenlaw.multiblocks.recipe.EffectTotals;
 import com.benbenlaw.multiblocks.recipe.ExtraItem;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
@@ -89,6 +90,8 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
                 case 4 -> structureState;
                 case 5 -> capEffects.efficiency();
                 case 6 -> slotLock.isLocked() ? 1 : 0;
+                case 7 -> capEffects.fortune();
+                case 8 -> capEffects.silkTouch() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -103,7 +106,7 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
         @Override
         public int getCount() {
-            return 7;
+            return 9;
         }
     };
 
@@ -159,7 +162,9 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         maxProgress = capEffects.duration(totals.duration(active.baseDuration()));
         int cost = totals.energyPerTick(active.energyPerTick());
 
-        if (!canOutput(active.resultStack(totals, extraSlots)) || energy.getAmountAsInt() < cost) return;
+        List<ItemStack> potential = active.potentialResults(totals, extraSlots);
+        boolean fits = potential.isEmpty() && active.result().isLoot() ? hasOutputSpace() : canOutputAll(potential);
+        if (!fits || energy.getAmountAsInt() < cost) return;
 
         energy.set(energy.getAmountAsInt() - cost);
         progress++;
@@ -189,17 +194,22 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
 
         RecipeHolder<ControllerCraftingRecipe> missingStructure = null;
 
-        for (RecipeHolder<ControllerCraftingRecipe> holder : serverLevel.getServer().getRecipeManager()
-                .recipeMap().byType(ControllerCraftingRecipe.TYPE)) {
-            if (!holder.value().controller().equals(controllerId()) || !holder.value().matches(input, serverLevel)) continue;
+        // recipes that need a grid come first, so a recipe without inputs (a loot table miner) never shadows them
+        search:
+        for (boolean withoutInputs : new boolean[]{false, true}) {
+            for (RecipeHolder<ControllerCraftingRecipe> holder : serverLevel.getServer().getRecipeManager()
+                    .recipeMap().byType(ControllerCraftingRecipe.TYPE)) {
+                if (holder.value().pattern().isEmpty() != withoutInputs) continue;
+                if (!holder.value().controller().equals(controllerId()) || !holder.value().matches(input, serverLevel)) continue;
 
-            var structureId = holder.value().structureId();
-            if (structureId.isEmpty() || StructureMatching.matches(serverLevel, getBlockPos(), structureId.get())) {
-                recipe = holder;
-                structureState = structureId.isPresent() ? STRUCTURE_BUILT : STRUCTURE_NOT_REQUIRED;
-                break;
+                var structureId = holder.value().structureId();
+                if (structureId.isEmpty() || StructureMatching.matches(serverLevel, getBlockPos(), structureId.get())) {
+                    recipe = holder;
+                    structureState = structureId.isPresent() ? STRUCTURE_BUILT : STRUCTURE_NOT_REQUIRED;
+                    break search;
+                }
+                if (missingStructure == null) missingStructure = holder;
             }
-            if (missingStructure == null) missingStructure = holder;
         }
 
         if (recipe == null && missingStructure != null) {
@@ -276,18 +286,36 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         energy.set(energy.getAmountAsInt() + gain);
     }
 
-    /** True when the output slots have room for the whole result. */
-    private boolean canOutput(ItemStack result) {
-        int room = 0;
+    /** True when the output slots have room for all of these stacks at once. */
+    private boolean canOutputAll(List<ItemStack> stacks) {
+        List<ItemStack> simulated = new ArrayList<>();
         for (int slot = OUTPUT_START; slot < OUTPUT_START + OUTPUT_SIZE; slot++) {
-            ItemStack output = ItemUtil.getStack(inventory, slot);
-            if (output.isEmpty()) {
-                room += result.getMaxStackSize();
-            } else if (ItemStack.isSameItemSameComponents(output, result)) {
-                room += output.getMaxStackSize() - output.getCount();
-            }
+            simulated.add(ItemUtil.getStack(inventory, slot).copy());
         }
-        return room >= result.getCount();
+
+        for (ItemStack stack : stacks) {
+            int remaining = stack.getCount();
+
+            for (ItemStack output : simulated) {
+                if (remaining <= 0) break;
+                if (output.isEmpty() || !ItemStack.isSameItemSameComponents(output, stack)) continue;
+
+                int added = Math.min(remaining, output.getMaxStackSize() - output.getCount());
+                output.grow(added);
+                remaining -= added;
+            }
+
+            for (int i = 0; i < simulated.size() && remaining > 0; i++) {
+                if (!simulated.get(i).isEmpty()) continue;
+
+                int added = Math.min(remaining, stack.getMaxStackSize());
+                simulated.set(i, stack.copyWithCount(added));
+                remaining -= added;
+            }
+
+            if (remaining > 0) return false;
+        }
+        return true;
     }
 
     private void craft(ControllerCraftingRecipe active) {
@@ -295,8 +323,12 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
         int[] extraSlots = active.assignExtras(stacks(EXTRA_START, EXTRA_SIZE));
         if (gridAmounts == null || extraSlots == null) return;
 
-        ItemStack result = active.resultStack(active.totals(extraSlots), extraSlots);
-        List<ItemStack> bonuses = active.bonusOutputs(extraSlots, level.getRandom());
+        EffectTotals totals = active.totals(extraSlots);
+        List<ItemStack> outputs = new ArrayList<>(active.rollResults(totals, extraSlots, level.getRandom()));
+        if (active.result() instanceof CraftingResult.Loot loot && active.potentialResults(totals, extraSlots).isEmpty()) {
+            outputs.addAll(rollLoot(loot, totals));
+        }
+        outputs.addAll(active.bonusOutputs(extraSlots, level.getRandom()));
 
         inventory.runInternal(() -> {
             try (Transaction tx = Transaction.open(null)) {
@@ -309,21 +341,88 @@ public class CraftingControllerBlockEntity extends SyncableBlockEntity implement
                     }
                 }
 
-                int remaining = result.getCount();
-                for (int slot = OUTPUT_START; slot < OUTPUT_START + OUTPUT_SIZE && remaining > 0; slot++) {
-                    remaining -= inventory.insert(slot, ItemResource.of(result), remaining, tx);
-                }
-
-                // bonus items are a best effort: whatever doesn't fit in the output slots is lost
-                for (ItemStack bonus : bonuses) {
-                    int left = bonus.getCount();
+                // results fit because the output slots were checked first; loot drops and bonuses are a best effort,
+                // whatever doesn't fit in the output slots is lost
+                for (ItemStack output : outputs) {
+                    int left = output.getCount();
                     for (int slot = OUTPUT_START; slot < OUTPUT_START + OUTPUT_SIZE && left > 0; slot++) {
-                        left -= inventory.insert(slot, ItemResource.of(bonus), left, tx);
+                        left -= inventory.insert(slot, ItemResource.of(output), left, tx);
                     }
                 }
                 tx.commit();
             }
         });
+    }
+
+    private boolean hasOutputSpace() {
+        for (int slot = OUTPUT_START; slot < OUTPUT_START + OUTPUT_SIZE; slot++) {
+            ItemStack stack = ItemUtil.getStack(inventory, slot);
+            if (stack.isEmpty() || stack.getCount() < stack.getMaxStackSize()) return true;
+        }
+        return false;
+    }
+
+    /** Simulated mining: rolls the loot tables as if the block was broken with the caps' fortune and silk touch. */
+    private List<ItemStack> rollLoot(CraftingResult.Loot loot, EffectTotals totals) {
+        ServerLevel serverLevel = (ServerLevel) level;
+        ItemStack tool = miningTool(serverLevel);
+        net.minecraft.util.RandomSource random = serverLevel.getRandom();
+        List<ItemStack> drops = new ArrayList<>();
+
+        int rolls = totals.outputCount(loot.rolls());
+        for (int i = 0; i < rolls; i++) {
+            Identifier tableId = loot.tables().get(random.nextInt(loot.tables().size()));
+            net.minecraft.world.level.storage.loot.LootTable table = serverLevel.getServer().reloadableRegistries()
+                    .getLootTable(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE, tableId));
+
+            net.minecraft.world.level.storage.loot.LootParams params = new net.minecraft.world.level.storage.loot.LootParams.Builder(serverLevel)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, net.minecraft.world.phys.Vec3.atCenterOf(getBlockPos()))
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.TOOL, tool)
+                    .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_STATE, blockStateFor(tableId))
+                    .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.BLOCK);
+
+            drops.addAll(table.getRandomItems(params, random));
+        }
+        return drops;
+    }
+
+    private ItemStack miningTool(ServerLevel serverLevel) {
+        ItemStack tool = new ItemStack(net.minecraft.world.item.Items.DIAMOND_PICKAXE);
+        net.minecraft.core.HolderLookup.RegistryLookup<net.minecraft.world.item.enchantment.Enchantment> enchantments =
+                serverLevel.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+
+        if (capEffects.fortune() > 0) tool.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FORTUNE), capEffects.fortune());
+        if (capEffects.silkTouch()) tool.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH), 1);
+        return tool;
+    }
+
+    private static BlockState blockStateFor(Identifier lootTable) {
+        String path = lootTable.getPath();
+        if (!path.startsWith("blocks/")) return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+
+        return net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                .getOptional(Identifier.fromNamespaceAndPath(lootTable.getNamespace(), path.substring("blocks/".length())))
+                .map(net.minecraft.world.level.block.Block::defaultBlockState)
+                .orElse(net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+    }
+
+    /** Sends the cap positions of the structure this controller is built as, so they are outlined in the world. */
+    public void toggleCapOutlines(Player player) {
+        if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) return;
+
+        com.benbenlaw.multiblocks.structure.StructurePattern pattern = activeStructureId == null ? null
+                : com.benbenlaw.multiblocks.structure.StructureManager.INSTANCE.get(activeStructureId);
+        if (pattern == null) {
+            player.sendOverlayMessage(Component.translatable("message.bblmultiblocks.build_structure_first"));
+            return;
+        }
+
+        BlockPos origin = getBlockPos();
+        List<BlockPos> positions = new ArrayList<>();
+        for (net.minecraft.core.Vec3i cap : pattern.compile().caps()) positions.add(origin.offset(cap));
+
+        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer,
+                new com.benbenlaw.multiblocks.network.CapOutlinesPacket(origin, positions));
     }
 
     private void take(int slot, int amount, Transaction tx) {

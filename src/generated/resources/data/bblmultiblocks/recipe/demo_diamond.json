@@ -29,7 +29,11 @@
     "CCC",
     "CCC"
   ],
-  "result": {
-    "id": "minecraft:diamond"
-  }
+  "result": [
+    {
+      "item": {
+        "id": "minecraft:diamond"
+      }
+    }
+  ]
 }

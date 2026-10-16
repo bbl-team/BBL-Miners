@@ -11,6 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
+import java.util.List;
 import java.util.Optional;
 
 /** One Crafting Controller recipe for the client's JEI category, with the pattern of the structure it needs (if any). */
@@ -18,12 +19,13 @@ public record CraftingPreviewPacket(int index, int total, Preview preview) imple
 
     public static final Type<CraftingPreviewPacket> TYPE = new Type<>(Multiblocks.identifier("crafting_preview"));
 
-    public record Preview(Identifier recipeId, ControllerCraftingRecipe recipe, Optional<StructurePattern> pattern) {
+    public record Preview(Identifier recipeId, ControllerCraftingRecipe recipe, Optional<StructurePattern> pattern, List<LootDrop> drops) {
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Preview> STREAM_CODEC = StreamCodec.composite(
                 Identifier.STREAM_CODEC, Preview::recipeId,
                 ControllerCraftingRecipe.STREAM_CODEC, Preview::recipe,
                 ByteBufCodecs.optional(ByteBufCodecs.fromCodecWithRegistries(StructurePattern.CODEC)), Preview::pattern,
+                LootDrop.STREAM_CODEC.apply(ByteBufCodecs.list()), Preview::drops,
                 Preview::new
         );
     }

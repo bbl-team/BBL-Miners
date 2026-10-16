@@ -1,11 +1,14 @@
 package com.benbenlaw.multiblocks.integration.jei;
 
+import com.benbenlaw.core.recipe.ChanceResult;
 import com.benbenlaw.multiblocks.Multiblocks;
 import com.benbenlaw.multiblocks.block.custom.CraftingControllerBlock;
 import com.benbenlaw.multiblocks.client.StructurePreviewBuilder;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderState;
 import com.benbenlaw.multiblocks.client.StructurePreviewRenderer;
 import com.benbenlaw.multiblocks.network.CraftingPreviewPacket;
+import com.benbenlaw.multiblocks.network.LootDrop;
+import com.benbenlaw.multiblocks.recipe.CraftingResult;
 import com.benbenlaw.multiblocks.recipe.ControllerCraftingRecipe;
 import com.benbenlaw.multiblocks.recipe.ItemEffect;
 import com.benbenlaw.multiblocks.recipe.ExtraItem;
@@ -15,7 +18,9 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -48,16 +53,18 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         return TYPES.computeIfAbsent(controller, id -> IRecipeType.create(id, Entry.class));
     }
 
-    private static final int WIDTH = 176;
+    private static final int WIDTH = 188;
     private static final int HEIGHT = 152;
 
-    private static final int RESULT_X = 86;
-    private static final int RESULT_Y = 18;
+    private static final int RESULT_X = 88;
+    private static final int RESULT_Y = 0;
+    private static final int RESULT_COLUMNS = 2;
+    private static final int RESULT_ROWS = 3;
     private static final int ARROW_X = 60;
     private static final int ARROW_Y = 19;
 
-    private static final int VIEW_X = 112;
-    private static final int VIEW_WIDTH = 64;
+    private static final int VIEW_X = 128;
+    private static final int VIEW_WIDTH = 60;
     private static final int VIEW_HEIGHT = 54;
 
     private static final int REQUIRED_LABEL_Y = 58;
@@ -137,7 +144,33 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         }
 
         // the result
-        builder.addOutputSlot(RESULT_X, RESULT_Y).setStandardSlotBackground().add(recipe.result().create());
+        // every result gets its own slot. They are placed in a scrolling grid in createRecipeExtras
+        if (recipe.result() instanceof CraftingResult.Items items) {
+            for (ChanceResult chanceResult : items.results()) {
+                IRecipeSlotBuilder slot = builder.addOutputSlot().setStandardSlotBackground();
+                slot.add(chanceResult.template().create());
+                if (chanceResult.chance() < 1.0f) {
+                    slot.addRichTooltipCallback((view, tooltip) -> tooltip.add(
+                            Component.translatable("jei.bblmultiblocks.chance", formatChance(chanceResult.chance())).withStyle(ChatFormatting.GRAY)));
+                }
+            }
+        } else {
+            // a loot table result: one slot per possible drop, the tooltip tells the count and chance
+            for (LootDrop drop : entry.preview().drops()) {
+                IRecipeSlotBuilder slot = builder.addOutputSlot().setStandardSlotBackground();
+                if (drop.variants().isEmpty()) slot.add(drop.stack());
+                else drop.variants().forEach(slot::add);
+
+                slot.addRichTooltipCallback((view, tooltip) -> {
+                    String count = drop.min() == drop.max() ? String.valueOf(drop.min()) : drop.min() + "-" + drop.max();
+                    tooltip.add(Component.translatable("jei.bblmultiblocks.count", count).withStyle(ChatFormatting.GRAY));
+                    tooltip.add(Component.translatable("jei.bblmultiblocks.chance", formatChance(drop.chance())).withStyle(ChatFormatting.GRAY));
+                    for (Component note : drop.notes()) {
+                        tooltip.add(Component.literal("- ").append(note).withStyle(ChatFormatting.DARK_AQUA));
+                    }
+                });
+            }
+        }
 
         // extra items are inputs whether or not they get used up; the tooltip says which
         addExtraRow(builder, recipe, true, REQUIRED_Y);
@@ -187,6 +220,14 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
     public void createRecipeExtras(IRecipeExtrasBuilder builder, Entry entry, IFocusGroup focuses) {
         builder.addAnimatedRecipeArrow(Math.max(20, entry.preview().recipe().baseDuration()))
                 .setPosition(ARROW_X, ARROW_Y);
+
+        // the results come first among the output slots, the slots for extra item outputs (placed by hand) come after them
+        int resultCount = resultCount(entry);
+        List<IRecipeSlotDrawable> outputSlots = builder.getRecipeSlots().getSlots(RecipeIngredientRole.OUTPUT);
+        if (resultCount > 0) {
+            builder.addScrollGridWidget(outputSlots.subList(0, Math.min(resultCount, outputSlots.size())), RESULT_COLUMNS, RESULT_ROWS)
+                    .setPosition(RESULT_X, RESULT_Y);
+        }
     }
 
     @Override
@@ -241,6 +282,19 @@ public class CraftingControllerCategory implements IRecipeCategory<CraftingContr
         if (mouseX < VIEW_X || mouseX > VIEW_X + VIEW_WIDTH || mouseY < 0 || mouseY > VIEW_HEIGHT) return;
 
         tooltip.addAll(StructureTooltip.lines(entry.preview().pattern().get(), block.getName()));
+    }
+
+    private static int resultCount(Entry entry) {
+        return entry.preview().recipe().result() instanceof CraftingResult.Items items
+                ? items.results().size()
+                : entry.preview().drops().size();
+    }
+
+    private static String formatChance(float chance) {
+        float percent = chance * 100f;
+        if (percent >= 10f) return String.format("%.0f%%", percent);
+        if (percent >= 1f) return String.format("%.1f%%", percent);
+        return String.format("%.2f%%", Math.max(percent, 0.01f));
     }
 
     private static boolean hasExtraOutputs(ControllerCraftingRecipe recipe) {

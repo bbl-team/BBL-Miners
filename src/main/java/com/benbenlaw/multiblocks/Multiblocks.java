@@ -6,7 +6,6 @@ import com.benbenlaw.multiblocks.item.MultiblocksCreativeTab;
 import com.benbenlaw.multiblocks.item.MultiblocksItems;
 import com.benbenlaw.multiblocks.recipe.MultiblocksRecipeTypes;
 import com.benbenlaw.multiblocks.screen.CraftingControllerScreen;
-import com.benbenlaw.multiblocks.screen.MinerControllerScreen;
 import com.benbenlaw.multiblocks.screen.MultiblocksMenuTypes;
 import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
@@ -50,7 +49,6 @@ public class Multiblocks {
 
         @SubscribeEvent
         public static void registerScreens(RegisterMenuScreensEvent event) {
-            event.register(MultiblocksMenuTypes.MINER_CONTROLLER_MENU.get(), MinerControllerScreen::new);
             event.register(MultiblocksMenuTypes.CRAFTING_CONTROLLER_MENU.get(), CraftingControllerScreen::new);
 
         }

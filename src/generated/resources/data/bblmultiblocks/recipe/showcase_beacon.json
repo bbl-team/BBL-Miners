@@ -133,8 +133,12 @@
     "GNG",
     "DDD"
   ],
-  "result": {
-    "id": "minecraft:beacon"
-  },
+  "result": [
+    {
+      "item": {
+        "id": "minecraft:beacon"
+      }
+    }
+  ],
   "structure_id": "bblmultiblocks:showcase_altar"
 }
